@@ -17,6 +17,7 @@ export default function RootLayout({
           name="talentapp:project_verification"
           content="7484bc8aab7a80329d9a68fc559aad005ce48622f2bdea6131807097a49770a9c78661ef758841b68a2265853274175de292dff70ca314ced5dbb4232fd6d140"
         />
+        <link rel="icon" href="/favicon.png" />
       </head>
 
       <body>
