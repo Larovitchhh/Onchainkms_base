@@ -1,6 +1,6 @@
-export const contractAddress = "0x03c1539C6886c07166d33B1b2D80B66852253Aa1"
+export const CONTRACT_ADDRESS = "0x03c1539C6886c07166d33B1b2D80B66852253Aa1"
 
-export const contractABI = [
+export const CONTRACT_ABI = [
  {
   name:"mintActivity",
   type:"function",
