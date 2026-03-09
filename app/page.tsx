@@ -1,4 +1,5 @@
 import ActivityForm from "../components/ActivityForm"
+import ConnectWallet from "../components/ConnectWallet"
 
 export default function Home() {
 
@@ -13,6 +14,8 @@ export default function Home() {
         <p>
           Track your sport activity onchain and earn XP
         </p>
+
+        <ConnectWallet />
 
       </div>
 
