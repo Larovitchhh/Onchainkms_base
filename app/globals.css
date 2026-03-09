@@ -5,11 +5,15 @@ body{
   min-height:100vh;
 }
 
+/* layout principal */
+
 .container{
   max-width:700px;
   margin:auto;
   padding:40px 20px;
 }
+
+/* cabecera */
 
 .hero{
   text-align:center;
@@ -27,6 +31,8 @@ body{
   opacity:0.9;
 }
 
+/* tarjeta formulario */
+
 .card{
   background:white;
   padding:30px;
@@ -34,13 +40,36 @@ body{
   box-shadow:0 10px 30px rgba(0,0,0,0.15);
 }
 
+/* formulario */
+
+.form{
+  margin-top:10px;
+}
+
+.form h3{
+  margin-bottom:20px;
+}
+
+/* inputs */
+
 input,select{
   width:100%;
   padding:12px;
   border-radius:8px;
   border:1px solid #ddd;
   font-size:16px;
+  margin-bottom:15px;
 }
+
+/* XP */
+
+.xp{
+  font-size:18px;
+  color:#1e3a8a;
+  margin-bottom:20px;
+}
+
+/* botones */
 
 button{
   background:#0ea5e9;
