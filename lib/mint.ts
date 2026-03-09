@@ -1,4 +1,4 @@
-import { ethers } from "ethers"
+import { Contract } from "ethers"
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from "./contract"
 import { getWallet } from "./wallet"
 
@@ -12,9 +12,9 @@ export async function mintActivity(activity:Activity,xp:number){
 
  try{
 
-  const {signer,address} = await getWallet()
+  const { signer, address } = await getWallet()
 
-  const contract = new ethers.Contract(
+  const contract = new Contract(
    CONTRACT_ADDRESS,
    CONTRACT_ABI,
    signer
