@@ -8,12 +8,12 @@ export default function ConnectWallet(){
 
  async function connect(){
 
-  if(!window.ethereum){
+  if(!(window as any).ethereum){
    alert("Install MetaMask")
    return
   }
 
-  const accounts = await window.ethereum.request({
+  const accounts = await (window as any).ethereum.request({
    method:"eth_requestAccounts"
   })
 
@@ -23,14 +23,20 @@ export default function ConnectWallet(){
 
  return(
 
-  <div>
+  <div style={{marginTop:"20px"}}>
 
    {account ? (
-    <p>Connected: {account.slice(0,6)}...{account.slice(-4)}</p>
+
+    <p>
+     Connected: {account.slice(0,6)}...{account.slice(-4)}
+    </p>
+
    ):(
+
     <button onClick={connect}>
      Connect Wallet
     </button>
+
    )}
 
   </div>
