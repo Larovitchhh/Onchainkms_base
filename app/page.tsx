@@ -1,31 +1,20 @@
-import ActivityForm from "../components/ActivityForm"
 import ConnectWallet from "../components/ConnectWallet"
+import ActivityForm from "../components/ActivityForm"
 
-export default function Home() {
+export default function Home(){
 
-  return (
+ return(
 
-    <main className="container">
+  <main style={{padding:40}}>
 
-      <div className="hero">
+   <h1>Onchain Sports</h1>
 
-        <h1>onchainKms</h1>
+   <ConnectWallet/>
 
-        <p>
-          Track your sport activity onchain and earn XP
-        </p>
+   <ActivityForm/>
 
-        <ConnectWallet />
+  </main>
 
-      </div>
+ )
 
-      <div className="card">
-
-        <ActivityForm />
-
-      </div>
-
-    </main>
-
-  )
 }
