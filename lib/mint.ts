@@ -1,28 +1,43 @@
 import { ethers } from "ethers"
-import { contractAddress, contractABI } from "./contract"
+import { CONTRACT_ADDRESS, CONTRACT_ABI } from "./contract"
 
-export async function mintActivity(data:any){
+export async function mintActivity(activity:any, xp:number){
 
- const provider = new ethers.BrowserProvider(window.ethereum)
+ if(!(window as any).ethereum){
+  alert("Connect wallet first")
+  return
+ }
 
- const signer = await provider.getSigner()
+ try{
 
- const contract = new ethers.Contract(
-  contractAddress,
-  contractABI,
-  signer
- )
+  const provider = new ethers.BrowserProvider((window as any).ethereum)
 
- const tx = await contract.mintActivity(
-  data.user,
-  data.xp,
-  data.distance,
-  data.duration,
-  data.elevation
- )
+  const signer = await provider.getSigner()
 
- await tx.wait()
+  const contract = new ethers.Contract(
+   CONTRACT_ADDRESS,
+   CONTRACT_ABI,
+   signer
+  )
 
- alert("Activity minted!")
+  const tx = await contract.mintActivity(
+   activity.sport,
+   activity.distance,
+   activity.elevation,
+   activity.duration,
+   xp
+  )
+
+  await tx.wait()
+
+  alert("Activity minted!")
+
+ }catch(err){
+
+  console.error(err)
+
+  alert("Mint failed")
+
+ }
 
 }
