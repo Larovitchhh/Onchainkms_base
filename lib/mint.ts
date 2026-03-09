@@ -14,55 +14,29 @@ export async function mintActivity(activity:Activity,xp:number){
 
   const {signer,address} = await getWallet()
 
-  console.log("Wallet:", address)
-  console.log("Contract:", CONTRACT_ADDRESS)
-  console.log("Activity:", activity)
-  console.log("XP:", xp)
-
   const contract = new ethers.Contract(
    CONTRACT_ADDRESS,
    CONTRACT_ABI,
    signer
   )
 
-  console.log("Sending transaction...")
-
   const tx = await contract.mintActivity(
    address,
-   xp,
    activity.distance,
-   activity.duration,
-   activity.elevation
+   xp,
+   "manual_activity",
+   "ipfs://activity"
   )
-
-  console.log("TX sent:", tx.hash)
 
   await tx.wait()
 
-  console.log("TX confirmed")
-
   alert("Activity minted!")
-
-  return true
 
  }catch(err:any){
 
-  console.error("MINT ERROR FULL:", err)
+  console.error(err)
 
-  if(err?.reason){
-   alert("Mint failed: " + err.reason)
-  }
-  else if(err?.shortMessage){
-   alert("Mint failed: " + err.shortMessage)
-  }
-  else if(err?.message){
-   alert("Mint failed: " + err.message)
-  }
-  else{
-   alert("Mint failed. Check console.")
-  }
-
-  throw err
+  alert(err.reason || err.message || "Mint failed")
 
  }
 
