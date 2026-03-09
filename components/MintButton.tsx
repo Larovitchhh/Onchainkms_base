@@ -8,29 +8,12 @@ export default function MintButton({activity,xp}:any){
 
   try{
 
-   if(!(window as any).ethereum){
-    alert("Install MetaMask")
-    return
-   }
+   await mintActivity(activity,xp)
 
-   const user = (window as any).ethereum.selectedAddress
-
-   if(!user){
-    alert("Connect wallet first")
-    return
-   }
-
-   await mintActivity({
-    user,
-    xp,
-    distance:activity.distance,
-    duration:activity.duration,
-    elevation:activity.elevation
-   })
+   alert("Activity minted!")
 
   }catch(err){
 
-   console.error(err)
    alert("Mint failed")
 
   }
@@ -43,7 +26,7 @@ export default function MintButton({activity,xp}:any){
    onClick={handleMint}
    style={{
     padding:"10px 20px",
-    background:"#0052FF",
+    background:"#16a34a",
     color:"white",
     border:"none",
     borderRadius:"8px",
