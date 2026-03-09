@@ -1,45 +1,53 @@
 "use client"
 
 import { useState } from "react"
+import { getWallet } from "../lib/wallet"
 
 export default function ConnectWallet(){
 
- const [account,setAccount] = useState<string | null>(null)
+ const [address,setAddress] = useState<string>("")
 
  async function connect(){
 
-  if(!(window as any).ethereum){
-   alert("Install MetaMask")
-   return
+  try{
+
+   const wallet = await getWallet()
+
+   setAddress(wallet.address)
+
+  }catch(err){
+
+   alert("Wallet connection failed")
+
   }
 
-  const accounts = await (window as any).ethereum.request({
-   method:"eth_requestAccounts"
-  })
+ }
 
-  setAccount(accounts[0])
+ if(address){
+
+  return(
+   <div>
+    Connected: {address.slice(0,6)}...{address.slice(-4)}
+   </div>
+  )
 
  }
 
  return(
 
-  <div style={{marginTop:"20px"}}>
-
-   {account ? (
-
-    <p>
-     Connected: {account.slice(0,6)}...{account.slice(-4)}
-    </p>
-
-   ):(
-
-    <button onClick={connect}>
-     Connect Wallet
-    </button>
-
-   )}
-
-  </div>
+  <button
+   onClick={connect}
+   style={{
+    padding:"10px 20px",
+    background:"#0052FF",
+    color:"white",
+    border:"none",
+    borderRadius:"8px",
+    cursor:"pointer"
+   }}
+  >
+   Connect Wallet
+  </button>
 
  )
 
