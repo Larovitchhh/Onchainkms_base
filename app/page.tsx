@@ -3,6 +3,7 @@ import ActivityForm from "../components/ActivityForm"
 export default function Home() {
 
   return (
+
     <main className="container">
 
       <div className="hero">
@@ -22,5 +23,6 @@ export default function Home() {
       </div>
 
     </main>
+
   )
 }
