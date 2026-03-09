@@ -1,58 +1,49 @@
 "use client"
 
 import { useState } from "react"
-import { calculateXP } from "../lib/xpCalculator"
 import MintButton from "./MintButton"
 
 export default function ActivityForm(){
 
- const [activity,setActivity] = useState({
-  sport:"running",
-  distance:0,
-  elevation:0,
-  duration:0
- })
+ const [distance,setDistance] = useState(0)
+ const [duration,setDuration] = useState(0)
+ const [elevation,setElevation] = useState(0)
 
- const xp = calculateXP(activity.sport, activity.distance)
+ const xp = distance * 10
+
+ const activity = {
+  distance,
+  duration,
+  elevation
+ }
 
  return(
 
-  <div className="form">
-
-   <h3>Register activity</h3>
-
-   <select
-    onChange={(e)=>setActivity({...activity,sport:e.target.value})}
-   >
-    <option value="swimming">Natación</option>
-    <option value="running">Running</option>
-    <option value="mtb">MTB</option>
-    <option value="road">Bici carretera</option>
-   </select>
+  <div style={{marginTop:30}}>
 
    <input
+    placeholder="Distance (km)"
     type="number"
-    placeholder="Distancia km"
-    onChange={(e)=>setActivity({...activity,distance:Number(e.target.value)})}
+    onChange={(e)=>setDistance(Number(e.target.value))}
    />
+
+   <br/>
 
    <input
+    placeholder="Duration (min)"
     type="number"
-    placeholder="Desnivel metros"
-    onChange={(e)=>setActivity({...activity,elevation:Number(e.target.value)})}
+    onChange={(e)=>setDuration(Number(e.target.value))}
    />
+
+   <br/>
 
    <input
+    placeholder="Elevation (m)"
     type="number"
-    placeholder="Duración minutos"
-    onChange={(e)=>setActivity({...activity,duration:Number(e.target.value)})}
+    onChange={(e)=>setElevation(Number(e.target.value))}
    />
 
-   <div className="xp">
-
-    <b>XP: {xp}</b>
-
-   </div>
+   <br/><br/>
 
    <MintButton
     activity={activity}
