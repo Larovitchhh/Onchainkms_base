@@ -17,7 +17,7 @@ export default function ActivityForm(){
 
  return(
 
-  <div style={{marginTop:"30px"}}>
+  <div className="form">
 
    <h3>Register activity</h3>
 
@@ -30,15 +30,11 @@ export default function ActivityForm(){
     <option value="road">Bici carretera</option>
    </select>
 
-   <br/><br/>
-
    <input
     type="number"
     placeholder="Distancia km"
     onChange={(e)=>setActivity({...activity,distance:Number(e.target.value)})}
    />
-
-   <br/><br/>
 
    <input
     type="number"
@@ -46,19 +42,17 @@ export default function ActivityForm(){
     onChange={(e)=>setActivity({...activity,elevation:Number(e.target.value)})}
    />
 
-   <br/><br/>
-
    <input
     type="number"
     placeholder="Duración minutos"
     onChange={(e)=>setActivity({...activity,duration:Number(e.target.value)})}
    />
 
-   <br/><br/>
+   <div className="xp">
 
-   <b>XP: {xp}</b>
+    <b>XP: {xp}</b>
 
-   <br/><br/>
+   </div>
 
    <MintButton
     activity={activity}
