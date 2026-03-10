@@ -1,11 +1,31 @@
-export function calculateXP(type:string, kms:number){
+type ActivityType =
+ | "swim"
+ | "run"
+ | "mtb"
+ | "road"
 
- const multipliers:any = {
-  swimming:20,
-  running:10,
-  mtb:2,
-  road:1
- }
+export function calculateXP(
+ type:ActivityType,
+ distance:number,
+ duration:number,
+ elevation:number
+){
 
- return kms * multipliers[type]
+ let multiplier = 1
+
+ if(type === "swim") multiplier = 20
+ if(type === "run") multiplier = 5
+ if(type === "mtb") multiplier = 2
+ if(type === "road") multiplier = 1
+
+ const baseXP = distance * multiplier
+
+ const durationBonus = Math.floor(duration / 60) * 30
+
+ const elevationBonus = Math.floor(elevation / 100) * 20
+
+ const totalXP =
+  Math.floor(baseXP + durationBonus + elevationBonus)
+
+ return totalXP
 }
