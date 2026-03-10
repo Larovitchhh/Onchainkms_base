@@ -1,4 +1,4 @@
-import { Contract } from "ethers"
+import { ethers } from "ethers"
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from "./contract"
 import { getWallet } from "./wallet"
 
@@ -8,17 +8,25 @@ type Activity = {
  elevation:number
 }
 
-export async function mintActivity(activity:Activity,xp:number){
+export async function mintActivity(activity:Activity, xp:number){
+
+ console.log("mintActivity called")
+ console.log("activity:",activity)
+ console.log("xp:",xp)
 
  try{
 
-  const { signer, address } = await getWallet()
+  const {signer,address} = await getWallet()
 
-  const contract = new Contract(
+  console.log("wallet connected:",address)
+
+  const contract = new ethers.Contract(
    CONTRACT_ADDRESS,
    CONTRACT_ABI,
    signer
   )
+
+  console.log("sending transaction...")
 
   const tx = await contract.mintActivity(
    address,
@@ -28,13 +36,17 @@ export async function mintActivity(activity:Activity,xp:number){
    "ipfs://activity"
   )
 
+  console.log("tx sent:",tx)
+
   await tx.wait()
+
+  console.log("tx confirmed")
 
   alert("Activity minted!")
 
  }catch(err:any){
 
-  console.error(err)
+  console.error("mint error:",err)
 
   alert(err.reason || err.message || "Mint failed")
 
