@@ -1,10 +1,25 @@
+"use client";
 
+import React, { useState } from "react";
+
+/**
+ * NOTA ARQUITECTÓNICA:
+ * Para resolver los errores de "Module not found" de @stacks/connect y @stacks/network
+ * en entornos de construcción sin estas dependencias, utilizamos una simulación.
+ * Esto mantiene la UI funcional y permite que el despliegue en Vercel sea exitoso.
+ */
+
+// --- Tipos y Constantes ---
+type ActivityType = "run" | "swim" | "mtb" | "road";
+
+interface ActivityData {
+  type: ActivityType;
   distance: number;
   duration: number;
   elevation: number;
 }
 
-// --- Logic Helpers ---
+// --- Ayudantes de Lógica ---
 const calculateXP = (data: ActivityData): number => {
   const { type, distance, duration, elevation } = data;
   let baseXP = 0;
@@ -18,14 +33,14 @@ const calculateXP = (data: ActivityData): number => {
   return Math.round(baseXP + duration * 0.5);
 };
 
-// --- Sub-components (Integrated to avoid import errors) ---
+// --- Sub-componentes Integrados ---
 
 const MintButtonBase = ({ xp }: { xp: number }) => {
   const [status, setStatus] = useState<"idle" | "loading" | "success">("idle");
 
   const handleMint = () => {
     setStatus("loading");
-    // Simulate Base L2 Transaction
+    // Simulación de Transacción en Base L2
     setTimeout(() => setStatus("success"), 2000);
   };
 
@@ -56,7 +71,7 @@ const MintStacksButton = ({ xp }: { xp: number }) => {
 
   const handleMint = () => {
     setStatus("loading");
-    // Simulate Stacks/BTC Contract Call
+    // Simulación de llamada a contrato en Stacks (Bitcoin Layer)
     console.log("Iniciando llamada a contrato en Stacks para XP:", xp);
     setTimeout(() => setStatus("success"), 2500);
   };
@@ -83,7 +98,7 @@ const MintStacksButton = ({ xp }: { xp: number }) => {
   );
 };
 
-// --- Main App Component ---
+// --- Componente Principal ---
 
 export default function App() {
   const [activity, setActivity] = useState<ActivityData>({
@@ -97,14 +112,14 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0c] text-white font-sans selection:bg-blue-500/30">
-      {/* Background Decor */}
+      {/* Decoración de Fondo */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-900/20 blur-[120px] rounded-full" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-orange-900/10 blur-[120px] rounded-full" />
       </div>
 
       <main className="relative z-10 max-w-lg mx-auto px-6 py-12">
-        {/* Header */}
+        {/* Encabezado */}
         <header className="text-center mb-10">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-tr from-blue-600 to-cyan-400 shadow-[0_0_40px_rgba(37,99,235,0.4)] mb-6 transform -rotate-3">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
@@ -113,10 +128,10 @@ export default function App() {
           <p className="text-gray-400 font-medium">Libera el poder de tus entrenamientos</p>
         </header>
 
-        {/* Form Card */}
+        {/* Tarjeta de Formulario */}
         <div className="bg-[#16161a] border border-white/5 rounded-[2.5rem] p-8 shadow-2xl backdrop-blur-sm">
           <div className="space-y-6">
-            {/* Sport Select */}
+            {/* Selección de Deporte */}
             <div>
               <label className="block text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-3 ml-1">Actividad</label>
               <div className="grid grid-cols-2 gap-2">
@@ -136,7 +151,7 @@ export default function App() {
               </div>
             </div>
 
-            {/* Numeric Inputs */}
+            {/* Entradas Numéricas */}
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
                 <label className="block text-[10px] font-black text-gray-500 uppercase mb-2">Distancia (km)</label>
@@ -169,7 +184,7 @@ export default function App() {
               />
             </div>
 
-            {/* XP Display */}
+            {/* Visualización de XP */}
             <div className="py-8 border-y border-white/5 flex flex-col items-center justify-center">
               <span className="text-[10px] font-black text-blue-500 uppercase tracking-[0.3em] mb-2">Recompensa Estimada</span>
               <div className="flex items-baseline gap-2">
@@ -178,7 +193,7 @@ export default function App() {
               </div>
             </div>
 
-            {/* Action Buttons */}
+            {/* Botones de Acción */}
             <div className="space-y-4 pt-2">
               <MintButtonBase xp={currentXP} />
               <MintStacksButton xp={currentXP} />
@@ -188,7 +203,7 @@ export default function App() {
 
         <footer className="mt-12 text-center">
           <p className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">
-            Powered by Base & Stacks • Secure Protocol v1.4
+            Powered by Base & Stacks • Protocolo Seguro v1.4
           </p>
         </footer>
       </main>
