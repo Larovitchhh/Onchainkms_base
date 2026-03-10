@@ -1,15 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 /**
- * NOTA ARQUITECTÓNICA:
- * Para resolver los errores de "Module not found" de @stacks/connect y @stacks/network
- * en entornos de construcción sin estas dependencias, utilizamos una simulación.
- * Esto mantiene la UI funcional y permite que el despliegue en Vercel sea exitoso.
+ * SOLUCIÓN AL ERROR DE COMPILACIÓN:
+ * Para evitar "Module not found" en Vercel, hemos consolidado el código
+ * y eliminado las dependencias problemáticas de la construcción estática.
  */
 
-// --- Tipos y Constantes ---
+// --- Tipos ---
 type ActivityType = "run" | "swim" | "mtb" | "road";
 
 interface ActivityData {
@@ -19,7 +18,7 @@ interface ActivityData {
   elevation: number;
 }
 
-// --- Ayudantes de Lógica ---
+// --- Lógica de Negocio ---
 const calculateXP = (data: ActivityData): number => {
   const { type, distance, duration, elevation } = data;
   let baseXP = 0;
@@ -30,76 +29,64 @@ const calculateXP = (data: ActivityData): number => {
     case "road": baseXP = distance * 3 + elevation * 0.05; break;
     default: baseXP = 0;
   }
-  return Math.round(baseXP + duration * 0.5);
+  return Math.round(baseXP + (duration || 0) * 0.5);
 };
 
-// --- Sub-componentes Integrados ---
-
-const MintButtonBase = ({ xp }: { xp: number }) => {
+// --- Componente de Botón Base (L2) ---
+const MintBaseButton = ({ xp }: { xp: number }) => {
   const [status, setStatus] = useState<"idle" | "loading" | "success">("idle");
 
   const handleMint = () => {
+    if (xp <= 0) return;
     setStatus("loading");
-    // Simulación de Transacción en Base L2
+    // Simulación de transacción en Base
     setTimeout(() => setStatus("success"), 2000);
   };
 
   return (
     <button 
       onClick={handleMint}
-      disabled={status !== "idle"}
+      disabled={status !== "idle" || xp <= 0}
       className={`w-full font-bold py-4 px-6 rounded-2xl transition-all shadow-lg flex items-center justify-center gap-3 ${
-        status === "success" ? "bg-green-500 text-white" : "bg-blue-600 hover:bg-blue-700 text-white"
+        status === "success" ? "bg-green-500 text-white" : "bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
       }`}
     >
-      {status === "loading" ? (
-        <span className="animate-pulse">Procesando en Base...</span>
-      ) : status === "success" ? (
-        "¡Mint Exitoso! (L2)"
-      ) : (
-        <>
-          <span>Mint en Base</span>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-        </>
-      )}
+      {status === "loading" ? "Procesando en Base..." : status === "success" ? "¡Mint Exitoso!" : "Mint en Base"}
     </button>
   );
 };
 
+// --- Componente de Botón Stacks (BTC L2) ---
 const MintStacksButton = ({ xp }: { xp: number }) => {
   const [status, setStatus] = useState<"idle" | "loading" | "success">("idle");
 
-  const handleMint = () => {
+  const handleMint = async () => {
+    if (xp <= 0) return;
     setStatus("loading");
-    // Simulación de llamada a contrato en Stacks (Bitcoin Layer)
-    console.log("Iniciando llamada a contrato en Stacks para XP:", xp);
-    setTimeout(() => setStatus("success"), 2500);
+    
+    // NOTA: Para producción, aquí se usaría dynamic import o @stacks/connect
+    // Por ahora, simulamos el éxito para permitir el despliegue en Vercel
+    console.log(`Iniciando registro en Stacks para ${xp} XP`);
+    
+    setTimeout(() => {
+      setStatus("success");
+    }, 2500);
   };
 
   return (
     <button 
       onClick={handleMint}
-      disabled={status !== "idle"}
+      disabled={status !== "idle" || xp <= 0}
       className={`w-full font-bold py-4 px-6 rounded-2xl transition-all shadow-lg flex items-center justify-center gap-3 ${
-        status === "success" ? "bg-orange-400 text-white" : "bg-orange-500 hover:bg-orange-600 text-white"
+        status === "success" ? "bg-orange-400 text-white" : "bg-orange-500 hover:bg-orange-600 text-white disabled:opacity-50"
       }`}
     >
-      {status === "loading" ? (
-        <span className="animate-pulse">Llamando a Hiro Wallet...</span>
-      ) : status === "success" ? (
-        "¡Registrado en Bitcoin!"
-      ) : (
-        <>
-          <span>Mint en Stacks</span>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-        </>
-      )}
+      {status === "loading" ? "Conectando Hiro..." : status === "success" ? "¡Registrado en BTC!" : "Mint en Stacks"}
     </button>
   );
 };
 
-// --- Componente Principal ---
-
+// --- App Principal ---
 export default function App() {
   const [activity, setActivity] = useState<ActivityData>({
     type: "run",
@@ -108,105 +95,82 @@ export default function App() {
     elevation: 0
   });
 
-  const currentXP = calculateXP(activity);
+  const [currentXP, setCurrentXP] = useState(0);
+
+  useEffect(() => {
+    setCurrentXP(calculateXP(activity));
+  }, [activity]);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0c] text-white font-sans selection:bg-blue-500/30">
-      {/* Decoración de Fondo */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-900/20 blur-[120px] rounded-full" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-orange-900/10 blur-[120px] rounded-full" />
-      </div>
-
-      <main className="relative z-10 max-w-lg mx-auto px-6 py-12">
-        {/* Encabezado */}
-        <header className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-tr from-blue-600 to-cyan-400 shadow-[0_0_40px_rgba(37,99,235,0.4)] mb-6 transform -rotate-3">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+    <div className="min-h-screen bg-[#0a0a0c] text-white font-sans flex items-center justify-center p-4">
+      <div className="max-w-md w-full">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="inline-block p-3 bg-blue-600 rounded-2xl mb-4 shadow-xl shadow-blue-500/20">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
           </div>
-          <h1 className="text-4xl font-black tracking-tight mb-2 italic">ONCHAIN<span className="text-blue-500">KMS</span></h1>
-          <p className="text-gray-400 font-medium">Libera el poder de tus entrenamientos</p>
-        </header>
+          <h1 className="text-3xl font-black italic">ONCHAIN<span className="text-blue-500">KMS</span></h1>
+          <p className="text-gray-500 text-sm">Convierte tu esfuerzo en activos on-chain</p>
+        </div>
 
-        {/* Tarjeta de Formulario */}
-        <div className="bg-[#16161a] border border-white/5 rounded-[2.5rem] p-8 shadow-2xl backdrop-blur-sm">
+        {/* Card */}
+        <div className="bg-[#16161a] border border-white/5 rounded-[2.5rem] p-8 shadow-2xl">
           <div className="space-y-6">
-            {/* Selección de Deporte */}
-            <div>
-              <label className="block text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-3 ml-1">Actividad</label>
-              <div className="grid grid-cols-2 gap-2">
-                {(["run", "swim", "mtb", "road"] as ActivityType[]).map((t) => (
-                  <button
-                    key={t}
-                    onClick={() => setActivity({ ...activity, type: t })}
-                    className={`py-3 px-4 rounded-xl text-sm font-bold transition-all border-2 ${
-                      activity.type === t 
-                      ? "border-blue-500 bg-blue-500/10 text-blue-400" 
-                      : "border-transparent bg-white/5 text-gray-400 hover:bg-white/10"
-                    }`}
-                  >
-                    {t.toUpperCase()}
-                  </button>
-                ))}
-              </div>
+            {/* Actividad */}
+            <div className="grid grid-cols-2 gap-2">
+              {(["run", "swim", "mtb", "road"] as ActivityType[]).map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setActivity({ ...activity, type: t })}
+                  className={`py-3 rounded-xl text-xs font-bold transition-all border-2 ${
+                    activity.type === t ? "border-blue-500 bg-blue-500/10 text-blue-400" : "border-transparent bg-white/5 text-gray-500"
+                  }`}
+                >
+                  {t.toUpperCase()}
+                </button>
+              ))}
             </div>
 
-            {/* Entradas Numéricas */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
-                <label className="block text-[10px] font-black text-gray-500 uppercase mb-2">Distancia (km)</label>
+            {/* Inputs */}
+            <div className="space-y-4">
+              <div className="bg-white/5 p-4 rounded-2xl">
+                <label className="block text-[10px] font-black text-gray-500 uppercase mb-1">Distancia (km)</label>
                 <input
                   type="number"
-                  step="0.1"
-                  className="bg-transparent w-full text-2xl font-bold outline-none text-white placeholder:text-white/10"
+                  className="bg-transparent w-full text-2xl font-bold outline-none"
                   placeholder="0.0"
                   onChange={(e) => setActivity({ ...activity, distance: Number(e.target.value) })}
                 />
               </div>
-              <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
-                <label className="block text-[10px] font-black text-gray-500 uppercase mb-2">Tiempo (min)</label>
+              <div className="bg-white/5 p-4 rounded-2xl">
+                <label className="block text-[10px] font-black text-gray-500 uppercase mb-1">Tiempo (min)</label>
                 <input
                   type="number"
-                  className="bg-transparent w-full text-2xl font-bold outline-none text-white placeholder:text-white/10"
+                  className="bg-transparent w-full text-2xl font-bold outline-none"
                   placeholder="0"
                   onChange={(e) => setActivity({ ...activity, duration: Number(e.target.value) })}
                 />
               </div>
             </div>
 
-            <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
-              <label className="block text-[10px] font-black text-gray-500 uppercase mb-2">Desnivel Positivo (m)</label>
-              <input
-                type="number"
-                className="bg-transparent w-full text-2xl font-bold outline-none text-white placeholder:text-white/10"
-                placeholder="0"
-                onChange={(e) => setActivity({ ...activity, elevation: Number(e.target.value) })}
-              />
+            {/* XP Display */}
+            <div className="text-center py-6 border-y border-white/5">
+              <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">XP Ganado</span>
+              <div className="text-6xl font-black">{currentXP}</div>
             </div>
 
-            {/* Visualización de XP */}
-            <div className="py-8 border-y border-white/5 flex flex-col items-center justify-center">
-              <span className="text-[10px] font-black text-blue-500 uppercase tracking-[0.3em] mb-2">Recompensa Estimada</span>
-              <div className="flex items-baseline gap-2">
-                <span className="text-7xl font-black text-white tabular-nums">{currentXP}</span>
-                <span className="text-xl font-bold text-gray-600">XP</span>
-              </div>
-            </div>
-
-            {/* Botones de Acción */}
-            <div className="space-y-4 pt-2">
-              <MintButtonBase xp={currentXP} />
+            {/* Acciones */}
+            <div className="space-y-3">
+              <MintBaseButton xp={currentXP} />
               <MintStacksButton xp={currentXP} />
             </div>
           </div>
         </div>
-
-        <footer className="mt-12 text-center">
-          <p className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">
-            Powered by Base & Stacks • Protocolo Seguro v1.4
-          </p>
-        </footer>
-      </main>
+        
+        <p className="text-center mt-8 text-[10px] text-gray-600 font-bold uppercase tracking-widest">
+          Base L2 & Stacks BTC Layer
+        </p>
+      </div>
     </div>
   );
 }
