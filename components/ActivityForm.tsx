@@ -76,7 +76,8 @@ export default function ActivityForm(){
     activity={activity}
     xp={xp}
    />
-
+<MintStacksButton activity={activity} xp={xp}/>
+   
   </div>
 
  )
