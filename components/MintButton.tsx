@@ -1,56 +1,56 @@
 "use client"
 
-import { useState } from "react"
-import MintButton from "./MintButton"
+import { mintActivity } from "../lib/mint"
 
-export default function ActivityForm(){
+type Activity = {
+ distance:number
+ duration:number
+ elevation:number
+}
 
- const [distance,setDistance] = useState(0)
- const [duration,setDuration] = useState(0)
- const [elevation,setElevation] = useState(0)
+type Props = {
+ activity: Activity
+ xp: number
+}
 
- const xp = distance * 10
+export default function MintButton({ activity, xp }: Props){
 
- const activity = {
-  distance,
-  duration,
-  elevation
+ async function handleMint(){
+
+  console.log("CLICK DETECTED")
+  console.log("activity:", activity)
+  console.log("xp:", xp)
+
+  try{
+
+   await mintActivity(activity, xp)
+
+  }catch(err){
+
+   console.error("Mint error:", err)
+   alert("Mint failed")
+
+  }
+
  }
 
  return(
 
-  <div style={{marginTop:30}}>
-
-   <input
-    placeholder="Distance (km)"
-    type="number"
-    onChange={(e)=>setDistance(Number(e.target.value))}
-   />
-
-   <br/>
-
-   <input
-    placeholder="Duration (min)"
-    type="number"
-    onChange={(e)=>setDuration(Number(e.target.value))}
-   />
-
-   <br/>
-
-   <input
-    placeholder="Elevation (m)"
-    type="number"
-    onChange={(e)=>setElevation(Number(e.target.value))}
-   />
-
-   <br/><br/>
-
-   <MintButton
-    activity={activity}
-    xp={xp}
-   />
-
-  </div>
+  <button
+   type="button"
+   onClick={handleMint}
+   style={{
+    padding:"10px 20px",
+    background:"#16a34a",
+    color:"white",
+    border:"none",
+    borderRadius:"8px",
+    cursor:"pointer",
+    fontWeight:"bold"
+   }}
+  >
+   Mint Activity
+  </button>
 
  )
 
