@@ -2,16 +2,24 @@
 
 import { useState } from "react"
 import MintButton from "./MintButton"
+import { calculateXP } from "../lib/xpCalculator"
 
 export default function ActivityForm(){
 
+ const [type,setType] = useState("run")
  const [distance,setDistance] = useState(0)
  const [duration,setDuration] = useState(0)
  const [elevation,setElevation] = useState(0)
 
- const xp = distance * 10
+ const xp = calculateXP(
+  type as any,
+  distance,
+  duration,
+  elevation
+ )
 
  const activity = {
+  type,
   distance,
   duration,
   elevation
@@ -20,6 +28,19 @@ export default function ActivityForm(){
  return(
 
   <div style={{marginTop:30}}>
+
+   <select
+    onChange={(e)=>setType(e.target.value)}
+   >
+
+    <option value="swim">Swimming</option>
+    <option value="run">Running</option>
+    <option value="mtb">MTB</option>
+    <option value="road">Road Bike</option>
+
+   </select>
+
+   <br/><br/>
 
    <input
     placeholder="Distance (km)"
@@ -30,7 +51,7 @@ export default function ActivityForm(){
    <br/>
 
    <input
-    placeholder="Duration (min)"
+    placeholder="Duration (minutes)"
     type="number"
     onChange={(e)=>setDuration(Number(e.target.value))}
    />
@@ -38,12 +59,18 @@ export default function ActivityForm(){
    <br/>
 
    <input
-    placeholder="Elevation (m)"
+    placeholder="Elevation (meters)"
     type="number"
     onChange={(e)=>setElevation(Number(e.target.value))}
    />
 
    <br/><br/>
+
+   <div>
+    XP Earned: <b>{xp}</b>
+   </div>
+
+   <br/>
 
    <MintButton
     activity={activity}
@@ -53,5 +80,4 @@ export default function ActivityForm(){
   </div>
 
  )
-
 }
