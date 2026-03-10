@@ -1,14 +1,12 @@
-"use client";
 
-import React, { useState, useEffect } from "react";
+  distance: number;
+  duration: number;
+  elevation: number;
+}
 
-// --- Mock de xpCalculator integrado para evitar errores de importación ---
-const calculateXP = (
-  type: "run" | "swim" | "mtb" | "road",
-  distance: number,
-  duration: number,
-  elevation: number
-): number => {
+// --- Logic Helpers ---
+const calculateXP = (data: ActivityData): number => {
+  const { type, distance, duration, elevation } = data;
   let baseXP = 0;
   switch (type) {
     case "run": baseXP = distance * 10; break;
@@ -20,135 +18,180 @@ const calculateXP = (
   return Math.round(baseXP + duration * 0.5);
 };
 
-// --- Componentes de Botón integrados para evitar errores de resolución ---
+// --- Sub-components (Integrated to avoid import errors) ---
 
-const MintButton = ({ activity, xp }: { activity: any; xp: number }) => (
-  <button 
-    onClick={() => console.log("Minting on Base...", { activity, xp })}
-    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors shadow-sm flex items-center justify-center gap-2"
-  >
-    <span>Mint en Base (L2)</span>
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-  </button>
-);
+const MintButtonBase = ({ xp }: { xp: number }) => {
+  const [status, setStatus] = useState<"idle" | "loading" | "success">("idle");
 
-const MintStacksButton = ({ activity, xp }: { activity: any; xp: number }) => (
-  <button 
-    onClick={() => console.log("Minting on Stacks...", { activity, xp })}
-    className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-lg transition-colors shadow-sm flex items-center justify-center gap-2"
-  >
-    <span>Mint en Stacks (BTC)</span>
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-  </button>
-);
-
-// --- Componente Principal ---
-
-export default function App() {
-  const [type, setType] = useState<"run" | "swim" | "mtb" | "road">("run");
-  const [distance, setDistance] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [elevation, setElevation] = useState(0);
-
-  // Calculamos el XP basado en los inputs actuales
-  const xp = calculateXP(
-    type,
-    distance,
-    duration,
-    elevation
-  );
-
-  const activity = {
-    type,
-    distance,
-    duration,
-    elevation
+  const handleMint = () => {
+    setStatus("loading");
+    // Simulate Base L2 Transaction
+    setTimeout(() => setStatus("success"), 2000);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
-      <div className="p-6 bg-white rounded-2xl shadow-xl max-w-md mx-auto border border-blue-50">
-        <div className="flex justify-center mb-4">
-           {/* Logo representativo simplificado */}
-           <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg">
-             OK
-           </div>
-        </div>
-        
-        <h2 className="text-2xl font-black text-blue-900 mb-2 text-center uppercase tracking-tight">OnChainKms</h2>
-        <p className="text-gray-500 text-sm text-center mb-8 italic">Convierte tu sudor en XP</p>
-        
-        <div className="space-y-5">
-          {/* Selector de Deporte */}
-          <div>
-            <label className="block text-xs font-bold text-gray-400 uppercase mb-1 ml-1">Deporte</label>
-            <select
-              className="w-full p-3 bg-gray-50 border-2 border-transparent focus:border-blue-500 rounded-xl outline-none transition-all appearance-none cursor-pointer text-gray-800"
-              value={type}
-              onChange={(e) => setType(e.target.value as any)}
-            >
-              <option value="swim">Natación 🏊</option>
-              <option value="run">Running 🏃</option>
-              <option value="mtb">MTB 🚵</option>
-              <option value="road">Ciclismo Carretera 🚴</option>
-            </select>
-          </div>
+    <button 
+      onClick={handleMint}
+      disabled={status !== "idle"}
+      className={`w-full font-bold py-4 px-6 rounded-2xl transition-all shadow-lg flex items-center justify-center gap-3 ${
+        status === "success" ? "bg-green-500 text-white" : "bg-blue-600 hover:bg-blue-700 text-white"
+      }`}
+    >
+      {status === "loading" ? (
+        <span className="animate-pulse">Procesando en Base...</span>
+      ) : status === "success" ? (
+        "¡Mint Exitoso! (L2)"
+      ) : (
+        <>
+          <span>Mint en Base</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </>
+      )}
+    </button>
+  );
+};
 
-          <div className="grid grid-cols-2 gap-4">
-            {/* Input Distancia */}
-            <div>
-              <label className="block text-xs font-bold text-gray-400 uppercase mb-1 ml-1">Distancia (km)</label>
-              <input
-                className="w-full p-3 bg-gray-50 border-2 border-transparent focus:border-blue-500 rounded-xl outline-none transition-all text-gray-800"
-                placeholder="0.0"
-                type="number"
-                onChange={(e) => setDistance(Number(e.target.value))}
-              />
-            </div>
+const MintStacksButton = ({ xp }: { xp: number }) => {
+  const [status, setStatus] = useState<"idle" | "loading" | "success">("idle");
 
-            {/* Input Duración */}
-            <div>
-              <label className="block text-xs font-bold text-gray-400 uppercase mb-1 ml-1">Minutos</label>
-              <input
-                className="w-full p-3 bg-gray-50 border-2 border-transparent focus:border-blue-500 rounded-xl outline-none transition-all text-gray-800"
-                placeholder="0"
-                type="number"
-                onChange={(e) => setDuration(Number(e.target.value))}
-              />
-            </div>
-          </div>
+  const handleMint = () => {
+    setStatus("loading");
+    // Simulate Stacks/BTC Contract Call
+    console.log("Iniciando llamada a contrato en Stacks para XP:", xp);
+    setTimeout(() => setStatus("success"), 2500);
+  };
 
-          {/* Input Desnivel */}
-          <div>
-            <label className="block text-xs font-bold text-gray-400 uppercase mb-1 ml-1">Desnivel Positivo (m)</label>
-            <input
-              className="w-full p-3 bg-gray-50 border-2 border-transparent focus:border-blue-500 rounded-xl outline-none transition-all text-gray-800"
-              placeholder="0"
-              type="number"
-              onChange={(e) => setElevation(Number(e.target.value))}
-            />
-          </div>
+  return (
+    <button 
+      onClick={handleMint}
+      disabled={status !== "idle"}
+      className={`w-full font-bold py-4 px-6 rounded-2xl transition-all shadow-lg flex items-center justify-center gap-3 ${
+        status === "success" ? "bg-orange-400 text-white" : "bg-orange-500 hover:bg-orange-600 text-white"
+      }`}
+    >
+      {status === "loading" ? (
+        <span className="animate-pulse">Llamando a Hiro Wallet...</span>
+      ) : status === "success" ? (
+        "¡Registrado en Bitcoin!"
+      ) : (
+        <>
+          <span>Mint en Stacks</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </>
+      )}
+    </button>
+  );
+};
 
-          {/* Panel de XP */}
-          <div className="relative overflow-hidden bg-gradient-to-br from-blue-600 to-blue-800 p-6 rounded-2xl text-center shadow-lg transform hover:scale-[1.02] transition-transform">
-            <div className="absolute top-0 right-0 p-2 opacity-10">
-               <svg width="100" height="100" viewBox="0 0 24 24" fill="white"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-            </div>
-            <span className="text-blue-100 block text-xs uppercase tracking-widest font-bold mb-1">XP ACUMULADO</span>
-            <span className="text-5xl font-black text-white drop-shadow-md">{xp}</span>
-          </div>
+// --- Main App Component ---
 
-          {/* Botones de Acción */}
-          <div className="space-y-3 pt-2">
-            <MintButton activity={activity} xp={xp} />
-            <MintStacksButton activity={activity} xp={xp} />
-          </div>
-          
-          <p className="text-[10px] text-gray-400 text-center mt-4 uppercase tracking-tighter">
-            onchainkms v2.0 • secure sports tracking
-          </p>
-        </div>
+export default function App() {
+  const [activity, setActivity] = useState<ActivityData>({
+    type: "run",
+    distance: 0,
+    duration: 0,
+    elevation: 0
+  });
+
+  const currentXP = calculateXP(activity);
+
+  return (
+    <div className="min-h-screen bg-[#0a0a0c] text-white font-sans selection:bg-blue-500/30">
+      {/* Background Decor */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-900/20 blur-[120px] rounded-full" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-orange-900/10 blur-[120px] rounded-full" />
       </div>
+
+      <main className="relative z-10 max-w-lg mx-auto px-6 py-12">
+        {/* Header */}
+        <header className="text-center mb-10">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-tr from-blue-600 to-cyan-400 shadow-[0_0_40px_rgba(37,99,235,0.4)] mb-6 transform -rotate-3">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          </div>
+          <h1 className="text-4xl font-black tracking-tight mb-2 italic">ONCHAIN<span className="text-blue-500">KMS</span></h1>
+          <p className="text-gray-400 font-medium">Libera el poder de tus entrenamientos</p>
+        </header>
+
+        {/* Form Card */}
+        <div className="bg-[#16161a] border border-white/5 rounded-[2.5rem] p-8 shadow-2xl backdrop-blur-sm">
+          <div className="space-y-6">
+            {/* Sport Select */}
+            <div>
+              <label className="block text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-3 ml-1">Actividad</label>
+              <div className="grid grid-cols-2 gap-2">
+                {(["run", "swim", "mtb", "road"] as ActivityType[]).map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => setActivity({ ...activity, type: t })}
+                    className={`py-3 px-4 rounded-xl text-sm font-bold transition-all border-2 ${
+                      activity.type === t 
+                      ? "border-blue-500 bg-blue-500/10 text-blue-400" 
+                      : "border-transparent bg-white/5 text-gray-400 hover:bg-white/10"
+                    }`}
+                  >
+                    {t.toUpperCase()}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Numeric Inputs */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
+                <label className="block text-[10px] font-black text-gray-500 uppercase mb-2">Distancia (km)</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  className="bg-transparent w-full text-2xl font-bold outline-none text-white placeholder:text-white/10"
+                  placeholder="0.0"
+                  onChange={(e) => setActivity({ ...activity, distance: Number(e.target.value) })}
+                />
+              </div>
+              <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
+                <label className="block text-[10px] font-black text-gray-500 uppercase mb-2">Tiempo (min)</label>
+                <input
+                  type="number"
+                  className="bg-transparent w-full text-2xl font-bold outline-none text-white placeholder:text-white/10"
+                  placeholder="0"
+                  onChange={(e) => setActivity({ ...activity, duration: Number(e.target.value) })}
+                />
+              </div>
+            </div>
+
+            <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
+              <label className="block text-[10px] font-black text-gray-500 uppercase mb-2">Desnivel Positivo (m)</label>
+              <input
+                type="number"
+                className="bg-transparent w-full text-2xl font-bold outline-none text-white placeholder:text-white/10"
+                placeholder="0"
+                onChange={(e) => setActivity({ ...activity, elevation: Number(e.target.value) })}
+              />
+            </div>
+
+            {/* XP Display */}
+            <div className="py-8 border-y border-white/5 flex flex-col items-center justify-center">
+              <span className="text-[10px] font-black text-blue-500 uppercase tracking-[0.3em] mb-2">Recompensa Estimada</span>
+              <div className="flex items-baseline gap-2">
+                <span className="text-7xl font-black text-white tabular-nums">{currentXP}</span>
+                <span className="text-xl font-bold text-gray-600">XP</span>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="space-y-4 pt-2">
+              <MintButtonBase xp={currentXP} />
+              <MintStacksButton xp={currentXP} />
+            </div>
+          </div>
+        </div>
+
+        <footer className="mt-12 text-center">
+          <p className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">
+            Powered by Base & Stacks • Secure Protocol v1.4
+          </p>
+        </footer>
+      </main>
     </div>
   );
 }
