@@ -26,144 +26,178 @@ export default function ActivityForm(){
   elevation
  }
 
- const cardStyle = {
-  maxWidth:420,
-  margin:"40px auto",
-  padding:30,
+ const container={
+  height:"100vh",
+  display:"flex",
+  alignItems:"center",
+  justifyContent:"center",
+  background:"#050505",
+  color:"white",
+  fontFamily:"system-ui"
+ }
+
+ const card={
+  width:1000,
+  padding:40,
   borderRadius:20,
   background:"#0f1117",
   border:"1px solid #1f2937",
-  boxShadow:"0 10px 40px rgba(0,0,0,0.6)",
-  fontFamily:"system-ui",
+  boxShadow:"0 20px 60px rgba(0,0,0,0.6)"
+ }
+
+ const layout={
+  display:"flex",
+  gap:40
+ }
+
+ const left={
+  flex:1
+ }
+
+ const right={
+  width:260
+ }
+
+ const label={
+  fontSize:11,
+  color:"#94a3b8",
+  marginBottom:6
+ }
+
+ const input={
+  width:"100%",
+  padding:"12px",
+  borderRadius:8,
+  border:"1px solid #2d3748",
+  background:"#020617",
   color:"white"
  }
 
- const inputStyle = {
-  width:"100%",
-  padding:"14px",
-  marginTop:"8px",
-  marginBottom:"16px",
-  borderRadius:"10px",
-  border:"1px solid #2d3748",
-  background:"#050505",
-  color:"white",
-  fontSize:"16px"
- }
-
- const labelStyle = {
-  fontSize:"12px",
-  color:"#94a3b8",
-  letterSpacing:"1px",
-  textTransform:"uppercase"
+ const grid={
+  display:"grid",
+  gridTemplateColumns:"1fr 1fr 1fr",
+  gap:16,
+  marginTop:20
  }
 
  return(
 
-  <div style={cardStyle}>
+ <div style={container}>
 
-   <h2 style={{
-    fontSize:28,
-    fontWeight:800,
-    marginBottom:4,
-    textAlign:"center"
-   }}>
-    ONCHAIN<span style={{color:"#3b82f6"}}>KMS</span>
-   </h2>
+  <div style={card}>
 
-   <p style={{
-    textAlign:"center",
-    fontSize:10,
-    letterSpacing:3,
-    color:"#6b7280",
-    marginBottom:30
-   }}>
-    PROOF OF PHYSICAL WORK
-   </p>
+   {/* LOGO */}
+
+   <div style={{marginBottom:30}}>
+    <img
+     src="/favicon.png"
+     style={{width:60,height:60}}
+    />
+   </div>
 
 
-   <div style={labelStyle}>Sport</div>
+   <div style={layout}>
 
-   <select
-    value={type}
-    onChange={(e)=>setType(e.target.value)}
-    style={inputStyle}
-   >
+    {/* LEFT SIDE */}
 
-    <option value="swim">Swimming</option>
-    <option value="run">Running</option>
-    <option value="mtb">MTB</option>
-    <option value="road">Road Bike</option>
+    <div style={left}>
 
-   </select>
+     <div style={label}>Sport</div>
 
-
-   <div style={labelStyle}>Distance (km)</div>
-
-   <input
-    type="number"
-    placeholder="0"
-    onChange={(e)=>setDistance(Number(e.target.value))}
-    style={inputStyle}
-   />
+     <select
+      value={type}
+      onChange={(e)=>setType(e.target.value)}
+      style={input}
+     >
+      <option value="swim">Swimming</option>
+      <option value="run">Running</option>
+      <option value="mtb">MTB</option>
+      <option value="road">Road Bike</option>
+     </select>
 
 
-   <div style={labelStyle}>Duration (minutes)</div>
+     <div style={grid}>
 
-   <input
-    type="number"
-    placeholder="0"
-    onChange={(e)=>setDuration(Number(e.target.value))}
-    style={inputStyle}
-   />
+      <div>
+       <div style={label}>Distance (km)</div>
+       <input
+        type="number"
+        onChange={(e)=>setDistance(Number(e.target.value))}
+        style={input}
+       />
+      </div>
 
+      <div>
+       <div style={label}>Duration (minutes)</div>
+       <input
+        type="number"
+        onChange={(e)=>setDuration(Number(e.target.value))}
+        style={input}
+       />
+      </div>
 
-   <div style={labelStyle}>Elevation (meters)</div>
+      <div>
+       <div style={label}>Elevation (meters)</div>
+       <input
+        type="number"
+        onChange={(e)=>setElevation(Number(e.target.value))}
+        style={input}
+       />
+      </div>
 
-   <input
-    type="number"
-    placeholder="0"
-    onChange={(e)=>setElevation(Number(e.target.value))}
-    style={inputStyle}
-   />
+     </div>
 
-
-   <div style={{
-    marginTop:20,
-    marginBottom:30,
-    textAlign:"center",
-    padding:20,
-    borderRadius:12,
-    background:"#020617",
-    border:"1px solid #1f2937"
-   }}>
-
-    <div style={{
-     fontSize:12,
-     letterSpacing:3,
-     color:"#60a5fa",
-     marginBottom:6
-    }}>
-     ESTIMATED YIELD
     </div>
 
-    <div style={{
-     fontSize:42,
-     fontWeight:900
-    }}>
-     {xp} <span style={{color:"#3b82f6",fontSize:18}}>XP</span>
+
+    {/* RIGHT SIDE */}
+
+    <div style={right}>
+
+     <div style={{
+      textAlign:"center",
+      padding:20,
+      marginBottom:20,
+      borderRadius:12,
+      background:"#020617",
+      border:"1px solid #1f2937"
+     }}>
+
+      <div style={{
+       fontSize:11,
+       letterSpacing:2,
+       color:"#60a5fa"
+      }}>
+       ESTIMATED YIELD
+      </div>
+
+      <div style={{
+       fontSize:42,
+       fontWeight:900
+      }}>
+       {xp}
+      </div>
+
+      <div style={{color:"#3b82f6"}}>
+       XP
+      </div>
+
+     </div>
+
+
+     <MintButton activity={activity} xp={xp} />
+
+     <div style={{height:12}}/>
+
+     <MintStacksButton activity={activity} xp={xp} />
+
     </div>
 
    </div>
 
-
-   <MintButton activity={activity} xp={xp} />
-
-   <div style={{height:10}}/>
-
-   <MintStacksButton activity={activity} xp={xp} />
-
-
   </div>
+
+ </div>
 
  )
 }
