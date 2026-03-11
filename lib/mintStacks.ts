@@ -5,6 +5,8 @@ import {
  stringAsciiCV
 } from "@stacks/transactions"
 
+import { userSession } from "./stacksAuth"
+
 type Activity = {
  type:string
  distance:number
@@ -18,6 +20,10 @@ export async function mintStacksActivity(activity:Activity,xp:number){
 
  try{
 
+  if(!userSession.isUserSignedIn()){
+   throw new Error("Connect Stacks wallet first")
+  }
+
   const network = new StacksMainnet()
 
   await openContractCall({
@@ -25,6 +31,7 @@ export async function mintStacksActivity(activity:Activity,xp:number){
    network,
 
    contractAddress:"SP1AJVMEGSMD6QCSZ1669Z5G90GEHVK2MEM7J0AHH",
+
    contractName:"onchainkms-stacks",
 
    functionName:"mint-activity",
