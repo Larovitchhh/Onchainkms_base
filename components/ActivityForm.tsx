@@ -73,9 +73,6 @@ export default function ActivityForm() {
 
         {/* LEFT SIDE: INPUTS */}
         <div style={{ flex: 1 }}>
-          <h2 style={{ marginBottom: "24px", fontSize: "24px", fontWeight: 800, letterSpacing: "-0.5px" }}>
-            Log Activity
-          </h2>
 
           <div style={{
             display: "grid",
