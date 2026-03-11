@@ -8,8 +8,6 @@ export default function Home(){
 
   <main style={{padding:40}}>
 
-   <h1>Onchain Sports</h1>
-
    <ConnectWallet/>
 
    <br/>
