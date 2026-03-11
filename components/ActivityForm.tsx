@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import MintButton from "./MintButton"
+import MintStacksButton from "./MintStacksButton"
 import { calculateXP } from "../lib/xpCalculator"
 
 export default function ActivityForm(){
@@ -72,12 +73,10 @@ export default function ActivityForm(){
 
    <br/>
 
-   <MintButton
-    activity={activity}
-    xp={xp}
-   />
-<MintStacksButton activity={activity} xp={xp}/>
-   
+   <MintButton activity={activity} xp={xp} />
+
+   <MintStacksButton activity={activity} xp={xp} />
+
   </div>
 
  )
