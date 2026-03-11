@@ -20,7 +20,7 @@ export default function ActivityForm(){
  useEffect(()=>{
 
   const value = calculateXP({
-   type:activity,
+   activity,
    distance,
    duration,
    elevation
