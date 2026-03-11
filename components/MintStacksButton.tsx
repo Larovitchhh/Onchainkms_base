@@ -1,57 +1,45 @@
 "use client"
 
-import { openContractCall } from "@stacks/connect"
-import { StacksMainnet } from "@stacks/network"
-import {
- uintCV,
- stringAsciiCV
-} from "@stacks/transactions"
+import { mintStacksActivity } from "../lib/mintStacks"
 
-export default function MintStacksButton({activity,xp}:any){
+type Activity = {
+ type:string
+ distance:number
+ duration:number
+ elevation:number
+}
 
- async function mintStacks(){
+type Props = {
+ activity:Activity
+ xp:number
+}
 
-  const network = new StacksMainnet()
+export default function MintStacksButton({activity,xp}:Props){
 
-  await openContractCall({
+ async function handleMintStacks(){
 
-   network,
+  console.log("Stacks mint clicked")
+  console.log(activity)
+  console.log(xp)
 
-   contractAddress: "TU_DIRECCION_STACKS",
-   contractName: "sports-activity",
-   functionName: "mint-activity",
+  try{
 
-   functionArgs: [
+   await mintStacksActivity(activity,xp)
 
-    stringAsciiCV(activity.type),
+  }catch(err){
 
-    uintCV(activity.distance),
+   console.error(err)
+   alert("Stacks mint failed")
 
-    uintCV(activity.duration),
-
-    uintCV(activity.elevation),
-
-    uintCV(xp)
-
-   ],
-
-   appDetails:{
-    name:"Onchain Sports",
-    icon:""
-   },
-
-   onFinish:(data)=>{
-    console.log("Stacks tx:",data)
-   }
-
-  })
+  }
 
  }
 
  return(
 
   <button
-   onClick={mintStacks}
+   type="button"
+   onClick={handleMintStacks}
    style={{
     padding:"10px 20px",
     background:"#f7931a",
@@ -67,4 +55,5 @@ export default function MintStacksButton({activity,xp}:any){
   </button>
 
  )
+
 }
