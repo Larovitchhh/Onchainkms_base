@@ -18,9 +18,7 @@ export default function MintStacksButton({activity,xp}:Props){
 
  async function handleMintStacks(){
 
-  console.log("Stacks mint clicked")
-  console.log(activity)
-  console.log(xp)
+  console.log("Stacks button clicked")
 
   try{
 
@@ -28,7 +26,8 @@ export default function MintStacksButton({activity,xp}:Props){
 
   }catch(err){
 
-   console.error(err)
+   console.error("Stacks button error:",err)
+
    alert("Stacks mint failed")
 
   }
