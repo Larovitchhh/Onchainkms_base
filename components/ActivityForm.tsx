@@ -5,9 +5,11 @@ import MintButton from "./MintButton"
 import MintStacksButton from "./MintStacksButton"
 import { calculateXP } from "../lib/xpCalculator"
 
+type ActivityType = "swim" | "run" | "mtb" | "road"
+
 export default function ActivityForm(){
 
- const [type,setType] = useState("run")
+ const [type,setType] = useState<ActivityType>("run")
  const [distance,setDistance] = useState(0)
  const [duration,setDuration] = useState(0)
  const [elevation,setElevation] = useState(0)
@@ -32,7 +34,7 @@ export default function ActivityForm(){
 
    <select
     value={type}
-    onChange={(e)=>setType(e.target.value)}
+    onChange={(e)=>setType(e.target.value as ActivityType)}
    >
 
     <option value="swim">Swimming</option>
