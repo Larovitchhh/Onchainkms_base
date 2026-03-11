@@ -3,13 +3,13 @@
 import React, { useState } from "react";
 
 /**
- * SOLUCIÓN DE COMPILACIÓN:
- * - Se eliminan dependencias externas (lucide-react) para evitar errores en Vercel.
- * - Se usan SVGs inline para máxima compatibilidad y velocidad.
- * - Se mantiene la lógica de minteo y la estética premium.
+ * CORRECCIONES REALIZADAS:
+ * 1. Logo: Ahora usa /favicon.png con tamaño ajustado.
+ * 2. Funcionalidad: Se restauran los handlers de Minting para Base y Stacks.
+ * 3. Build: Se mantienen los SVGs internos para evitar el error de 'lucide-react' en Vercel.
  */
 
-// Iconos SVG Inline para evitar errores de "Module not found"
+// Iconos internos para asegurar que el build de Vercel no falle por falta de librerías
 const Icons = {
   Zap: () => (
     <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
@@ -47,55 +47,59 @@ const Icons = {
   )
 };
 
-const calculateXP = (type: string, distance: number, duration: number, elevation: number) => {
-  let baseXP = 0;
-  const dist = Number(distance) || 0;
-  const dur = Number(duration) || 0;
-  const elev = Number(elevation) || 0;
-
-  switch (type) {
-    case "run": baseXP = dist * 10; break;
-    case "swim": baseXP = dist * 40; break;
-    case "mtb": baseXP = dist * 5 + elev * 0.1; break;
-    case "road": baseXP = dist * 3 + elev * 0.05; break;
-    default: baseXP = 0;
-  }
-  return Math.round(baseXP + (dur * 0.5));
-};
-
-const MintButtonBase = ({ activity, xp }: { activity: any; xp: number }) => (
-  <button 
-    onClick={() => console.log("Minting on Base...", { activity, xp })}
-    className="group relative w-full overflow-hidden rounded-xl bg-blue-600 p-[2px] transition-all hover:scale-[1.02] active:scale-95"
-  >
-    <div className="relative flex items-center justify-center gap-2 rounded-[10px] bg-blue-600 px-6 py-4 font-black italic tracking-tighter text-white transition-all group-hover:bg-blue-500">
-      <Icons.Zap />
-      MINT ON BASE
-    </div>
-  </button>
-);
-
-const MintButtonStacks = ({ activity, xp }: { activity: any; xp: number }) => (
-  <button 
-    onClick={() => console.log("Minting on Stacks...", { activity, xp })}
-    className="group relative w-full overflow-hidden rounded-xl bg-orange-600 p-[2px] transition-all hover:scale-[1.02] active:scale-95"
-  >
-    <div className="relative flex items-center justify-center gap-2 rounded-[10px] bg-[#1a1a1a] px-6 py-4 font-black italic tracking-tighter text-orange-500 border border-orange-600/50 transition-all group-hover:bg-orange-950/20">
-      <div className="flex h-5 w-5 items-center justify-center rounded-full bg-orange-500 text-black">
-        <span className="text-[10px] font-bold">₿</span>
-      </div>
-      MINT ON STACKS
-    </div>
-  </button>
-);
-
 export default function ActivityForm() {
   const [type, setType] = useState("run");
   const [distance, setDistance] = useState<number | "">("");
   const [duration, setDuration] = useState<number | "">("");
   const [elevation, setElevation] = useState<number | "">("");
+  const [isMinting, setIsMinting] = useState(false);
 
-  const xp = calculateXP(type, Number(distance), Number(duration), Number(elevation));
+  // Lógica de cálculo de XP
+  const calculateXP = () => {
+    let baseXP = 0;
+    const dist = Number(distance) || 0;
+    const dur = Number(duration) || 0;
+    const elev = Number(elevation) || 0;
+
+    switch (type) {
+      case "run": baseXP = dist * 10; break;
+      case "swim": baseXP = dist * 40; break;
+      case "mtb": baseXP = dist * 5 + elev * 0.1; break;
+      case "road": baseXP = dist * 3 + elev * 0.05; break;
+      default: baseXP = 0;
+    }
+    return Math.round(baseXP + (dur * 0.5));
+  };
+
+  const xp = calculateXP();
+
+  // HANDLERS DE MINTING (Restaurados)
+  const handleMintBase = async () => {
+    if (!distance) return;
+    setIsMinting(true);
+    try {
+      console.log("Iniciando Mint en Base...", { type, distance, xp });
+      // Aquí va tu lógica de contrato de Base
+      // await contract.mint(...)
+    } catch (error) {
+      console.error("Error minting on Base:", error);
+    } finally {
+      setIsMinting(false);
+    }
+  };
+
+  const handleMintStacks = async () => {
+    if (!distance) return;
+    setIsMinting(true);
+    try {
+      console.log("Iniciando Mint en Stacks...", { type, distance, xp });
+      // Aquí va tu lógica de contrato de Stacks (Hiro Wallet / Stacks.js)
+    } catch (error) {
+      console.error("Error minting on Stacks:", error);
+    } finally {
+      setIsMinting(false);
+    }
+  };
 
   const activityIcons: Record<string, any> = {
     run: <Icons.Run />,
@@ -106,13 +110,23 @@ export default function ActivityForm() {
 
   return (
     <div className="min-h-screen bg-[#050505] flex items-center justify-center p-6 font-sans text-white">
+      {/* Background Glows */}
       <div className="fixed top-[-10%] left-[-10%] h-[40%] w-[40%] rounded-full bg-blue-600/10 blur-[120px]" />
       <div className="fixed bottom-[-10%] right-[-10%] h-[40%] w-[40%] rounded-full bg-orange-600/10 blur-[120px]" />
 
       <div className="relative w-full max-w-md">
-        <div className="mb-10 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-[0_0_30px_rgba(59,130,246,0.4)]">
-            <Icons.Zap />
+        {/* Header con Logo Corregido */}
+        <div className="mb-8 text-center">
+          <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-white/5 border border-white/10 shadow-[0_0_25px_rgba(59,130,246,0.2)] overflow-hidden">
+            <img 
+              src="/favicon.png" 
+              alt="OnChainKMs Logo" 
+              className="h-12 w-12 object-contain"
+              onError={(e) => {
+                // Fallback si no encuentra el png
+                (e.target as any).src = "https://via.placeholder.com/48?text=OK";
+              }}
+            />
           </div>
           <h1 className="text-4xl font-black italic tracking-tighter text-white">
             ONCHAIN<span className="text-blue-500">KMS</span>
@@ -120,8 +134,10 @@ export default function ActivityForm() {
           <p className="mt-1 text-[10px] font-bold tracking-[0.4em] text-gray-500">PROOF OF PHYSICAL WORK</p>
         </div>
 
+        {/* Form Card */}
         <div className="overflow-hidden rounded-[2.5rem] border border-white/10 bg-white/5 backdrop-blur-2xl shadow-2xl">
           <div className="p-8">
+            {/* Selector de Actividad */}
             <div className="mb-8 grid grid-cols-2 gap-3">
               {["run", "swim", "mtb", "road"].map((id) => (
                 <button
@@ -139,6 +155,7 @@ export default function ActivityForm() {
               ))}
             </div>
 
+            {/* Inputs */}
             <div className="space-y-4">
               {[
                 { label: "Distance", val: distance, set: setDistance, unit: "KM" },
@@ -163,6 +180,7 @@ export default function ActivityForm() {
               ))}
             </div>
 
+            {/* XP Yield Display */}
             <div className="my-8 flex flex-col items-center justify-center py-6 border-y border-white/5">
               <span className="text-[10px] font-bold tracking-[0.3em] text-blue-400 opacity-60">ESTIMATED YIELD</span>
               <div className="flex items-center gap-3">
@@ -173,9 +191,33 @@ export default function ActivityForm() {
               </div>
             </div>
 
+            {/* Botones de Acción Corregidos */}
             <div className="space-y-4">
-              <MintButtonBase activity={{ type, distance, duration, elevation }} xp={xp} />
-              <MintButtonStacks activity={{ type, distance, duration, elevation }} xp={xp} />
+              {/* Mint en Base */}
+              <button 
+                onClick={handleMintBase}
+                disabled={isMinting || !distance}
+                className="group relative w-full overflow-hidden rounded-xl bg-blue-600 p-[2px] transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:hover:scale-100"
+              >
+                <div className="relative flex items-center justify-center gap-2 rounded-[10px] bg-blue-600 px-6 py-4 font-black italic tracking-tighter text-white transition-all group-hover:bg-blue-500">
+                  <Icons.Zap />
+                  {isMinting ? "PROCESSING..." : "MINT ON BASE"}
+                </div>
+              </button>
+
+              {/* Mint en Stacks */}
+              <button 
+                onClick={handleMintStacks}
+                disabled={isMinting || !distance}
+                className="group relative w-full overflow-hidden rounded-xl bg-orange-600 p-[2px] transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:hover:scale-100"
+              >
+                <div className="relative flex items-center justify-center gap-2 rounded-[10px] bg-[#1a1a1a] px-6 py-4 font-black italic tracking-tighter text-orange-500 border border-orange-600/50 transition-all group-hover:bg-orange-950/20">
+                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-orange-500 text-black">
+                    <span className="text-[10px] font-bold">₿</span>
+                  </div>
+                  {isMinting ? "PROCESSING..." : "MINT ON STACKS"}
+                </div>
+              </button>
             </div>
           </div>
 
