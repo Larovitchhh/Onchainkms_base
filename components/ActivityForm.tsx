@@ -1,143 +1,169 @@
-return(
+"use client"
 
-<div className="min-h-screen bg-[#050505] flex items-center justify-center p-6 text-white">
+import { useState } from "react"
+import MintButton from "./MintButton"
+import MintStacksButton from "./MintStacksButton"
+import { calculateXP } from "../lib/xpCalculator"
 
-<div className="relative w-full max-w-md">
+export default function ActivityForm(){
 
-{/* HEADER */}
+ const [type,setType] = useState("run")
+ const [distance,setDistance] = useState(0)
+ const [duration,setDuration] = useState(0)
+ const [elevation,setElevation] = useState(0)
 
-<div className="mb-8 text-center">
+ const xp = calculateXP(
+  type as any,
+  distance,
+  duration,
+  elevation
+ )
 
-<div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-white/5 border border-white/10 shadow-[0_0_25px_rgba(59,130,246,0.2)]">
+ const activity = {
+  type,
+  distance,
+  duration,
+  elevation
+ }
 
-<img src="/favicon.png" className="h-12 w-12"/>
+ const cardStyle = {
+  maxWidth:420,
+  margin:"40px auto",
+  padding:30,
+  borderRadius:20,
+  background:"#0f1117",
+  border:"1px solid #1f2937",
+  boxShadow:"0 10px 40px rgba(0,0,0,0.6)",
+  fontFamily:"system-ui",
+  color:"white"
+ }
 
-</div>
+ const inputStyle = {
+  width:"100%",
+  padding:"14px",
+  marginTop:"8px",
+  marginBottom:"16px",
+  borderRadius:"10px",
+  border:"1px solid #2d3748",
+  background:"#050505",
+  color:"white",
+  fontSize:"16px"
+ }
 
-<h1 className="text-4xl font-black italic tracking-tighter">
-ONCHAIN<span className="text-blue-500">KMS</span>
-</h1>
+ const labelStyle = {
+  fontSize:"12px",
+  color:"#94a3b8",
+  letterSpacing:"1px",
+  textTransform:"uppercase"
+ }
 
-<p className="mt-1 text-[10px] font-bold tracking-[0.4em] text-gray-500">
-PROOF OF PHYSICAL WORK
-</p>
+ return(
 
-</div>
+  <div style={cardStyle}>
 
+   <h2 style={{
+    fontSize:28,
+    fontWeight:800,
+    marginBottom:4,
+    textAlign:"center"
+   }}>
+    ONCHAIN<span style={{color:"#3b82f6"}}>KMS</span>
+   </h2>
 
-{/* CARD */}
-
-<div className="overflow-hidden rounded-[2.5rem] border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl">
-
-<div className="p-8">
-
-
-{/* SPORT SELECTOR */}
-
-<div className="mb-8 grid grid-cols-2 gap-3">
-
-{["run","swim","mtb","road"].map((id)=>(
-
-<button
-key={id}
-onClick={()=>setType(id)}
-className={`flex items-center justify-center gap-2 rounded-xl py-3 text-[10px] font-black transition-all border ${
-type===id
-? "border-blue-500 bg-blue-500/20 text-blue-400"
-: "border-white/5 bg-white/5 text-gray-500"
-}`}
->
-
-{id.toUpperCase()}
-
-</button>
-
-))}
-
-</div>
-
-
-{/* INPUTS */}
-
-<div className="space-y-4">
-
-<input
-placeholder="Distance (km)"
-type="number"
-value={distance}
-onChange={(e)=>setDistance(Number(e.target.value))}
-className="w-full rounded-xl border border-white/5 bg-black/40 p-4 text-xl font-bold outline-none"
-/>
-
-<input
-placeholder="Duration (minutes)"
-type="number"
-value={duration}
-onChange={(e)=>setDuration(Number(e.target.value))}
-className="w-full rounded-xl border border-white/5 bg-black/40 p-4 text-xl font-bold outline-none"
-/>
-
-<input
-placeholder="Elevation (meters)"
-type="number"
-value={elevation}
-onChange={(e)=>setElevation(Number(e.target.value))}
-className="w-full rounded-xl border border-white/5 bg-black/40 p-4 text-xl font-bold outline-none"
-/>
-
-</div>
+   <p style={{
+    textAlign:"center",
+    fontSize:10,
+    letterSpacing:3,
+    color:"#6b7280",
+    marginBottom:30
+   }}>
+    PROOF OF PHYSICAL WORK
+   </p>
 
 
-{/* XP */}
+   <div style={labelStyle}>Sport</div>
 
-<div className="my-8 flex flex-col items-center justify-center py-6 border-y border-white/5">
+   <select
+    value={type}
+    onChange={(e)=>setType(e.target.value)}
+    style={inputStyle}
+   >
 
-<span className="text-[10px] tracking-[0.3em] text-blue-400 opacity-60">
-ESTIMATED YIELD
-</span>
+    <option value="swim">Swimming</option>
+    <option value="run">Running</option>
+    <option value="mtb">MTB</option>
+    <option value="road">Road Bike</option>
 
-<div className="flex items-center gap-3">
-
-<span className="text-6xl font-black italic">
-{xp}
-</span>
-
-<span className="text-xl font-black italic text-blue-500 mt-4">
-XP
-</span>
-
-</div>
-
-</div>
+   </select>
 
 
-{/* MINT BUTTONS (LOS TUYOS) */}
+   <div style={labelStyle}>Distance (km)</div>
 
-<div className="space-y-4">
+   <input
+    type="number"
+    placeholder="0"
+    onChange={(e)=>setDistance(Number(e.target.value))}
+    style={inputStyle}
+   />
 
-<MintButton activity={activity} xp={xp} />
 
-<MintStacksButton activity={activity} xp={xp} />
+   <div style={labelStyle}>Duration (minutes)</div>
 
-</div>
+   <input
+    type="number"
+    placeholder="0"
+    onChange={(e)=>setDuration(Number(e.target.value))}
+    style={inputStyle}
+   />
 
 
-</div>
+   <div style={labelStyle}>Elevation (meters)</div>
 
-<div className="bg-white/5 px-8 py-4 text-center">
+   <input
+    type="number"
+    placeholder="0"
+    onChange={(e)=>setElevation(Number(e.target.value))}
+    style={inputStyle}
+   />
 
-<p className="text-[9px] font-bold tracking-widest text-gray-600">
 
-SECURED BY BASE & STACKS PROTOCOL
+   <div style={{
+    marginTop:20,
+    marginBottom:30,
+    textAlign:"center",
+    padding:20,
+    borderRadius:12,
+    background:"#020617",
+    border:"1px solid #1f2937"
+   }}>
 
-</p>
+    <div style={{
+     fontSize:12,
+     letterSpacing:3,
+     color:"#60a5fa",
+     marginBottom:6
+    }}>
+     ESTIMATED YIELD
+    </div>
 
-</div>
+    <div style={{
+     fontSize:42,
+     fontWeight:900
+    }}>
+     {xp} <span style={{color:"#3b82f6",fontSize:18}}>XP</span>
+    </div>
 
-</div>
+   </div>
 
-</div>
 
-</div>
+   <MintButton activity={activity} xp={xp} />
 
-)
+   <div style={{height:10}}/>
+
+   <MintStacksButton activity={activity} xp={xp} />
+
+
+  </div>
+
+ )
+}
