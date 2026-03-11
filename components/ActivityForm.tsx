@@ -1,74 +1,81 @@
-import { openContractCall } from "@stacks/connect"
-import { StacksMainnet } from "@stacks/network"
-import {
- uintCV,
- stringAsciiCV
-} from "@stacks/transactions"
+"use client"
 
-type Activity = {
- type:string
- distance:number
- duration:number
- elevation:number
-}
+import { useState } from "react"
+import MintButton from "./MintButton"
+import MintStacksButton from "./MintStacksButton"
+import { calculateXP } from "../lib/xpCalculator"
 
-export async function mintStacksActivity(activity:Activity,xp:number){
+export default function ActivityForm(){
 
- console.log("Stacks mint start")
+ const [type,setType] = useState("run")
+ const [distance,setDistance] = useState(0)
+ const [duration,setDuration] = useState(0)
+ const [elevation,setElevation] = useState(0)
 
- try{
+ const xp = calculateXP(
+  type as any,
+  distance,
+  duration,
+  elevation
+ )
 
-  const network = new StacksMainnet()
-
-  await openContractCall({
-
-   network,
-
-   contractAddress:"SP1AJVMEGSMD6QCSZ1669Z5G90GEHVK2MEM7J0AHH",
-   contractName:"onchainkms-stacks",
-
-   functionName:"mint-activity",
-
-   functionArgs:[
-
-    stringAsciiCV(activity.type),
-
-    uintCV(activity.distance),
-
-    uintCV(activity.duration),
-
-    uintCV(activity.elevation),
-
-    uintCV(xp)
-
-   ],
-
-   appDetails:{
-    name:"Onchain Sports",
-    icon:window.location.origin + "/favicon.ico"
-   },
-
-   onFinish:(data)=>{
-    console.log("Stacks TX:",data)
-    alert("Minted on Stacks!")
-   },
-
-   onCancel:()=>{
-    console.log("User cancelled")
-   }
-
-  })
-
- }catch(err:any){
-
-  console.error("STACKS ERROR:",err)
-
-  alert(
-   err?.message ||
-   err?.toString() ||
-   "Stacks mint failed"
-  )
-
+ const activity = {
+  type,
+  distance,
+  duration,
+  elevation
  }
 
+ return(
+
+  <div style={{marginTop:30}}>
+
+   <select onChange={(e)=>setType(e.target.value)}>
+
+    <option value="swim">Swimming</option>
+    <option value="run">Running</option>
+    <option value="mtb">MTB</option>
+    <option value="road">Road Bike</option>
+
+   </select>
+
+   <br/><br/>
+
+   <input
+    placeholder="Distance (km)"
+    type="number"
+    onChange={(e)=>setDistance(Number(e.target.value))}
+   />
+
+   <br/>
+
+   <input
+    placeholder="Duration (minutes)"
+    type="number"
+    onChange={(e)=>setDuration(Number(e.target.value))}
+   />
+
+   <br/>
+
+   <input
+    placeholder="Elevation (meters)"
+    type="number"
+    onChange={(e)=>setElevation(Number(e.target.value))}
+   />
+
+   <br/><br/>
+
+   <div>
+    XP Earned: <b>{xp}</b>
+   </div>
+
+   <br/>
+
+   <MintButton activity={activity} xp={xp} />
+
+   <MintStacksButton activity={activity} xp={xp} />
+
+  </div>
+
+ )
 }
