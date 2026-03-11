@@ -1,4 +1,5 @@
 import ConnectWallet from "../components/ConnectWallet"
+import ConnectStacks from "../components/ConnectStacks"
 import ActivityForm from "../components/ActivityForm"
 
 export default function Home(){
@@ -11,10 +12,13 @@ export default function Home(){
 
    <ConnectWallet/>
 
+   <br/>
+
+   <ConnectStacks/>
+
    <ActivityForm/>
 
   </main>
 
  )
-
 }
