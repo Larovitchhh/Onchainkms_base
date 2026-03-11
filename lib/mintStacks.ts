@@ -12,7 +12,9 @@ type Activity = {
  elevation:number
 }
 
-export async function mintStacksActivity(activity:Activity, xp:number){
+export async function mintStacksActivity(activity:Activity,xp:number){
+
+ console.log("Stacks mint start")
 
  try{
 
@@ -22,9 +24,10 @@ export async function mintStacksActivity(activity:Activity, xp:number){
 
    network,
 
-   contractAddress: "SP1AJVMEGSMD6QCSZ1669Z5G90GEHVK2MEM7J0AHH",
-   contractName: "sports-activity",
-   functionName: "mint-activity",
+   contractAddress:"SP1AJVMEGSMD6QCSZ1669Z5G90GEHVK2MEM7J0AHH",
+   contractName:"onchainkms-stacks",
+
+   functionName:"mint-activity",
 
    functionArgs:[
 
@@ -42,20 +45,29 @@ export async function mintStacksActivity(activity:Activity, xp:number){
 
    appDetails:{
     name:"Onchain Sports",
-    icon:""
+    icon:window.location.origin + "/favicon.ico"
    },
 
    onFinish:(data)=>{
-    console.log("Stacks tx:",data)
-    alert("Activity minted on Stacks!")
+    console.log("Stacks TX:",data)
+    alert("Minted on Stacks!")
+   },
+
+   onCancel:()=>{
+    console.log("User cancelled")
    }
 
   })
 
- }catch(err){
+ }catch(err:any){
 
-  console.error("Stacks mint error:",err)
-  alert("Stacks mint failed")
+  console.error("STACKS ERROR:",err)
+
+  alert(
+   err?.message ||
+   err?.toString() ||
+   "Stacks mint failed"
+  )
 
  }
 
