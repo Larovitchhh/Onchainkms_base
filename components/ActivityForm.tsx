@@ -24,6 +24,8 @@ export default function ActivityForm() {
 
   const activeSport = sports.find(s => s.id === type) || sports[0]
 
+  const nftURL = `/api/nft?sport=${type}&km=${distance}&time=${duration}&elev=${elevation}&xp=${xp}`
+
   return (
     <div style={{
       height: "100vh",
@@ -40,18 +42,17 @@ export default function ActivityForm() {
         display: "flex",
         gap: "24px",
         width: "100%",
-        maxWidth: "900px",
+        maxWidth: "1100px",
         alignItems: "stretch"
       }}>
 
-        {/* PANEL IZQUIERDO: FORMULARIO */}
+        {/* PANEL IZQUIERDO */}
         <div style={{
           flex: 1,
           padding: "40px",
           borderRadius: "24px",
           background: "#0f0f0f",
-          border: `1px solid ${activeSport.color}33`,
-          transition: "all 0.3s ease"
+          border: `1px solid ${activeSport.color}33`
         }}>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "30px" }}>
@@ -68,8 +69,7 @@ export default function ActivityForm() {
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
-                  gap: "8px",
-                  transition: "all 0.2s"
+                  gap: "8px"
                 }}
               >
                 <span>{s.icon}</span> {s.label}
@@ -79,9 +79,17 @@ export default function ActivityForm() {
 
           {["Distance (km)", "Duration (min)", "Elevation (m)"].map((label, i) => (
             <div key={label} style={{ marginBottom: "15px" }}>
-              <label style={{ display: "block", fontSize: "11px", color: "#666", marginBottom: "5px", fontWeight: 600, textTransform: "uppercase" }}>
+              <label style={{
+                display: "block",
+                fontSize: "11px",
+                color: "#666",
+                marginBottom: "5px",
+                fontWeight: 600,
+                textTransform: "uppercase"
+              }}>
                 {label}
               </label>
+
               <input
                 type="number"
                 placeholder="0"
@@ -103,9 +111,25 @@ export default function ActivityForm() {
               />
             </div>
           ))}
+
+          {/* PREVIEW NFT */}
+
+          {xp > 0 && (
+            <div style={{ marginTop: "30px" }}>
+              <img
+                src={nftURL}
+                style={{
+                  width: "100%",
+                  borderRadius: "14px",
+                  border: `1px solid ${activeSport.color}`
+                }}
+              />
+            </div>
+          )}
+
         </div>
 
-        {/* PANEL DERECHO: RECOMPENSA */}
+        {/* PANEL DERECHO */}
         <div style={{
           width: "320px",
           padding: "40px",
@@ -118,7 +142,13 @@ export default function ActivityForm() {
           justifyContent: "center",
           boxShadow: `0 0 30px ${activeSport.color}22`
         }}>
-          <span style={{ fontSize: "11px", fontWeight: 800, color: activeSport.color, letterSpacing: "2px", marginBottom: "10px" }}>
+          <span style={{
+            fontSize: "11px",
+            fontWeight: 800,
+            color: activeSport.color,
+            letterSpacing: "2px",
+            marginBottom: "10px"
+          }}>
             ONCHAIN REWARD
           </span>
 
