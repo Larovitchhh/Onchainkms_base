@@ -12,8 +12,8 @@ export async function GET(req: Request) {
  const elev = searchParams.get("elev") || ""
  const xp = searchParams.get("xp") || ""
 
- const template = `${process.env.NEXT_PUBLIC_SITE_URL}/nft/${sport}.png`
-
+const template = new URL(`/nft/${sport}.png`, req.url).toString()
+ 
  return new ImageResponse(
 
   (
