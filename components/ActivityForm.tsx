@@ -16,10 +16,10 @@ export default function ActivityForm() {
   const activity = { type, distance, duration, elevation }
 
   const sports = [
-    { id: "road", label: "Onchain Road Ride", icon: "🚴", color: "#f59e0b" },
-    { id: "mtb", label: "Onchain MTB Ride", icon: "🚵", color: "#22c55e" },
-    { id: "run", label: "Onchain Run", icon: "🏃", color: "#ef4444" },
-    { id: "swim", label: "Onchain Swim", icon: "🏊", color: "#a855f7" },
+    { id: "road", label: "Road Ride", icon: "🚴", color: "#f59e0b" },
+    { id: "mtb", label: "MTB Ride", icon: "🚵", color: "#22c55e" },
+    { id: "run", label: "Run", icon: "🏃", color: "#ef4444" },
+    { id: "swim", label: "Swim", icon: "🏊", color: "#a855f7" },
   ]
 
   const activeSport = sports.find(s => s.id === type) || sports[0]
