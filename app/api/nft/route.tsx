@@ -6,71 +6,59 @@ export async function GET(req: Request) {
 
  const { searchParams } = new URL(req.url)
 
- const sport = searchParams.get("sport") || ""
- const km = searchParams.get("km") || ""
- const time = searchParams.get("time") || ""
- const elev = searchParams.get("elev") || ""
- const xp = searchParams.get("xp") || ""
+ const sport = searchParams.get("sport") || "road"
+ const km = searchParams.get("km") || "0"
+ const time = searchParams.get("time") || "0"
+ const elev = searchParams.get("elev") || "0"
+ const xp = searchParams.get("xp") || "0"
 
-const template = new URL(`/nft/${sport}.png`, req.url).toString()
- 
+ const template = new URL(`/nft/${sport}.png`, req.url).toString()
+
  return new ImageResponse(
 
   (
    <div
     style={{
-     width:"100%",
-     height:"100%",
-     position:"relative",
-     display:"flex",
-     fontFamily:"Arial",
-     color:"white"
+     width: "1792px",
+     height: "1024px",
+     position: "relative",
+     display: "flex",
+     fontFamily: "Arial",
+     color: "white",
+     backgroundImage: `url(${template})`,
+     backgroundSize: "cover"
     }}
    >
 
-    {/* background template */}
-
-    <img
-     src={template}
-     style={{
-      position:"absolute",
-      width:"100%",
-      height:"100%",
-      objectFit:"cover"
-     }}
-    />
-
-    {/* LEFT METADATA */}
-
     <div
      style={{
-      position:"absolute",
-      left:80,
-      top:220,
-      width:500,
-      display:"flex",
-      flexDirection:"column",
-      gap:20
+      position: "absolute",
+      left: 80,
+      top: 220,
+      width: 500,
+      display: "flex",
+      flexDirection: "column",
+      gap: 20
      }}
     >
 
-     <div style={{fontSize:70,fontWeight:800}}>
+     <div style={{ fontSize: 70, fontWeight: 800 }}>
       {sport.toUpperCase()}
      </div>
 
-     <div style={{fontSize:40}}>
+     <div style={{ fontSize: 40 }}>
       {km} KM
      </div>
 
-     <div style={{fontSize:40}}>
+     <div style={{ fontSize: 40 }}>
       {time} MIN
      </div>
 
-     <div style={{fontSize:40}}>
+     <div style={{ fontSize: 40 }}>
       {elev} M
      </div>
 
-     <div style={{fontSize:48,fontWeight:700,color:"#FFD700"}}>
+     <div style={{ fontSize: 48, fontWeight: 700, color: "#FFD700" }}>
       {xp} XP
      </div>
 
@@ -80,8 +68,8 @@ const template = new URL(`/nft/${sport}.png`, req.url).toString()
   ),
 
   {
-   width:1792,
-   height:1024
+   width: 1792,
+   height: 1024
   }
 
  )
