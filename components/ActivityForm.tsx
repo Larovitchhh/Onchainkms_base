@@ -30,7 +30,7 @@ export default function ActivityForm() {
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      background: "#050505", // Fondo único y profundo
+      background: "linear-gradient(135deg, #0a1a3a 0%, #0f2a5a 40%, #1e3a8a 100%)",
       color: "white",
       fontFamily: "system-ui, -apple-system, sans-serif",
       padding: "20px"
@@ -79,15 +79,17 @@ export default function ActivityForm() {
 
           {["Distance (km)", "Duration (min)", "Elevation (m)"].map((label, i) => (
             <div key={label} style={{ marginBottom: "15px" }}>
-              <label style={{ display: "block", fontSize: "11px", color: "#666", marginBottom: "5px", fontWeight: 600, textTransform: "uppercase" }}>{label}</label>
+              <label style={{ display: "block", fontSize: "11px", color: "#666", marginBottom: "5px", fontWeight: 600, textTransform: "uppercase" }}>
+                {label}
+              </label>
               <input
                 type="number"
                 placeholder="0"
                 onChange={(e) => {
-                  const val = Number(e.target.value);
-                  if (i === 0) setDistance(val);
-                  else if (i === 1) setDuration(val);
-                  else setElevation(val);
+                  const val = Number(e.target.value)
+                  if (i === 0) setDistance(val)
+                  else if (i === 1) setDuration(val)
+                  else setElevation(val)
                 }}
                 style={{
                   width: "100%",
@@ -119,11 +121,11 @@ export default function ActivityForm() {
           <span style={{ fontSize: "11px", fontWeight: 800, color: activeSport.color, letterSpacing: "2px", marginBottom: "10px" }}>
             ONCHAIN REWARD
           </span>
-          
+
           <div style={{
             fontSize: "80px",
             fontWeight: 900,
-            color: "white", // Color sólido para asegurar visibilidad
+            color: "white",
             lineHeight: 1,
             textShadow: `0 0 20px ${activeSport.color}66`
           }}>
