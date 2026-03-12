@@ -16,8 +16,8 @@ export default function ActivityForm() {
   const activity = { type, distance, duration, elevation }
 
   const sports = [
-    { id: "road", label: "Road Ride", icon: "🚴", color: "#f59e0b" },
-    { id: "mtb", label: "MTB Ride", icon: "🚵", color: "#22c55e" },
+    { id: "road", label: "Onchain Road Ride", icon: "🚴", color: "#f59e0b" },
+    { id: "mtb", label: "Onchain MTB Ride", icon: "🚵", color: "#22c55e" },
     { id: "run", label: "Onchain Run", icon: "🏃", color: "#ef4444" },
     { id: "swim", label: "Onchain Swim", icon: "🏊", color: "#a855f7" },
   ]
@@ -53,9 +53,6 @@ export default function ActivityForm() {
           border: `1px solid ${activeSport.color}33`,
           transition: "all 0.3s ease"
         }}>
-          <h2 style={{ fontSize: "24px", marginBottom: "30px", fontWeight: 700 }}>
-            Log Your <span style={{ color: activeSport.color }}>Activity</span>
-          </h2>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "30px" }}>
             {sports.map(s => (
