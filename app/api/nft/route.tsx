@@ -1,6 +1,8 @@
 import { ImageResponse } from "@vercel/og"
+import { readFile } from "fs/promises"
+import path from "path"
 
-export const runtime = "edge"
+export const runtime = "nodejs"
 
 export async function GET(req: Request) {
 
@@ -12,7 +14,11 @@ export async function GET(req: Request) {
  const elev = searchParams.get("elev") || "0"
  const xp = searchParams.get("xp") || "0"
 
- const template = new URL(`/nft/${sport}.png`, req.url).toString()
+ const filePath = path.join(process.cwd(), "public", "nft", `${sport}.png`)
+ const imageBuffer = await readFile(filePath)
+ const base64 = imageBuffer.toString("base64")
+
+ const background = `data:image/png;base64,${base64}`
 
  return new ImageResponse(
 
@@ -25,7 +31,7 @@ export async function GET(req: Request) {
      display: "flex",
      fontFamily: "Arial",
      color: "white",
-     backgroundImage: `url(${template})`,
+     backgroundImage: `url(${background})`,
      backgroundSize: "cover"
     }}
    >
