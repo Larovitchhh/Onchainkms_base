@@ -14,7 +14,9 @@ export async function GET(req: Request) {
 
  const imgUrl = new URL(`/nft/${sport}.png`, req.url)
 
- const image = await fetch(imgUrl).then(res => res.arrayBuffer())
+const buffer = await fetch(imgUrl).then(res => res.arrayBuffer())
+const base64 = Buffer.from(buffer).toString("base64")
+const image = `data:image/png;base64,${base64}`
 
  return new ImageResponse(
 
