@@ -1,6 +1,7 @@
 import { ImageResponse } from "@vercel/og"
 
 export const runtime = "edge"
+export const dynamic = "force-dynamic"
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
@@ -15,8 +16,8 @@ export async function GET(req: Request) {
     (
       <div
         style={{
-          width: "1792px",
-          height: "1024px",
+          width: "100%",
+          height: "100%",
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
