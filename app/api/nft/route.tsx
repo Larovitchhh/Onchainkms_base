@@ -1,66 +1,69 @@
-import fs from "fs"
-import path from "path"
-import { NextRequest, NextResponse } from "next/server"
-import satori from "satori"
-import { Resvg } from "@resvg/resvg-js"
+import { ImageResponse } from "@vercel/og";
+import { NextRequest } from "next/server";
 
-export const runtime = "nodejs" // importante, no Edge
+export const runtime = "edge";
 
 export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url)
+    const { searchParams } = new URL(req.url);
 
-    const sport = (searchParams.get("sport") || "road").toLowerCase()
-    const km = searchParams.get("km") || "0"
-    const time = searchParams.get("time") || "0"
-    const elev = searchParams.get("elev") || "0"
-    const xp = searchParams.get("xp") || "0"
+    // Extraer parámetros
+    const sport = searchParams.get("sport") || "road";
+    const km = searchParams.get("km") || "0";
+    const time = searchParams.get("time") || "0";
+    const elev = searchParams.get("elev") || "0";
+    const xp = searchParams.get("xp") || "0";
 
-    // Ruta de plantilla
-    const templatePath = path.join(process.cwd(), "public", "nft", `${sport}.png`)
-    const templateBuffer = fs.readFileSync(templatePath)
-    const templateBase64 = templateBuffer.toString("base64")
+    // Construir URL absoluta para la plantilla PNG
+    // Importante: Vercel necesita la URL completa para el fetch en Edge Runtime
+    const protocol = req.url.startsWith('https') ? 'https' : 'http';
+    const host = req.headers.get('host');
+    const backgroundImage = `${protocol}://${host}/nft/${sport}.png`;
 
-    // Generar SVG dinámico con Satori
-    const svg = await satori(
-      <div
-        style={{
-          width: 1792,
-          height: 1024,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundImage: `url("data:image/png;base64,${templateBase64}")`,
-          backgroundSize: "cover",
-          color: "white",
-          fontFamily: "Arial",
-          flexDirection: "column",
-          gap: 20,
-          fontWeight: 700,
-          fontSize: 64
-        }}
-      >
-        <div>{sport.toUpperCase()}</div>
-        <div>{km} KM</div>
-        <div>{time} MIN</div>
-        <div>{elev} M</div>
-        <div style={{ color: "#FFD700" }}>{xp} XP</div>
-      </div>,
-      { width: 1792, height: 1024 }
-    )
-
-    // Renderizar SVG a PNG con Resvg
-    const resvg = new Resvg(svg)
-    const pngData = resvg.render()
-    const pngBuffer = pngData.asPng()
-
-    return new NextResponse(pngBuffer, {
-      status: 200,
-      headers: {
-        "Content-Type": "image/png"
+    return new ImageResponse(
+      (
+        <div
+          style={{
+            height: "100%",
+            width: "100%",
+            display: "flex",
+            flexDirection: "row", // Metadata a la izquierda
+            alignItems: "center",
+            justifyContent: "flex-start",
+            backgroundImage: `url(${backgroundImage})`,
+            backgroundSize: "1792px 1024px",
+            backgroundColor: "#0f172a", // Fallback
+            color: "white",
+            fontFamily: "sans-serif",
+            fontWeight: "bold",
+            paddingLeft: "100px", // Espaciado desde la izquierda
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "20px",
+              textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
+            }}
+          >
+            <div style={{ fontSize: 120, marginBottom: "20px" }}>
+              {sport.toUpperCase()}
+            </div>
+            <div style={{ fontSize: 80 }}>{km} KM</div>
+            <div style={{ fontSize: 80 }}>{time} MIN</div>
+            <div style={{ fontSize: 80 }}>{elev} M</div>
+            <div style={{ fontSize: 90, color: "#FFD700" }}>{xp} XP</div>
+          </div>
+        </div>
+      ),
+      {
+        width: 1792,
+        height: 1024,
       }
-    })
-  } catch (err: any) {
-    return new NextResponse(`Error: ${err.message}`, { status: 500 })
+    );
+  } catch (e: any) {
+    console.error(e.message);
+    return new Response(`Error al generar imagen`, { status: 500 });
   }
 }
