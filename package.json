@@ -2,14 +2,17 @@
   "name": "onchain-sports",
   "version": "1.0.0",
   "private": true,
+
   "engines": {
-    "node": "24.x"
+    "node": "20.x"
   },
+
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start"
   },
+
   "dependencies": {
     "ethers": "^6.8.0",
     "@vercel/og": "^0.6.0",
@@ -20,6 +23,7 @@
     "@stacks/network": "^6.10.0",
     "@stacks/transactions": "^6.10.0"
   },
+
   "devDependencies": {
     "typescript": "5.4.5",
     "@types/react": "18.2.66",
