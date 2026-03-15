@@ -1,7 +1,9 @@
 import { ImageResponse } from "@vercel/og";
 import { NextRequest } from "next/server";
+import fs from "fs";
+import path from "path";
 
-export const runtime = "nodejs"; // Nodejs tiene más memoria que Edge para manejar Base64
+export const runtime = "nodejs"; 
 
 export async function GET(req: NextRequest) {
   try {
@@ -22,17 +24,25 @@ export async function GET(req: NextRequest) {
       return new Response(JSON.stringify({
         name: `Onchain ${sport.toUpperCase()}`,
         image: `${baseURL}/api/nft?sport=${sport}&km=${km}&time=${time}&elev=${elev}&xp=${xp}`,
-        attributes: [{ trait_type: "Sport", value: sport }, { trait_type: "XP", value: Number(xp) }]
+        attributes: [
+          { trait_type: "Sport", value: sport },
+          { trait_type: "XP", value: Number(xp) }
+        ]
       }), { headers: { "content-type": "application/json" } });
     }
 
-    // 2. MODO IMAGEN - CARGA DIRECTA
-    const imageUrl = `${baseURL}/nft/${sport}.png`;
+    // 2. MODO IMAGEN - LECTURA DE DISCO (FS)
+    // Buscamos la imagen en la carpeta public/nft
+    const filePath = path.join(process.cwd(), "public", "nft", `${sport}.png`);
     
-    // Convertimos la imagen a Base64 para que Vercel no tenga que "buscarla" fuera
-    const imageRes = await fetch(imageUrl);
-    const arrayBuffer = await imageRes.arrayBuffer();
-    const base64Image = `data:image/png;base64,${Buffer.from(arrayBuffer).toString('base64')}`;
+    let base64Image = "";
+    try {
+      const imageBuffer = fs.readFileSync(filePath);
+      base64Image = `data:image/png;base64,${imageBuffer.toString("base64")}`;
+    } catch (e) {
+      console.error("No se pudo leer el archivo de imagen:", filePath);
+      // Si falla la lectura, el código seguirá adelante y usará el fondo oscuro
+    }
 
     return new ImageResponse(
       (
@@ -43,16 +53,20 @@ export async function GET(req: NextRequest) {
             display: "flex",
             backgroundColor: "#020617",
             position: "relative",
+            flexDirection: "column",
           }}
         >
-          {/* Imagen de fondo inyectada como DATA directa */}
-          <img
-            src={base64Image}
-            width="1200"
-            height="630"
-            style={{ position: "absolute", top: 0, left: 0 }}
-          />
+          {/* Si logramos leer la imagen, la ponemos de fondo */}
+          {base64Image && (
+            <img
+              src={base64Image}
+              width="1200"
+              height="630"
+              style={{ position: "absolute", top: 0, left: 0, objectFit: "cover" }}
+            />
+          )}
 
+          {/* Filtro de contraste */}
           <div style={{
             position: "absolute",
             top: 0, left: 0, right: 0, bottom: 0,
@@ -67,17 +81,20 @@ export async function GET(req: NextRequest) {
             marginTop: "auto",
             marginBottom: "auto"
           }}>
-            <span style={{ fontSize: 24, color: "#fbbf24", fontWeight: "bold" }}>ONCHAIN KMS</span>
-            <h1 style={{ fontSize: 100, margin: "10px 0", fontWeight: 900, textTransform: "uppercase", color: "white" }}>
+            <span style={{ fontSize: 24, color: "#fbbf24", fontWeight: "bold", letterSpacing: 4 }}>
+              ONCHAIN KMS
+            </span>
+            <h1 style={{ fontSize: 110, margin: "10px 0", fontWeight: 900, textTransform: "uppercase", color: "white" }}>
               {sport}
             </h1>
-            <div style={{ display: "flex", gap: "30px", fontSize: 40, fontWeight: "bold", color: "white" }}>
+            <div style={{ display: "flex", gap: "30px", fontSize: 45, fontWeight: "bold", color: "white" }}>
               <span>{km} KM</span>
               <span>{time} MIN</span>
+              <span>{elev} M</span>
             </div>
             <div style={{ 
-              marginTop: 30, padding: "10px 30px", background: "#fbbf24", color: "black", 
-              fontSize: 45, fontWeight: "bold", borderRadius: 12, alignSelf: "flex-start" 
+              marginTop: 30, padding: "12px 40px", background: "#fbbf24", color: "black", 
+              fontSize: 55, fontWeight: "bold", borderRadius: 15, alignSelf: "flex-start" 
             }}>
               {xp} XP
             </div>
@@ -87,6 +104,6 @@ export async function GET(req: NextRequest) {
       { width: 1200, height: 630 }
     );
   } catch (e: any) {
-    return new Response(`Error Real: ${e.message}`, { status: 500 });
+    return new Response(`ERROR_TECNICO: ${e.message}`, { status: 500 });
   }
 }
