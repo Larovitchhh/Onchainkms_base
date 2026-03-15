@@ -1,153 +1,93 @@
-import { ImageResponse } from "@vercel/og"
-import { NextRequest } from "next/server"
+import { ImageResponse } from "@vercel/og";
+import { NextRequest } from "next/server";
 
-export const runtime = "edge"
+export const runtime = "edge";
 
 export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
 
- try {
+    const sport = searchParams.get("sport") || "road";
+    const km = searchParams.get("km") || "0";
+    const time = searchParams.get("time") || "0";
+    const elev = searchParams.get("elev") || "0";
+    const xp = searchParams.get("xp") || "0";
 
-  const { searchParams } = new URL(req.url)
+    const json = searchParams.get("json");
 
-  const sport = searchParams.get("sport") || "road"
-  const km = searchParams.get("km") || "0"
-  const time = searchParams.get("time") || "0"
-  const elev = searchParams.get("elev") || "0"
-  const xp = searchParams.get("xp") || "0"
+    const protocol = req.url.startsWith("https") ? "https" : "http";
+    const host = req.headers.get("host");
 
-  const json = searchParams.get("json")
+    const imageURL =
+      `${protocol}://${host}/api/nft?sport=${sport}&km=${km}&time=${time}&elev=${elev}&xp=${xp}`;
 
-  const protocol = req.url.startsWith("https") ? "https" : "http"
-  const host = req.headers.get("host")
+    // ---------- METADATA MODE ----------
 
-  const imageURL =
-   `${protocol}://${host}/api/nft?sport=${sport}&km=${km}&time=${time}&elev=${elev}&xp=${xp}`
+    if (json) {
+      const metadata = {
+        name: `${sport.toUpperCase()} Activity`,
+        description: "Onchain Sports Activity NFT",
+        image: imageURL,
+        attributes: [
+          { trait_type: "Sport", value: sport },
+          { trait_type: "Distance KM", value: Number(km) },
+          { trait_type: "Duration MIN", value: Number(time) },
+          { trait_type: "Elevation M", value: Number(elev) },
+          { trait_type: "XP", value: Number(xp) }
+        ]
+      };
 
-  // ---------- METADATA MODE ----------
+      return new Response(JSON.stringify(metadata), {
+        headers: { "content-type": "application/json" }
+      });
+    }
 
-  if (json) {
+    // ---------- IMAGE MODE ----------
 
-   const metadata = {
+    const backgroundImage = `${protocol}://${host}/nft/${sport}.png`;
 
-    name: `${sport.toUpperCase()} Activity`,
-
-    description: "Onchain Sports Activity NFT",
-
-    image: imageURL,
-
-    attributes: [
-
-     { trait_type: "Sport", value: sport },
-     { trait_type: "Distance KM", value: Number(km) },
-     { trait_type: "Duration MIN", value: Number(time) },
-     { trait_type: "Elevation M", value: Number(elev) },
-     { trait_type: "XP", value: Number(xp) }
-
-    ]
-
-   }
-
-   return new Response(
-    JSON.stringify(metadata),
-    { headers: { "content-type": "application/json" } }
-   )
-
+    return new ImageResponse(
+      (
+        <div
+          style={{
+            height: "100%",
+            width: "100%",
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "flex-start",
+            backgroundImage: `url(${backgroundImage})`,
+            backgroundSize: "1792px 1024px",
+            backgroundColor: "#0f172a",
+            color: "white",
+            fontFamily: "sans-serif",
+            fontWeight: "bold",
+            paddingLeft: "100px"
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "20px",
+              textShadow: "2px 2px 4px rgba(0,0,0,0.5)"
+            }}
+          >
+            <div style={{ fontSize: 120 }}>{sport.toUpperCase()}</div>
+            <div style={{ fontSize: 80 }}>{km} KM</div>
+            <div style={{ fontSize: 80 }}>{time} MIN</div>
+            <div style={{ fontSize: 80 }}>{elev} M</div>
+            <div style={{ fontSize: 90, color: "#FFD700" }}>{xp} XP</div>
+          </div>
+        </div>
+      ),
+      {
+        width: 1792,
+        height: 1024
+      }
+    );
+  } catch (e: any) {
+    console.error(e);
+    return new Response("Image generation failed", { status: 500 });
   }
-
-  // ---------- IMAGE MODE ----------
-
-  const imageRes = await fetch(
-   `${protocol}://${host}/nft/${sport}.png`
-  )
-
-  const imageArrayBuffer = await imageRes.arrayBuffer()
-
-  return new ImageResponse(
-
-   (
-    <div
-     style={{
-      height: "100%",
-      width: "100%",
-      display: "flex",
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "flex-start",
-      position: "relative",
-      color: "white",
-      fontFamily: "sans-serif",
-      fontWeight: "bold",
-      paddingLeft: "100px"
-     }}
-    >
-
-     {/* BACKGROUND IMAGE */}
-
-     <img
-      src={imageArrayBuffer}
-      style={{
-       position: "absolute",
-       top: 0,
-       left: 0,
-       width: "100%",
-       height: "100%",
-       objectFit: "cover"
-      }}
-     />
-
-     {/* TEXT OVERLAY */}
-
-     <div
-      style={{
-       display: "flex",
-       flexDirection: "column",
-       gap: "20px",
-       textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
-       position: "relative"
-      }}
-     >
-
-      <div style={{ fontSize: 120 }}>
-       {sport.toUpperCase()}
-      </div>
-
-      <div style={{ fontSize: 80 }}>
-       {km} KM
-      </div>
-
-      <div style={{ fontSize: 80 }}>
-       {time} MIN
-      </div>
-
-      <div style={{ fontSize: 80 }}>
-       {elev} M
-      </div>
-
-      <div style={{ fontSize: 90, color: "#FFD700" }}>
-       {xp} XP
-      </div>
-
-     </div>
-
-    </div>
-   ),
-
-   {
-    width: 1792,
-    height: 1024
-   }
-
-  )
-
- } catch (e: any) {
-
-  console.error(e)
-
-  return new Response(
-   "Image generation failed",
-   { status: 500 }
-  )
-
- }
-
 }
