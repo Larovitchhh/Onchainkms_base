@@ -1,55 +1,47 @@
 import { ethers } from "ethers"
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from "./contract"
 import { getWallet } from "./wallet"
+import { Activity } from "../types"
 
-type Activity = {
- distance:number
- duration:number
- elevation:number
-}
+export async function mintActivity(activity: Activity, xp: number) {
+  console.log("mintActivity called")
+  console.log("activity:", activity)
+  console.log("xp:", xp)
 
-export async function mintActivity(activity:Activity, xp:number){
+  try {
+    const { signer, address } = await getWallet()
 
- console.log("mintActivity called")
- console.log("activity:",activity)
- console.log("xp:",xp)
+    console.log("wallet connected:", address)
 
- try{
+    const contract = new ethers.Contract(
+      CONTRACT_ADDRESS,
+      CONTRACT_ABI,
+      signer
+    )
 
-  const {signer,address} = await getWallet()
+    console.log("sending transaction...")
 
-  console.log("wallet connected:",address)
+    // Construimos la URL de la metadata dinámicamente según el deporte
+    // Usamos el parámetro &json=1 para que el contrato reciba el JSON, no la imagen
+    const metadataURL = `${window.location.origin}/api/nft?sport=${activity.type}&km=${activity.distance}&time=${activity.duration}&elev=${activity.elevation}&xp=${xp}&json=1`
 
-  const contract = new ethers.Contract(
-   CONTRACT_ADDRESS,
-   CONTRACT_ABI,
-   signer
-  )
+    const tx = await contract.mintActivity(
+      address,
+      activity.distance,
+      xp,
+      "manual_activity",
+      metadataURL
+    )
 
-  console.log("sending transaction...")
+    console.log("tx sent:", tx)
 
-  const tx = await contract.mintActivity(
-   address,
-   activity.distance,
-   xp,
-   "manual_activity",
-   `${window.location.origin}/api/nft?sport=road&km=${activity.distance}&time=${activity.duration}&elev=${activity.elevation}&xp=${xp}&json=1`
-  )
+    await tx.wait()
 
-  console.log("tx sent:",tx)
+    console.log("tx confirmed")
+    alert("Activity minted successfully on Base!")
 
-  await tx.wait()
-
-  console.log("tx confirmed")
-
-  alert("Activity minted!")
-
- }catch(err:any){
-
-  console.error("mint error:",err)
-
-  alert(err.reason || err.message || "Mint failed")
-
- }
-
+  } catch (err: any) {
+    console.error("mint error:", err)
+    alert(err.reason || err.message || "Mint failed")
+  }
 }
