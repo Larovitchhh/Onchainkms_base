@@ -54,9 +54,11 @@ export async function GET(req: NextRequest){
   }
 
   // IMAGE MODE
-  const backgroundImage =
-   `${protocol}://${host}/nft/${sport}.png`
+const imageRes = await fetch(
+ `${protocol}://${host}/nft/${sport}.png`
+)
 
+const imageArrayBuffer = await imageRes.arrayBuffer()
   return new ImageResponse(
 
    (
