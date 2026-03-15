@@ -21,19 +21,16 @@ export async function GET(req: NextRequest) {
     if (isJson) {
       return new Response(JSON.stringify({
         name: `Onchain ${sport.toUpperCase()}`,
-        description: `Activity NFT: ${km}km - ${xp} XP`,
         image: `${baseURL}/api/nft?sport=${sport}&km=${km}&time=${time}&elev=${elev}&xp=${xp}`,
         attributes: [
           { trait_type: "Sport", value: sport },
-          { trait_type: "Distance", value: Number(km) },
           { trait_type: "XP", value: Number(xp) }
         ]
       }), { headers: { "content-type": "application/json" } });
     }
 
     // 2. MODO IMAGEN
-    // Importante: Usamos una ruta absoluta basada en el request para evitar errores de red internos
-    const backgroundImage = new URL(`/nft/${sport}.png`, req.url).toString();
+    const imgUrl = `${baseURL}/nft/${sport}.png`;
 
     return new ImageResponse(
       (
@@ -42,42 +39,53 @@ export async function GET(req: NextRequest) {
             height: "100%",
             width: "100%",
             display: "flex",
-            backgroundColor: "#020617",
-            backgroundImage: `url(${backgroundImage})`,
-            backgroundSize: "100% 100%",
-            color: "white",
             flexDirection: "column",
-            justifyContent: "center",
+            backgroundColor: "#020617", // FONTO DE SEGURIDAD (Si la imagen falla, se verá esto)
+            color: "white",
             padding: "60px",
+            position: "relative",
           }}
         >
-          {/* Overlay para garantizar lectura del texto */}
+          {/* Intentamos cargar la imagen de fondo. Si es muy pesada, el motor la ignorará y usará el bgColor */}
+          <img
+            src={imgUrl}
+            width="1200"
+            height="630"
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              objectFit: "cover",
+            }}
+          />
+
+          {/* Overlay para legibilidad */}
           <div style={{
             position: "absolute",
             top: 0, left: 0, right: 0, bottom: 0,
-            background: "linear-gradient(to right, rgba(0,0,0,0.8), transparent)",
+            background: "linear-gradient(to right, rgba(0,0,0,0.85), rgba(0,0,0,0.2))",
           }} />
 
-          <div style={{ display: "flex", flexDirection: "column", position: "relative" }}>
-            <span style={{ fontSize: 24, color: "#fbbf24", fontWeight: "bold", letterSpacing: 2 }}>
+          <div style={{ display: "flex", flexDirection: "column", position: "relative", marginTop: "auto" }}>
+            <span style={{ fontSize: 28, color: "#fbbf24", fontWeight: "bold", letterSpacing: 2 }}>
               ONCHAIN KMS
             </span>
-            <h1 style={{ fontSize: 100, margin: "10px 0", fontWeight: 900, textTransform: "uppercase" }}>
+            <h1 style={{ fontSize: 110, margin: "10px 0", fontWeight: 900, textTransform: "uppercase" }}>
               {sport}
             </h1>
-            <div style={{ display: "flex", gap: "30px", fontSize: 40, fontWeight: "bold" }}>
+            <div style={{ display: "flex", gap: "30px", fontSize: 45, fontWeight: "bold" }}>
               <span>{km} KM</span>
               <span>{time} MIN</span>
               <span>{elev} M</span>
             </div>
             <div style={{ 
               marginTop: 30, 
-              padding: "10px 30px", 
+              padding: "12px 35px", 
               background: "#fbbf24", 
               color: "black", 
-              fontSize: 45, 
+              fontSize: 50, 
               fontWeight: "bold", 
-              borderRadius: 12,
+              borderRadius: 15,
               alignSelf: "flex-start"
             }}>
               {xp} XP
@@ -86,11 +94,12 @@ export async function GET(req: NextRequest) {
         </div>
       ),
       {
-        width: 1200, // Reducido para evitar el Error 500 por peso de imagen
+        width: 1200,
         height: 630,
       }
     );
   } catch (e: any) {
+    // Si hay un error catastrófico, devolvemos un texto simple para no dar blanco
     return new Response(`Error: ${e.message}`, { status: 500 });
   }
 }
