@@ -33,7 +33,7 @@ export async function mintActivity(activity:Activity, xp:number){
    activity.distance,
    xp,
    "manual_activity",
-   "ipfs://activity"
+   `${window.location.origin}/api/nft?sport=road&km=${activity.distance}&time=${activity.duration}&elev=${activity.elevation}&xp=${xp}&json=1`
   )
 
   console.log("tx sent:",tx)
