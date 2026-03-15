@@ -2,7 +2,13 @@ import "./globals.css"
 
 export const metadata = {
   title: "Onchain Sports",
-  description: "Mint your sport activity on Base"
+  description: "Mint your sport activity on Base",
+  // ESTO ES LO NUEVO PARA FARCASTER
+  other: {
+    "fc:frame": "vNext",
+    "fc:frame:image": "https://onchainkms-base.vercel.app/nft/road.png",
+    "fc:frame:button:1": "Mint my Activity",
+  },
 }
 
 export default function RootLayout({
