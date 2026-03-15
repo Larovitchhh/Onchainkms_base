@@ -26,9 +26,10 @@
     "ogDescription": "Track your activity onchain",
     "ogImageUrl": "https://onchainkms-base.vercel.app/og.png"
   },
-  "accountAssociation": {
+  }
+"accountAssociation": {
     "header": "eyJmaWQiOjY4NTE4OSwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweGQyMkY3OWEyQWM5ZDZENUEzMjBiYTc5NDg5NDAxODY1YjNCQThBMTUifQ",
-    "payload": "eyJkb21haW4iOiJvbmNoYWlua21zLmJhc2VtaW5pYXBwcy5jb20ifQ",
-    "signature": "Jnl4/bPXLR9wucd9GpqQ8Q7fMKO7UWn852kKhs8mSiYIUcdqtDItVYzbx4Mgna/rz9sS7f3B4X394xFah5JmRhs="
+    "payload": "eyJkb21haW4iOiJvbmNoYWlua21zLWJhc2UudmVyY2VsLmFwcCJ9",
+    "signature": "W0shRdGziU3aczWlJAOkllRCsTXBfpDd4I7BnCe8JLooU47BMi4WXhDjH5hbfL3CxHN7iWYlmbfGgOw2K0A9Mxw="
   }
 }
