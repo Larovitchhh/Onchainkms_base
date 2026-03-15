@@ -12,9 +12,16 @@ export default function ActivityForm() {
   const [duration, setDuration] = useState(0)
   const [elevation, setElevation] = useState(0)
 
+  // Calculamos el XP asegurando que los valores sean números
   const xp = calculateXP(type, distance, duration, elevation)
 
-  const activity: Activity = { type, distance, duration, elevation }
+  // IMPORTANTE: Creamos el objeto asegurando que no haya Strings raros
+  const activity: Activity = { 
+    type, 
+    distance: Number(distance) || 0, 
+    duration: Number(duration) || 0, 
+    elevation: Number(elevation) || 0 
+  }
 
   const sports: { id: SportType; label: string; icon: string; color: string }[] = [
     { id: "road", label: "Road Ride", icon: "🚴", color: "#f59e0b" },
@@ -25,7 +32,7 @@ export default function ActivityForm() {
 
   const activeSport = sports.find(s => s.id === type) || sports[0]
 
-  // URL dinámica para la previsualización y para el contrato
+  // URL para la preview del NFT
   const nftURL = `/api/nft?sport=${type}&km=${distance}&time=${duration}&elev=${elevation}&xp=${xp}`
 
   return (
@@ -111,7 +118,7 @@ export default function ActivityForm() {
             </div>
           ))}
 
-          {/* PREVISUALIZACIÓN DINÁMICA DEL NFT */}
+          {/* PREVISUALIZACIÓN DEL NFT */}
           {xp > 0 && (
             <div style={{ marginTop: "30px" }}>
               <p style={{ fontSize: "12px", color: "#444", marginBottom: "8px" }}>PREVIEW:</p>
@@ -168,6 +175,7 @@ export default function ActivityForm() {
 
           <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "10px" }}>
             <MintButton activity={activity} xp={xp} />
+            {/* Aquí pasamos los datos limpios al botón de Stacks */}
             <MintStacksButton activity={activity} xp={xp} />
           </div>
         </div>
