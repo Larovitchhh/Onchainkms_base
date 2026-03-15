@@ -7,28 +7,28 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
 
-    const sport = (searchParams.get("sport") || "road") as string;
+    // 1. Parámetros
+    const sport = (searchParams.get("sport") || "road").toLowerCase();
     const km = searchParams.get("km") || "0";
     const time = searchParams.get("time") || "0";
     const elev = searchParams.get("elev") || "0";
     const xp = searchParams.get("xp") || "0";
-    const json = searchParams.get("json");
+    const isJson = searchParams.get("json") === "1";
 
-    const protocol = req.nextUrl.protocol;
-    const host = req.headers.get("host");
-    const baseURL = `${protocol}//${host}`;
+    // 2. Construcción de URL Base para Vercel
+    const host = req.headers.get("host") || "onchainkms-base.vercel.app";
+    const protocol = host.includes("localhost") ? "http" : "https";
+    const baseURL = `${protocol}://${host}`;
 
-    // 1. MODO METADATA (JSON)
-    if (json) {
+    // MODO METADATA (JSON)
+    if (isJson) {
       const metadata = {
-        name: `${sport.toUpperCase()} Session`,
-        description: `Activity NFT with ${xp} XP earned on Onchain Sports.`,
+        name: `Onchain ${sport.toUpperCase()}`,
+        description: `Activity NFT: ${km}km, ${time}min, ${elev}m. Total XP: ${xp}`,
         image: `${baseURL}/api/nft?sport=${sport}&km=${km}&time=${time}&elev=${elev}&xp=${xp}`,
         attributes: [
           { trait_type: "Sport", value: sport },
-          { trait_type: "Distance", value: `${km} km` },
-          { trait_type: "Duration", value: `${time} min` },
-          { trait_type: "Elevation", value: `${elev} m` },
+          { trait_type: "Distance", value: Number(km) },
           { trait_type: "XP", value: Number(xp) }
         ]
       };
@@ -37,8 +37,8 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    // 2. MODO IMAGEN (PNG dinámico)
-    // Usamos la ruta de tus archivos en /public/nft/
+    // MODO IMAGEN (PNG)
+    // Importante: Referencia absoluta a la imagen en /public/nft/
     const backgroundImage = `${baseURL}/nft/${sport}.png`;
 
     return new ImageResponse(
@@ -48,61 +48,46 @@ export async function GET(req: NextRequest) {
             height: "100%",
             width: "100%",
             display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            justifyContent: "center",
+            backgroundColor: "#000", // Fondo de seguridad
             backgroundImage: `url(${backgroundImage})`,
             backgroundSize: "100% 100%",
             color: "white",
+            padding: "80px",
             fontFamily: "sans-serif",
-            position: "relative",
           }}
         >
-          {/* Overlay gradiente para legibilidad */}
-          <div style={{
-            position: 'absolute',
-            top: 0, left: 0, right: 0, bottom: 0,
-            background: 'linear-gradient(to right, rgba(0,0,0,0.7) 0%, transparent 60%)',
-            display: 'flex'
-          }} />
+          {/* Overlay para legibilidad */}
+          <div 
+            style={{
+              position: 'absolute',
+              top: 0, left: 0, right: 0, bottom: 0,
+              background: 'linear-gradient(to right, rgba(0,0,0,0.7) 0%, transparent 100%)',
+            }} 
+          />
 
-          <div style={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            paddingLeft: "80px",
-            zIndex: 10
-          }}>
-            <span style={{ fontSize: 40, color: '#3b82f6', letterSpacing: '4px', marginBottom: -10 }}>
-              ONCHAIN SPORTS
-            </span>
-            <h1 style={{ fontSize: 160, margin: 0, textTransform: 'uppercase', fontWeight: 900 }}>
+          <div style={{ display: "flex", flexDirection: "column", zIndex: 10 }}>
+            <span style={{ fontSize: 40, color: '#fbbf24', fontWeight: 'bold' }}>ONCHAIN KMS</span>
+            <h1 style={{ fontSize: 140, margin: "10px 0", textTransform: 'uppercase', fontWeight: 900 }}>
               {sport}
             </h1>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '20px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                <span style={{ fontSize: 60, opacity: 0.8 }}>📍</span>
-                <span style={{ fontSize: 70 }}>{km} <small style={{ fontSize: 30 }}>KM</small></span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                <span style={{ fontSize: 60, opacity: 0.8 }}>⏱️</span>
-                <span style={{ fontSize: 70 }}>{time} <small style={{ fontSize: 30 }}>MIN</small></span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                <span style={{ fontSize: 60, opacity: 0.8 }}>🏔️</span>
-                <span style={{ fontSize: 70 }}>{elev} <small style={{ fontSize: 30 }}>M</small></span>
-              </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <span style={{ fontSize: 60 }}>{km} KM</span>
+              <span style={{ fontSize: 60 }}>{time} MIN</span>
+              <span style={{ fontSize: 60 }}>{elev} M</span>
             </div>
-
-            <div style={{
-              marginTop: '40px',
-              padding: '10px 30px',
-              background: '#FFD700',
-              color: 'black',
-              fontSize: 50,
-              fontWeight: 'bold',
-              borderRadius: '10px',
-              alignSelf: 'flex-start'
+            <div style={{ 
+              marginTop: '40px', 
+              fontSize: 80, 
+              background: '#fbbf24', 
+              color: 'black', 
+              padding: '10px 30px', 
+              borderRadius: '15px',
+              fontWeight: 'bold' 
             }}>
-              +{xp} XP
+              {xp} XP
             </div>
           </div>
         </div>
@@ -113,6 +98,7 @@ export async function GET(req: NextRequest) {
       }
     );
   } catch (e: any) {
-    return new Response(`Failed to generate image`, { status: 500 });
+    console.error("Error en API NFT:", e.message);
+    return new Response(`Error: ${e.message}`, { status: 500 });
   }
 }
