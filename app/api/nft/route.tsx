@@ -1,7 +1,6 @@
 import { ImageResponse } from "@vercel/og";
 import { NextRequest } from "next/server";
 
-// CAMBIO CLAVE: Usamos 'nodejs' en lugar de 'edge' para tener más memoria (8GB vs 128MB)
 export const runtime = "nodejs"; 
 
 export async function GET(req: NextRequest) {
@@ -18,7 +17,7 @@ export async function GET(req: NextRequest) {
     const host = req.headers.get("host") || "onchainkms-base.vercel.app";
     const baseURL = `https://${host}`;
 
-    // MODO JSON
+    // 1. MODO JSON
     if (isJson) {
       return new Response(JSON.stringify({
         name: `Onchain ${sport.toUpperCase()}`,
@@ -30,8 +29,13 @@ export async function GET(req: NextRequest) {
       }), { headers: { "content-type": "application/json" } });
     }
 
-    // MODO IMAGEN
-    const backgroundImage = `${baseURL}/nft/${sport}.png`;
+    // 2. MODO IMAGEN: Descargamos la imagen antes de renderizar
+    const imagePath = `${baseURL}/nft/${sport}.png`;
+    
+    // Hacemos fetch de la imagen de fondo para convertirla en ArrayBuffer
+    const response = await fetch(imagePath);
+    if (!response.ok) throw new Error(`No se pudo cargar la imagen: ${imagePath}`);
+    const imageData = await response.arrayBuffer();
 
     return new ImageResponse(
       (
@@ -41,27 +45,53 @@ export async function GET(req: NextRequest) {
             width: "100%",
             display: "flex",
             backgroundColor: "#000",
-            backgroundImage: `url(${backgroundImage})`,
-            backgroundSize: "100% 100%",
             color: "white",
             position: "relative",
           }}
         >
-          {/* Overlay de seguridad para ver si el texto renderiza */}
+          {/* Imagen de fondo usando los datos binarios directamente */}
+          <img 
+            src={imageData as any} 
+            width="1792" 
+            height="1024" 
+            style={{ position: 'absolute', top: 0, left: 0 }}
+          />
+
+          {/* Overlay y Texto */}
           <div style={{
             position: "absolute",
-            top: 40,
-            left: 40,
+            top: 0, left: 0, right: 0, bottom: 0,
+            background: 'linear-gradient(to right, rgba(0,0,0,0.8) 0%, transparent 100%)',
+          }} />
+
+          <div style={{
+            position: "relative",
             display: "flex",
             flexDirection: "column",
-            backgroundColor: "rgba(0,0,0,0.6)",
-            padding: "40px",
-            borderRadius: "20px"
+            padding: "80px",
+            marginTop: "auto",
+            marginBottom: "auto"
           }}>
-            <div style={{ fontSize: 80, fontWeight: "bold" }}>{sport.toUpperCase()}</div>
-            <div style={{ fontSize: 50 }}>{km} KM | {time} MIN</div>
-            <div style={{ fontSize: 50 }}>{elev} M</div>
-            <div style={{ fontSize: 70, color: "#fbbf24", marginTop: "20px" }}>{xp} XP</div>
+            <div style={{ fontSize: 40, color: "#fbbf24", marginBottom: 10 }}>ONCHAIN KMS</div>
+            <div style={{ fontSize: 140, fontWeight: "900", textTransform: "uppercase", margin: 0 }}>
+              {sport}
+            </div>
+            <div style={{ display: "flex", gap: "30px", fontSize: 60, marginTop: 20 }}>
+              <span>{km} KM</span>
+              <span>{time} MIN</span>
+              <span>{elev} M</span>
+            </div>
+            <div style={{ 
+              fontSize: 80, 
+              background: "#fbbf24", 
+              color: "black", 
+              padding: "10px 40px", 
+              borderRadius: "20px",
+              marginTop: 40,
+              alignSelf: "flex-start"
+            }}>
+              {xp} XP
+            </div>
           </div>
         </div>
       ),
@@ -71,7 +101,7 @@ export async function GET(req: NextRequest) {
       }
     );
   } catch (e: any) {
-    // Si falla, ahora sí veremos el error en el navegador
-    return new Response(`Error crítico: ${e.message}`, { status: 500 });
+    console.error("DEBUG ERROR:", e.message);
+    return new Response(`Error: ${e.message}`, { status: 500 });
   }
 }
