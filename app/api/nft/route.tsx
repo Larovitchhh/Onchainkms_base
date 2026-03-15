@@ -1,9 +1,7 @@
 import { ImageResponse } from "@vercel/og";
 import { NextRequest } from "next/server";
-import fs from "fs";
-import path from "path";
 
-export const runtime = "nodejs"; 
+export const runtime = "edge";
 
 export async function GET(req: NextRequest) {
   try {
@@ -31,18 +29,10 @@ export async function GET(req: NextRequest) {
       }), { headers: { "content-type": "application/json" } });
     }
 
-    // 2. MODO IMAGEN - LECTURA DE DISCO (FS)
-    // Buscamos la imagen en la carpeta public/nft
-    const filePath = path.join(process.cwd(), "public", "nft", `${sport}.png`);
-    
-    let base64Image = "";
-    try {
-      const imageBuffer = fs.readFileSync(filePath);
-      base64Image = `data:image/png;base64,${imageBuffer.toString("base64")}`;
-    } catch (e) {
-      console.error("No se pudo leer el archivo de imagen:", filePath);
-      // Si falla la lectura, el código seguirá adelante y usará el fondo oscuro
-    }
+    // 2. MODO IMAGEN
+    // Usamos fetch con la URL absoluta pero con un cache-control agresivo
+    // Esto evita problemas de lectura de disco y de permisos
+    const imageUrl = `${baseURL}/nft/${sport}.png`;
 
     return new ImageResponse(
       (
@@ -56,21 +46,25 @@ export async function GET(req: NextRequest) {
             flexDirection: "column",
           }}
         >
-          {/* Si logramos leer la imagen, la ponemos de fondo */}
-          {base64Image && (
-            <img
-              src={base64Image}
-              width="1200"
-              height="630"
-              style={{ position: "absolute", top: 0, left: 0, objectFit: "cover" }}
-            />
-          )}
+          {/* Usamos el componente img de satori que acepta URLs directamente en Edge */}
+          <img
+            src={imageUrl}
+            width="1200"
+            height="630"
+            style={{ 
+              position: "absolute", 
+              top: 0, 
+              left: 0, 
+              objectFit: "cover" 
+            }}
+          />
 
-          {/* Filtro de contraste */}
+          {/* Filtro de contraste para el texto */}
           <div style={{
             position: "absolute",
             top: 0, left: 0, right: 0, bottom: 0,
-            background: "linear-gradient(to right, rgba(0,0,0,0.8), transparent)",
+            background: "linear-gradient(to right, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, transparent 100%)",
+            display: "flex",
           }} />
 
           <div style={{
@@ -84,26 +78,31 @@ export async function GET(req: NextRequest) {
             <span style={{ fontSize: 24, color: "#fbbf24", fontWeight: "bold", letterSpacing: 4 }}>
               ONCHAIN KMS
             </span>
-            <h1 style={{ fontSize: 110, margin: "10px 0", fontWeight: 900, textTransform: "uppercase", color: "white" }}>
+            <h1 style={{ fontSize: 100, margin: "10px 0", fontWeight: 900, textTransform: "uppercase", color: "white" }}>
               {sport}
             </h1>
-            <div style={{ display: "flex", gap: "30px", fontSize: 45, fontWeight: "bold", color: "white" }}>
+            <div style={{ display: "flex", gap: "30px", fontSize: 40, fontWeight: "bold", color: "white" }}>
               <span>{km} KM</span>
               <span>{time} MIN</span>
               <span>{elev} M</span>
             </div>
             <div style={{ 
-              marginTop: 30, padding: "12px 40px", background: "#fbbf24", color: "black", 
-              fontSize: 55, fontWeight: "bold", borderRadius: 15, alignSelf: "flex-start" 
+              marginTop: 30, padding: "10px 30px", background: "#fbbf24", color: "black", 
+              fontSize: 45, fontWeight: "bold", borderRadius: 12, alignSelf: "flex-start" 
             }}>
               {xp} XP
             </div>
           </div>
         </div>
       ),
-      { width: 1200, height: 630 }
+      { 
+        width: 1200, 
+        height: 630,
+        // Añadimos esto para depurar si hay errores de red internos
+        debug: false 
+      }
     );
   } catch (e: any) {
-    return new Response(`ERROR_TECNICO: ${e.message}`, { status: 500 });
+    return new Response(`ERROR: ${e.message}`, { status: 500 });
   }
 }
