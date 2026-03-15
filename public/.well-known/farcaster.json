@@ -1,0 +1,17 @@
+{
+  "accountAssociation": {
+    "header": "eyJhbGciOiJFZERTQSIsImt0eSI6Ik9LUCIsImNydiI6IkVkMjU1MTkifQ...", 
+    "payload": "eyJkb21haW4iOiJvbmNoYWlua21zLWJhc2UudmVyY2VsLmFwcCJ9",
+    "signature": "..."
+  },
+  "frame": {
+    "version": "1",
+    "name": "Onchain Kms",
+    "iconUrl": "https://onchainkms-base.vercel.app/favicon.png",
+    "homeUrl": "https://onchainkms-base.vercel.app",
+    "imageUrl": "https://onchainkms-base.vercel.app/nft/road.png",
+    "buttonTitle": "Check my Kms",
+    "splashImageUrl": "https://onchainkms-base.vercel.app/favicon.png",
+    "splashBackgroundColor": "#020617"
+  }
+}
