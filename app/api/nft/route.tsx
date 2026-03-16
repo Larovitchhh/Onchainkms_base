@@ -1,43 +1,87 @@
-import { ImageResponse } from "@vercel/og";
-import { NextRequest } from "next/server";
+import { ImageResponse } from "@vercel/og"
+import { NextRequest } from "next/server"
 
-export const runtime = "edge";
+export const runtime = "edge"
 
-export function GET(req: NextRequest) {
-  try {
-    const { searchParams } = new URL(req.url);
-    
-    // Leemos parámetros
-    const sport = (searchParams.get("sport") || "MTB").toUpperCase();
-    const km = searchParams.get("km") || "0";
-    const xp = searchParams.get("xp") || "0";
+export async function GET(req: NextRequest) {
 
-    return new ImageResponse(
-      (
+  const { searchParams } = new URL(req.url)
+
+  const sport = searchParams.get("sport") || "run"
+  const km = searchParams.get("km") || "0"
+  const time = searchParams.get("time") || "0"
+  const elev = searchParams.get("elev") || "0"
+  const xp = searchParams.get("xp") || "0"
+
+  const host = req.headers.get("host")
+  const protocol = req.url.startsWith("https") ? "https" : "http"
+
+  const template = `${protocol}://${host}/nft/${sport}.png`
+
+  return new ImageResponse(
+
+    (
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          position: "relative",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "flex-start",
+          paddingLeft: "120px",
+          color: "white",
+          fontSize: 80,
+          fontWeight: 700,
+          fontFamily: "sans-serif"
+        }}
+      >
+
+        <img
+          src={template}
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover"
+          }}
+        />
+
         <div
           style={{
-            height: "100%",
-            width: "100%",
             display: "flex",
             flexDirection: "column",
-            backgroundColor: "#111",
-            color: "white",
-            alignItems: "center",
-            justifyContent: "center",
-            fontFamily: "sans-serif",
+            gap: 20,
+            position: "relative",
+            textShadow: "0 4px 12px rgba(0,0,0,0.8)"
           }}
         >
-          <h1 style={{ fontSize: 100, color: "#fbbf24" }}>{sport}</h1>
-          <p style={{ fontSize: 50 }}>{km} KM - {xp} XP</p>
-          <p style={{ fontSize: 20, color: "#444" }}>ONCHAIN KMS BASE</p>
+
+          <div style={{ fontSize: 120 }}>
+            {sport.toUpperCase()}
+          </div>
+
+          <div>{km} KM</div>
+
+          <div>{time} MIN</div>
+
+          <div>{elev} M</div>
+
+          <div style={{ color: "#FFD700" }}>
+            {xp} XP
+          </div>
+
         </div>
-      ),
-      {
-        width: 1200,
-        height: 630,
-      }
-    );
-  } catch (e) {
-    return new Response("Error Interno", { status: 500 });
-  }
+
+      </div>
+    ),
+
+    {
+      width: 1792,
+      height: 1024
+    }
+
+  )
+
 }
