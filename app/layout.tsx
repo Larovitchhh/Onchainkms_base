@@ -3,11 +3,21 @@ import "./globals.css"
 export const metadata = {
   title: "Onchain Sports",
   description: "Mint your sport activity on Base",
-  // ESTO ES LO NUEVO PARA FARCASTER
   other: {
-    "fc:frame": "vNext",
-    "fc:frame:image": "https://onchainkms-base.vercel.app/nft/road.png",
-    "fc:frame:button:1": "Mint my Activity",
+    "fc:frame": JSON.stringify({
+      version: "next",
+      imageUrl: "https://onchainkms-base.vercel.app/nft/road.png",
+      button: {
+        title: "Mint my Activity",
+        action: {
+          type: "launch_frame",
+          name: "Onchain Sports",
+          url: "https://onchainkms-base.vercel.app/",
+          splashImageUrl: "https://onchainkms-base.vercel.app/nft/splash.png",
+          splashBackgroundColor: "#ffffff",
+        },
+      },
+    }),
   },
 }
 
@@ -25,10 +35,7 @@ export default function RootLayout({
         />
         <link rel="icon" href="/favicon.png" />
       </head>
-
-      <body>
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   )
 }
