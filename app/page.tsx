@@ -7,28 +7,37 @@ import ActivityForm from "../components/ActivityForm"
 
 export default function Home() {
   
-  // SEÑAL PARA FARCASTER: Quita el Splash Screen
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      // Notifica a la App de Farcaster que la dApp ya cargó
-      window.parent.postMessage({ type: "ready" }, "*");
-      
-      // Backup por si usan la versión más reciente del SDK inyectado
-      try {
-        if ((window as any).farcaster?.sdk) {
-          (window as any).farcaster.sdk.actions.ready();
+    const initFarcaster = async () => {
+      if (typeof window !== "undefined") {
+        // Solo enviamos el mensaje si detectamos que estamos en un frame
+        const isFrame = window.parent !== window;
+        
+        if (isFrame) {
+          window.parent.postMessage({ type: "ready" }, "*");
         }
-      } catch (e) {
-        // Silencioso para no ensuciar la consola
+
+        // Intento de inicialización segura del SDK
+        try {
+          const sdk = (window as any).farcaster?.sdk;
+          if (sdk && typeof sdk.actions.ready === 'function') {
+            await sdk.actions.ready();
+          }
+        } catch (e) {
+          console.warn("Farcaster SDK not ready or not found");
+        }
       }
-    }
+    };
+
+    initFarcaster();
   }, []);
 
   return (
-    <main style={{ padding: 40 }}>
+    <main style={{ padding: 40, maxWidth: '600px', margin: '0 auto' }}>
       <ConnectWallet />
-      <br />
-      <ConnectStacks />
+      <div style={{ margin: '20px 0' }}>
+        <ConnectStacks />
+      </div>
       <ActivityForm />
     </main>
   );
