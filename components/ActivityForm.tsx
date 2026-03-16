@@ -4,26 +4,18 @@ import { useState } from "react"
 import MintButton from "./MintButton"
 import MintStacksButton from "./MintStacksButton"
 import { calculateXP } from "../lib/xpCalculator"
-import { SportType, Activity } from "../types"
 
 export default function ActivityForm() {
-  const [type, setType] = useState<SportType>("road")
+  const [type, setType] = useState("road")
   const [distance, setDistance] = useState(0)
   const [duration, setDuration] = useState(0)
   const [elevation, setElevation] = useState(0)
 
-  // Calculamos el XP asegurando que los valores sean números
-  const xp = calculateXP(type, distance, duration, elevation)
+  const xp = calculateXP(type as any, distance, duration, elevation)
 
-  // IMPORTANTE: Creamos el objeto asegurando que no haya Strings raros
-  const activity: Activity = { 
-    type, 
-    distance: Number(distance) || 0, 
-    duration: Number(duration) || 0, 
-    elevation: Number(elevation) || 0 
-  }
+  const activity = { type, distance, duration, elevation }
 
-  const sports: { id: SportType; label: string; icon: string; color: string }[] = [
+  const sports = [
     { id: "road", label: "Road Ride", icon: "🚴", color: "#f59e0b" },
     { id: "mtb", label: "MTB Ride", icon: "🚵", color: "#22c55e" },
     { id: "run", label: "Run", icon: "🏃", color: "#ef4444" },
@@ -32,7 +24,6 @@ export default function ActivityForm() {
 
   const activeSport = sports.find(s => s.id === type) || sports[0]
 
-  // URL para la preview del NFT
   const nftURL = `/api/nft?sport=${type}&km=${distance}&time=${duration}&elev=${elevation}&xp=${xp}`
 
   return (
@@ -46,6 +37,7 @@ export default function ActivityForm() {
       fontFamily: "system-ui, -apple-system, sans-serif",
       padding: "20px"
     }}>
+
       <div style={{
         display: "flex",
         gap: "24px",
@@ -53,7 +45,8 @@ export default function ActivityForm() {
         maxWidth: "1100px",
         alignItems: "stretch"
       }}>
-        {/* PANEL IZQUIERDO: INPUTS */}
+
+        {/* PANEL IZQUIERDO */}
         <div style={{
           flex: 1,
           padding: "40px",
@@ -61,6 +54,7 @@ export default function ActivityForm() {
           background: "#0f0f0f",
           border: `1px solid ${activeSport.color}33`
         }}>
+
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "30px" }}>
             {sports.map(s => (
               <button
@@ -75,8 +69,7 @@ export default function ActivityForm() {
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
-                  gap: "8px",
-                  transition: "all 0.2s"
+                  gap: "8px"
                 }}
               >
                 <span>{s.icon}</span> {s.label}
@@ -84,12 +77,8 @@ export default function ActivityForm() {
             ))}
           </div>
 
-          {[
-            { label: "Distance (km)", val: distance, set: setDistance },
-            { label: "Duration (min)", val: duration, set: setDuration },
-            { label: "Elevation (m)", val: elevation, set: setElevation }
-          ].map((item) => (
-            <div key={item.label} style={{ marginBottom: "15px" }}>
+          {["Distance (km)", "Duration (min)", "Elevation (m)"].map((label, i) => (
+            <div key={label} style={{ marginBottom: "15px" }}>
               <label style={{
                 display: "block",
                 fontSize: "11px",
@@ -98,13 +87,18 @@ export default function ActivityForm() {
                 fontWeight: 600,
                 textTransform: "uppercase"
               }}>
-                {item.label}
+                {label}
               </label>
+
               <input
                 type="number"
-                value={item.val || ""}
                 placeholder="0"
-                onChange={(e) => item.set(Number(e.target.value))}
+                onChange={(e) => {
+                  const val = Number(e.target.value)
+                  if (i === 0) setDistance(val)
+                  else if (i === 1) setDuration(val)
+                  else setElevation(val)
+                }}
                 style={{
                   width: "100%",
                   padding: "12px",
@@ -118,25 +112,24 @@ export default function ActivityForm() {
             </div>
           ))}
 
-          {/* PREVISUALIZACIÓN DEL NFT */}
+          {/* PREVIEW NFT */}
+
           {xp > 0 && (
             <div style={{ marginTop: "30px" }}>
-              <p style={{ fontSize: "12px", color: "#444", marginBottom: "8px" }}>PREVIEW:</p>
               <img
                 src={nftURL}
-                alt="NFT Preview"
                 style={{
                   width: "100%",
                   borderRadius: "14px",
-                  border: `1px solid ${activeSport.color}`,
-                  boxShadow: `0 10px 20px rgba(0,0,0,0.5)`
+                  border: `1px solid ${activeSport.color}`
                 }}
               />
             </div>
           )}
+
         </div>
 
-        {/* PANEL DERECHO: ACCIONES */}
+        {/* PANEL DERECHO */}
         <div style={{
           width: "320px",
           padding: "40px",
@@ -175,10 +168,10 @@ export default function ActivityForm() {
 
           <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "10px" }}>
             <MintButton activity={activity} xp={xp} />
-            {/* Aquí pasamos los datos limpios al botón de Stacks */}
             <MintStacksButton activity={activity} xp={xp} />
           </div>
         </div>
+
       </div>
     </div>
   )
