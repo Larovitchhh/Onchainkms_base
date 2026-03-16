@@ -2,23 +2,7 @@ import "./globals.css"
 
 export const metadata = {
   title: "Onchain Sports",
-  description: "Mint your sport activity on Base",
-  other: {
-    "fc:frame": JSON.stringify({
-      version: "next",
-      imageUrl: "https://onchainkms-base.vercel.app/nft/road.png",
-      button: {
-        title: "Mint my Activity",
-        action: {
-          type: "launch_frame",
-          name: "Onchain Sports",
-          url: "https://onchainkms-base.vercel.app/",
-          splashImageUrl: "https://onchainkms-base.vercel.app/nft/splash.png",
-          splashBackgroundColor: "#ffffff",
-        },
-      },
-    }),
-  },
+  description: "Mint your sport activity on Base"
 }
 
 export default function RootLayout({
@@ -35,7 +19,10 @@ export default function RootLayout({
         />
         <link rel="icon" href="/favicon.png" />
       </head>
-      <body>{children}</body>
+
+      <body>
+        {children}
+      </body>
     </html>
   )
 }
