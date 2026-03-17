@@ -2,54 +2,30 @@ import { ethers } from "ethers"
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from "./contract"
 import { getWallet } from "./wallet"
 
-type Activity = {
- distance:number
- duration:number
- elevation:number
-}
+export async function mintActivity(activity: any, xp: number) {
+  try {
+    const { signer, address } = await getWallet()
 
-export async function mintActivity(activity:Activity, xp:number){
+    const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer)
 
- console.log("mintActivity called")
- console.log("activity:",activity)
- console.log("xp:",xp)
+    // Construimos la URL de la imagen dinámica para que OpenSea/Base la lea
+    const domain = window.location.origin;
+    const metadataURL = `${domain}/api/nft?sport=${activity.type}&km=${activity.distance}&time=${activity.duration}&elev=${activity.elevation}&xp=${xp}`;
 
- try{
+    console.log("Minting with metadata:", metadataURL);
 
-  const {signer,address} = await getWallet()
+    const tx = await contract.mintActivity(
+      address,
+      Math.floor(activity.distance), // KM
+      Math.floor(xp),                // XP
+      "manual_activity",             // Strava ID
+      metadataURL                    // La URL de tu API
+    )
 
-  console.log("wallet connected:",address)
-
-  const contract = new ethers.Contract(
-   CONTRACT_ADDRESS,
-   CONTRACT_ABI,
-   signer
-  )
-
-  console.log("sending transaction...")
-
-  const tx = await contract.mintActivity(
-   address,
-   activity.distance,
-   xp,
-   "manual_activity",
-   "ipfs://activity"
-  )
-
-  console.log("tx sent:",tx)
-
-  await tx.wait()
-
-  console.log("tx confirmed")
-
-  alert("Activity minted!")
-
- }catch(err:any){
-
-  console.error("mint error:",err)
-
-  alert(err.reason || err.message || "Mint failed")
-
- }
-
+    await tx.wait()
+    alert("Activity minted on Base!")
+  } catch (err: any) {
+    console.error("mint error:", err)
+    alert(err.reason || "Mint failed")
+  }
 }
