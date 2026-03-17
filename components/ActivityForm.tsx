@@ -25,8 +25,9 @@ export default function ActivityForm() {
 
   const activeSport = sports.find(s => s.id === type) || sports[0]
 
-  // URL de la preview - Usamos la ruta relativa para que funcione en local y prod
-  const nftPreviewURL = `/api/nft?sport=${type}&km=${distance}&time=${duration}&elev=${elevation}&xp=${xp}`
+  // URL DE PREVIEW: Añadimos un timestamp (&v=...) para que el navegador no use versiones cacheadas negras
+  // y nos aseguramos de que use la ruta absoluta para evitar líos de resolución
+  const nftPreviewURL = `/api/nft?sport=${type}&km=${distance}&time=${duration}&elev=${elevation}&xp=${xp}&v=${Date.now()}`
 
   return (
     <div style={{
@@ -46,7 +47,7 @@ export default function ActivityForm() {
         width: "100%",
         maxWidth: "1100px",
         alignItems: "stretch",
-        flexWrap: "wrap" // Para que en móvil no explote
+        flexWrap: "wrap"
       }}>
 
         {/* PANEL IZQUIERDO: CONFIGURACIÓN */}
@@ -125,14 +126,21 @@ export default function ActivityForm() {
                background: "#050505", 
                borderRadius: "14px",
                overflow: "hidden",
-               border: `1px solid ${activeSport.color}66`
+               border: `1px solid ${activeSport.color}66`,
+               display: "flex",
+               alignItems: "center",
+               justifyContent: "center"
              }}>
                 <img
+                  key={nftPreviewURL} // Forzamos re-render de la etiqueta img
                   src={nftPreviewURL}
                   alt="NFT Preview"
+                  crossOrigin="anonymous" // Ayuda con problemas de CORS/CSP
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  // Error fallback por si la imagen no carga en local
-                  onError={(e) => (e.currentTarget.style.display = "none")}
+                  onError={(e) => {
+                    console.log("Error cargando preview");
+                    // Opcional: e.currentTarget.style.display = "none"
+                  }}
                 />
              </div>
           </div>
