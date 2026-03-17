@@ -1,47 +1,57 @@
 "use client"
 
 import { mintActivity } from "../lib/mint"
-// Importamos el tipo global que sí incluye el campo 'type' (deporte)
-import { Activity } from "../types"
 
-type Props = {
-  activity: Activity
-  xp: number
+type Activity = {
+ distance:number
+ duration:number
+ elevation:number
 }
 
-export default function MintButton({ activity, xp }: Props) {
+type Props = {
+ activity: Activity
+ xp: number
+}
 
-  async function handleMint() {
-    console.log("CLICK DETECTED")
-    console.log("activity para mint:", activity)
-    console.log("xp para mint:", xp)
+export default function MintButton({ activity, xp }: Props){
 
-    try {
-      // Ahora 'activity' cumple con lo que espera lib/mint.ts
-      await mintActivity(activity, xp)
-    } catch (err) {
-      console.error("Mint error:", err)
-      alert("Mint failed")
-    }
+ async function handleMint(){
+
+  console.log("CLICK DETECTED")
+  console.log("activity:", activity)
+  console.log("xp:", xp)
+
+  try{
+
+   await mintActivity(activity, xp)
+
+  }catch(err){
+
+   console.error("Mint error:", err)
+   alert("Mint failed")
+
   }
 
-  return (
-    <button
-      type="button"
-      onClick={handleMint}
-      style={{
-        width: "100%", // Lo ajusto para que llene el contenedor como en tu diseño
-        padding: "12px 20px",
-        background: "#16a34a",
-        color: "white",
-        border: "none",
-        borderRadius: "8px",
-        cursor: "pointer",
-        fontWeight: "bold",
-        fontSize: "14px"
-      }}
-    >
-      Mint Activity (Base)
-    </button>
-  )
+ }
+
+ return(
+
+  <button
+   type="button"
+   onClick={handleMint}
+   style={{
+    padding:"10px 20px",
+    background:"#16a34a",
+    color:"white",
+    border:"none",
+    borderRadius:"8px",
+    cursor:"pointer",
+    fontWeight:"bold"
+   }}
+  >
+   Mint Activity
+  </button>
+
+ )
+
 }
