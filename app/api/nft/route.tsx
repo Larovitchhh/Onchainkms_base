@@ -7,17 +7,15 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
 
-    // Extraer parámetros
     const sport = searchParams.get("sport") || "road";
     const km = searchParams.get("km") || "0";
     const time = searchParams.get("time") || "0";
     const elev = searchParams.get("elev") || "0";
     const xp = searchParams.get("xp") || "0";
 
-    // Construir URL absoluta para la plantilla PNG
-    // Importante: Vercel necesita la URL completa para el fetch en Edge Runtime
     const protocol = req.url.startsWith('https') ? 'https' : 'http';
     const host = req.headers.get('host');
+    // Esto pilla run.png, road.png, etc de tu carpeta /public/nft/
     const backgroundImage = `${protocol}://${host}/nft/${sport}.png`;
 
     return new ImageResponse(
@@ -27,43 +25,30 @@ export async function GET(req: NextRequest) {
             height: "100%",
             width: "100%",
             display: "flex",
-            flexDirection: "row", // Metadata a la izquierda
-            alignItems: "center",
-            justifyContent: "flex-start",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            justifyContent: "center",
             backgroundImage: `url(${backgroundImage})`,
-            backgroundSize: "1792px 1024px",
-            backgroundColor: "#0f172a", // Fallback
+            backgroundSize: "100% 100%",
             color: "white",
             fontFamily: "sans-serif",
-            fontWeight: "bold",
-            paddingLeft: "100px", // Espaciado desde la izquierda
+            paddingLeft: "120px",
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "20px",
-              textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
-            }}
-          >
-            <div style={{ fontSize: 120, marginBottom: "20px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px", textShadow: "4px 4px 8px rgba(0,0,0,0.7)" }}>
+            <div style={{ fontSize: 130, fontWeight: 900, marginBottom: "30px", letterSpacing: "-2px" }}>
               {sport.toUpperCase()}
             </div>
-            <div style={{ fontSize: 80 }}>{km} KM</div>
-            <div style={{ fontSize: 80 }}>{time} MIN</div>
-            <div style={{ fontSize: 80 }}>{elev} M</div>
-            <div style={{ fontSize: 90, color: "#FFD700" }}>{xp} XP</div>
+            <div style={{ fontSize: 70, fontWeight: 700 }}>{km} KM</div>
+            <div style={{ fontSize: 70, fontWeight: 700 }}>{time} MIN</div>
+            <div style={{ fontSize: 70, fontWeight: 700 }}>{elev} M ELEV</div>
+            <div style={{ fontSize: 100, fontWeight: 900, color: "#FFD700", marginTop: "20px" }}>{xp} XP</div>
           </div>
         </div>
       ),
-      {
-        width: 1792,
-        height: 1024,
-      }
+      { width: 1792, height: 1024 }
     );
   } catch (e: any) {
-    console.error(e.message);
     return new Response(`Error al generar imagen`, { status: 500 });
   }
 }
