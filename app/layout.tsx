@@ -3,7 +3,21 @@ import "./globals.css"
 export const metadata = {
   title: "Onchain Sports",
   description: "Mint your sport activity on Base",
-  // Metadatos para que el link se vea increíble al compartirlo
+  // Metadatos de Farcaster v2 y Frames
+  other: {
+    "fc:frame": "vNext",
+    "fc:frame:image": "https://onchainkms-base.vercel.app/api/nft?sport=road&km=25&time=60&elev=100&xp=75",
+    "farcaster:metadata": JSON.stringify({
+      version: "1",
+      name: "Onchain Sports",
+      iconUrl: "https://onchainkms-base.vercel.app/favicon.png",
+      homeUrl: "https://onchainkms-base.vercel.app",
+      imageUrl: "https://onchainkms-base.vercel.app/api/nft?sport=road&km=25&xp=75",
+      buttonTitle: "Mint Now",
+      splashImageUrl: "https://onchainkms-base.vercel.app/favicon.png",
+      splashBackgroundColor: "#0a1a3a",
+    }),
+  },
   openGraph: {
     title: "Onchain Sports",
     description: "Mint your sport activity on Base",
@@ -11,7 +25,7 @@ export const metadata = {
     siteName: "Onchain Sports",
     images: [
       {
-        url: "https://onchainkms-base.vercel.app/api/nft?sport=road&km=25&time=60&elev=100&xp=75", // Imagen de muestra para el preview
+        url: "https://onchainkms-base.vercel.app/api/nft?sport=road&km=25&time=60&elev=100&xp=75",
         width: 1200,
         height: 630,
       },
