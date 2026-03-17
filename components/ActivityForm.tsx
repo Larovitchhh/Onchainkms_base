@@ -25,9 +25,16 @@ export default function ActivityForm() {
 
   const activeSport = sports.find(s => s.id === type) || sports[0]
 
-  // URL DE PREVIEW: Añadimos un timestamp (&v=...) para que el navegador no use versiones cacheadas negras
-  // y nos aseguramos de que use la ruta absoluta para evitar líos de resolución
+  // URL DE PREVIEW
   const nftPreviewURL = `/api/nft?sport=${type}&km=${distance}&time=${duration}&elev=${elevation}&xp=${xp}&v=${Date.now()}`
+
+  // URLs de compartición
+  const baseUrl = "https://onchainkms-base.vercel.app"
+  const shareText = `Burned ${distance} KM onchain! 🔥 Recieved ${xp} XP on Base.`
+  const fullPreviewUrl = `${baseUrl}${nftPreviewURL}`
+
+  const shareWarpcast = `https://warpcast.com/~/compose?text=${encodeURIComponent(shareText)}&embeds[]=${encodeURIComponent(fullPreviewUrl)}`
+  const shareX = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(fullPreviewUrl)}`
 
   return (
     <div style={{
@@ -132,15 +139,11 @@ export default function ActivityForm() {
                justifyContent: "center"
              }}>
                 <img
-                  key={nftPreviewURL} // Forzamos re-render de la etiqueta img
+                  key={nftPreviewURL}
                   src={nftPreviewURL}
                   alt="NFT Preview"
-                  crossOrigin="anonymous" // Ayuda con problemas de CORS/CSP
+                  crossOrigin="anonymous"
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  onError={(e) => {
-                    console.log("Error cargando preview");
-                    // Opcional: e.currentTarget.style.display = "none"
-                  }}
                 />
              </div>
           </div>
@@ -186,6 +189,54 @@ export default function ActivityForm() {
           <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "12px" }}>
             <MintButton activity={activity} xp={xp} />
             <MintStacksButton activity={activity} xp={xp} />
+            
+            {/* BOTONES DE REDES SOCIALES */}
+            <div style={{ 
+              display: "flex", 
+              gap: "8px", 
+              width: "100%", 
+              marginTop: "12px",
+              paddingTop: "20px",
+              borderTop: "1px solid #222"
+            }}>
+              <a 
+                href={shareWarpcast}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  flex: 1,
+                  padding: "10px",
+                  borderRadius: "10px",
+                  background: "#472a91",
+                  color: "white",
+                  fontSize: "11px",
+                  fontWeight: "bold",
+                  textDecoration: "none",
+                  textAlign: "center"
+                }}
+              >
+                Warpcast
+              </a>
+              <a 
+                href={shareX}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  flex: 1,
+                  padding: "10px",
+                  borderRadius: "10px",
+                  background: "#000",
+                  border: "1px solid #333",
+                  color: "white",
+                  fontSize: "11px",
+                  fontWeight: "bold",
+                  textDecoration: "none",
+                  textAlign: "center"
+                }}
+              >
+                Share on X
+              </a>
+            </div>
           </div>
         </div>
 
