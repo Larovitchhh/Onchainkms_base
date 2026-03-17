@@ -3,19 +3,12 @@ import { StacksMainnet } from "@stacks/network"
 import {
  uintCV,
  stringAsciiCV,
- PostConditionMode // Importante para la velocidad
+ PostConditionMode
 } from "@stacks/transactions"
 
 import { userSession } from "./stacksAuth"
 
-type Activity = {
- type: string
- distance: number
- duration: number
- elevation: number
-}
-
-export async function mintStacksActivity(activity: Activity, xp: number) {
+export async function mintStacksActivity(activity: any, xp: number) {
  console.log("Stacks mint start")
 
  try {
@@ -23,39 +16,37 @@ export async function mintStacksActivity(activity: Activity, xp: number) {
    throw new Error("Connect Stacks wallet first")
   }
 
-  const network = new StacksMainnet()
-
-  // Limpiamos los números para evitar errores de tipo en la simulación
-  const dist = Math.floor(Number(activity.distance) || 0)
-  const dur = Math.floor(Number(activity.duration) || 0)
-  const elev = Math.floor(Number(activity.elevation) || 0)
-  const points = Math.floor(Number(xp) || 0)
+  // OPTIMIZACIÓN 1: Forzar el nodo de respaldo si el de Hiro va lento
+  const network = new StacksMainnet({
+    url: "https://api.mainnet.hiro.so" // Puedes probar también con "https://api.hiro.so"
+  })
 
   await openContractCall({
    network,
-   // OPTIMIZACIONES DE VELOCIDAD
-   anchorMode: 1, // Permite cualquier tipo de bloque para ir más rápido
-   postConditionMode: PostConditionMode.Allow, // Relaja la simulación para que el popup cargue ya
+   // OPTIMIZACIÓN 2: No esperar a la simulación pesada
+   anchorMode: 1, 
+   postConditionMode: PostConditionMode.Allow,
 
    contractAddress: "SP1AJVMEGSMD6QCSZ1669Z5G90GEHVK2MEM7J0AHH",
    contractName: "onchainkms-stacks",
    functionName: "mint-activity",
    functionArgs: [
-    stringAsciiCV(activity.type || "run"),
-    uintCV(dist),
-    uintCV(dur),
-    uintCV(elev),
-    uintCV(points)
+    stringAsciiCV(activity.type),
+    uintCV(Math.floor(activity.distance)),
+    uintCV(Math.floor(activity.duration)),
+    uintCV(Math.floor(activity.elevation)),
+    uintCV(Math.floor(xp))
    ],
 
    appDetails: {
     name: "Onchain Sports",
-    icon: window.location.origin + "/favicon.png"
+    icon: window.location.origin + "/favicon.ico"
    },
 
    onFinish: (data) => {
     console.log("Stacks TX:", data)
-    alert("¡Transacción enviada! ID: " + data.txId)
+    // Mensaje original limpio
+    alert("Minted on Stacks!")
    },
 
    onCancel: () => {
@@ -65,10 +56,6 @@ export async function mintStacksActivity(activity: Activity, xp: number) {
 
  } catch (err: any) {
   console.error("STACKS ERROR:", err)
-  alert(
-   err?.message ||
-   err?.toString() ||
-   "Stacks mint failed"
-  )
+  alert(err?.message || "Stacks mint failed")
  }
 }
