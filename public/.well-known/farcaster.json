@@ -1,4 +1,31 @@
 {
+  "frame": {
+    "name": "OnchainKms",
+    "version": "1",
+    "iconUrl": "https://onchainkms-base.vercel.app/logo.png",
+    "homeUrl": "https://onchainkms-base.vercel.app",
+    "imageUrl": "https://onchainkms-base.vercel.app/image.png",
+    "splashImageUrl": "https://onchainkms-base.vercel.app/splash.png",
+    "splashBackgroundColor": "#0F172A",
+    "webhookUrl": "https://onchainkms-base.vercel.app/api/webhook",
+    "subtitle": "Track your activity onchain",
+    "description": "Track your activity onchain",
+    "screenshotUrls": [
+      "https://onchainkms-base.vercel.app/screenshot1.png"
+    ],
+    "primaryCategory": "health-fitness",
+    "tags": [
+      "xp",
+      "onchain",
+      "running",
+      "cycling"
+    ],
+    "heroImageUrl": "https://onchainkms-base.vercel.app/image.png",
+    "tagline": "Track your activity onchain",
+    "ogTitle": "Onchainkms - Move further",
+    "ogDescription": "Track your activity onchain",
+    "ogImageUrl": "https://onchainkms-base.vercel.app/og.png"
+  },
   "accountAssociation": {
     "header": "eyJmaWQiOjY4NTE4OSwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweGQyMkY3OWEyQWM5ZDZENUEzMjBiYTc5NDg5NDAxODY1YjNCQThBMTUifQ",
     "payload": "eyJkb21haW4iOiJvbmNoYWlua21zLWJhc2UudmVyY2VsLmFwcCJ9",
