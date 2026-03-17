@@ -1,32 +1,7 @@
 {
-  "name": "onchain-sports",
-  "version": "1.0.0",
-  "private": true,
-
-  "engines": {
-    "node": "20.x"
-  },
-
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
-  },
-
-  "dependencies": {
-    "ethers": "^6.8.0",
-    "@vercel/og": "^0.6.0",
-    "next": "14.2.15",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "@stacks/connect": "^7.5.0",
-    "@stacks/network": "^6.10.0",
-    "@stacks/transactions": "^6.10.0"
-  },
-
-  "devDependencies": {
-    "typescript": "5.4.5",
-    "@types/react": "18.2.66",
-    "@types/node": "20.11.30"
+  "accountAssociation": {
+    "header": "eyJmaWQiOjY4NTE4OSwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweGQyMkY3OWEyQWM5ZDZENUEzMjBiYTc5NDg5NDAxODY1YjNCQThBMTUifQ",
+    "payload": "eyJkb21haW4iOiJvbmNoYWlua21zLWJhc2UudmVyY2VsLmFwcCJ9",
+    "signature": "W0shRdGziU3aczWlJAOkllRCsTXBfpDd4I7BnCe8JLooU47BMi4WXhDjH5hbfL3CxHN7iWYlmbfGgOw2K0A9Mxw="
   }
 }
