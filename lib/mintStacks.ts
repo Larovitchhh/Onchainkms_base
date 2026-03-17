@@ -38,7 +38,7 @@ export async function mintStacksActivity(activity:Activity,xp:number){
 
    functionArgs:[
 
-    stringAsciiCV("road"),
+    stringAsciiCV(activity.type),
 
     uintCV(activity.distance),
 
