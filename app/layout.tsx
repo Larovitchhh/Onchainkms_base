@@ -2,7 +2,29 @@ import "./globals.css"
 
 export const metadata = {
   title: "Onchain Sports",
-  description: "Mint your sport activity on Base"
+  description: "Mint your sport activity on Base",
+  // Metadatos para que el link se vea increíble al compartirlo
+  openGraph: {
+    title: "Onchain Sports",
+    description: "Mint your sport activity on Base",
+    url: "https://onchainkms-base.vercel.app",
+    siteName: "Onchain Sports",
+    images: [
+      {
+        url: "https://onchainkms-base.vercel.app/api/nft?sport=road&km=25&time=60&elev=100&xp=75", // Imagen de muestra para el preview
+        width: 1200,
+        height: 630,
+      },
+    ],
+    locale: "es_ES",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Onchain Sports",
+    description: "Mint your sport activity on Base",
+    images: ["https://onchainkms-base.vercel.app/api/nft?sport=road&km=25&time=60&elev=100&xp=75"],
+  },
 }
 
 export default function RootLayout({
