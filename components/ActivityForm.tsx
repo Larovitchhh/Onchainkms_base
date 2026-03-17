@@ -11,6 +11,7 @@ export default function ActivityForm() {
   const [duration, setDuration] = useState(0)
   const [elevation, setElevation] = useState(0)
 
+  // Calculamos XP dinámicamente
   const xp = calculateXP(type as any, distance, duration, elevation)
 
   const activity = { type, distance, duration, elevation }
@@ -24,18 +25,19 @@ export default function ActivityForm() {
 
   const activeSport = sports.find(s => s.id === type) || sports[0]
 
-  const nftURL = `/api/nft?sport=${type}&km=${distance}&time=${duration}&elev=${elevation}&xp=${xp}`
+  // URL de la preview - Usamos la ruta relativa para que funcione en local y prod
+  const nftPreviewURL = `/api/nft?sport=${type}&km=${distance}&time=${duration}&elev=${elevation}&xp=${xp}`
 
   return (
     <div style={{
-      height: "100vh",
+      minHeight: "100vh",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
       background: "linear-gradient(135deg, #0a1a3a 0%, #0f2a5a 40%, #1e3a8a 100%)",
       color: "white",
       fontFamily: "system-ui, -apple-system, sans-serif",
-      padding: "20px"
+      padding: "40px 20px"
     }}>
 
       <div style={{
@@ -43,12 +45,13 @@ export default function ActivityForm() {
         gap: "24px",
         width: "100%",
         maxWidth: "1100px",
-        alignItems: "stretch"
+        alignItems: "stretch",
+        flexWrap: "wrap" // Para que en móvil no explote
       }}>
 
-        {/* PANEL IZQUIERDO */}
+        {/* PANEL IZQUIERDO: CONFIGURACIÓN */}
         <div style={{
-          flex: 1,
+          flex: "1 1 500px",
           padding: "40px",
           borderRadius: "24px",
           background: "#0f0f0f",
@@ -69,7 +72,8 @@ export default function ActivityForm() {
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
-                  gap: "8px"
+                  gap: "8px",
+                  transition: "all 0.2s"
                 }}
               >
                 <span>{s.icon}</span> {s.label}
@@ -77,8 +81,12 @@ export default function ActivityForm() {
             ))}
           </div>
 
-          {["Distance (km)", "Duration (min)", "Elevation (m)"].map((label, i) => (
-            <div key={label} style={{ marginBottom: "15px" }}>
+          {[
+            { label: "Distance (km)", val: distance, set: setDistance },
+            { label: "Duration (min)", val: duration, set: setDuration },
+            { label: "Elevation (m)", val: elevation, set: setElevation }
+          ].map((item) => (
+            <div key={item.label} style={{ marginBottom: "15px" }}>
               <label style={{
                 display: "block",
                 fontSize: "11px",
@@ -87,18 +95,14 @@ export default function ActivityForm() {
                 fontWeight: 600,
                 textTransform: "uppercase"
               }}>
-                {label}
+                {item.label}
               </label>
 
               <input
                 type="number"
+                value={item.val || ""}
                 placeholder="0"
-                onChange={(e) => {
-                  const val = Number(e.target.value)
-                  if (i === 0) setDistance(val)
-                  else if (i === 1) setDuration(val)
-                  else setElevation(val)
-                }}
+                onChange={(e) => item.set(Number(e.target.value))}
                 style={{
                   width: "100%",
                   padding: "12px",
@@ -112,24 +116,29 @@ export default function ActivityForm() {
             </div>
           ))}
 
-          {/* PREVIEW NFT */}
-
-          {xp > 0 && (
-            <div style={{ marginTop: "30px" }}>
-              <img
-                src={nftURL}
-                style={{
-                  width: "100%",
-                  borderRadius: "14px",
-                  border: `1px solid ${activeSport.color}`
-                }}
-              />
-            </div>
-          )}
-
+          {/* PREVIEW DINÁMICA DEL NFT */}
+          <div style={{ marginTop: "30px" }}>
+             <p style={{ fontSize: "12px", color: "#555", marginBottom: "10px" }}>NFT PREVIEW</p>
+             <div style={{ 
+               width: "100%", 
+               aspectRatio: "1792/1024", 
+               background: "#050505", 
+               borderRadius: "14px",
+               overflow: "hidden",
+               border: `1px solid ${activeSport.color}66`
+             }}>
+                <img
+                  src={nftPreviewURL}
+                  alt="NFT Preview"
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  // Error fallback por si la imagen no carga en local
+                  onError={(e) => (e.currentTarget.style.display = "none")}
+                />
+             </div>
+          </div>
         </div>
 
-        {/* PANEL DERECHO */}
+        {/* PANEL DERECHO: ACCIONES */}
         <div style={{
           width: "320px",
           padding: "40px",
@@ -166,7 +175,7 @@ export default function ActivityForm() {
             Experience Points
           </div>
 
-          <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "10px" }}>
+          <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "12px" }}>
             <MintButton activity={activity} xp={xp} />
             <MintStacksButton activity={activity} xp={xp} />
           </div>
