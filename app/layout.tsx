@@ -1,34 +1,37 @@
 import "./globals.css"
 
 export const metadata = {
-  title: "Onchain Sports",
-  description: "Mint your sport activity on Base",
+  title: "OnchainKms - Move further",
+  description: "Track your activity onchain",
   
-  // 1. CONFIGURACIÓN FARCASTER (CORREGIDA PARA EMBED V2)
   other: {
-    "fc:frame": "vNext", // Mantenemos v1 para compatibilidad
-    "fc:frame:image": "https://onchainkms-base.vercel.app/api/nft?sport=road&km=25&time=60&elev=100&xp=75",
+    // Protocolo Frames v1 (Legacy)
+    "fc:frame": "vNext",
+    "fc:frame:image": "https://onchainkms-base.vercel.app/og.png",
+    
+    // Protocolo Farcaster v2 (Mini App) - SINCRONIZADO CON TU JSON
     "farcaster:metadata": JSON.stringify({
       version: "1",
-      name: "Onchain Sports",
-      iconUrl: "https://onchainkms-base.vercel.app/favicon.png",
-      homeUrl: "https://onchainkms-base.vercel.app", // SIN barra final
-      imageUrl: "https://onchainkms-base.vercel.app/api/nft?sport=road&km=25&xp=75",
+      name: "OnchainKms",
+      iconUrl: "https://onchainkms-base.vercel.app/logo.png",
+      homeUrl: "https://onchainkms-base.vercel.app",
+      imageUrl: "https://onchainkms-base.vercel.app/image.png",
       buttonTitle: "Mint Now",
-      splashImageUrl: "https://onchainkms-base.vercel.app/favicon.png",
-      splashBackgroundColor: "#0a1a3a",
+      splashImageUrl: "https://onchainkms-base.vercel.app/splash.png",
+      splashBackgroundColor: "#0F172A",
+      // Incluimos los campos extra de tu JSON para asegurar el match
+      webhookUrl: "https://onchainkms-base.vercel.app/api/webhook",
     }),
   },
 
-  // 2. OPEN GRAPH (Para Facebook/Warpcast Preview/Telegram)
   openGraph: {
-    title: "Onchain Sports",
-    description: "Mint your sport activity on Base",
+    title: "Onchainkms - Move further",
+    description: "Track your activity onchain",
     url: "https://onchainkms-base.vercel.app",
-    siteName: "Onchain Sports",
+    siteName: "OnchainKms",
     images: [
       {
-        url: "https://onchainkms-base.vercel.app/api/nft?sport=road&km=25&time=60&elev=100&xp=75",
+        url: "https://onchainkms-base.vercel.app/og.png", // Usamos la misma que en tu JSON
         width: 1200,
         height: 630,
       },
@@ -37,12 +40,11 @@ export const metadata = {
     type: "website",
   },
 
-  // 3. TWITTER CARDS (Para X.com)
   twitter: {
     card: "summary_large_image",
-    title: "Onchain Sports",
-    description: "Mint your sport activity on Base",
-    images: ["https://onchainkms-base.vercel.app/api/nft?sport=road&km=25&time=60&elev=100&xp=75"],
+    title: "Onchainkms - Move further",
+    description: "Track your activity onchain",
+    images: ["https://onchainkms-base.vercel.app/og.png"],
   },
 }
 
@@ -54,17 +56,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Verificación de Proyecto (TalentApp) */}
         <meta
           name="talentapp:project_verification"
           content="7484bc8aab7a80329d9a68fc559aad005ce48622f2bdea6131807097a49770a9c78661ef758841b68a2265853274175de292dff70ca314ced5dbb4232fd6d140"
         />
         <link rel="icon" href="/favicon.png" />
       </head>
-
-      <body>
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   )
 }
