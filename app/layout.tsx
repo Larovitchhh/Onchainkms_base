@@ -3,21 +3,24 @@ import "./globals.css"
 export const metadata = {
   title: "Onchain Sports",
   description: "Mint your sport activity on Base",
-  // Metadatos de Farcaster v2 y Frames
+  
+  // 1. CONFIGURACIÓN FARCASTER (CORREGIDA PARA EMBED V2)
   other: {
-    "fc:frame": "vNext",
+    "fc:frame": "vNext", // Mantenemos v1 para compatibilidad
     "fc:frame:image": "https://onchainkms-base.vercel.app/api/nft?sport=road&km=25&time=60&elev=100&xp=75",
     "farcaster:metadata": JSON.stringify({
       version: "1",
       name: "Onchain Sports",
       iconUrl: "https://onchainkms-base.vercel.app/favicon.png",
-      homeUrl: "https://onchainkms-base.vercel.app",
+      homeUrl: "https://onchainkms-base.vercel.app", // SIN barra final
       imageUrl: "https://onchainkms-base.vercel.app/api/nft?sport=road&km=25&xp=75",
       buttonTitle: "Mint Now",
       splashImageUrl: "https://onchainkms-base.vercel.app/favicon.png",
       splashBackgroundColor: "#0a1a3a",
     }),
   },
+
+  // 2. OPEN GRAPH (Para Facebook/Warpcast Preview/Telegram)
   openGraph: {
     title: "Onchain Sports",
     description: "Mint your sport activity on Base",
@@ -33,6 +36,8 @@ export const metadata = {
     locale: "es_ES",
     type: "website",
   },
+
+  // 3. TWITTER CARDS (Para X.com)
   twitter: {
     card: "summary_large_image",
     title: "Onchain Sports",
@@ -49,6 +54,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* Verificación de Proyecto (TalentApp) */}
         <meta
           name="talentapp:project_verification"
           content="7484bc8aab7a80329d9a68fc559aad005ce48622f2bdea6131807097a49770a9c78661ef758841b68a2265853274175de292dff70ca314ced5dbb4232fd6d140"
