@@ -8,6 +8,7 @@ export const metadata = {
     "fc:frame": "vNext",
     "fc:frame:image": "https://onchainkms-base.vercel.app/nft/og.png",
     
+    // Este JSON debe ser un espejo de los campos principales de tu .well-known
     "farcaster:metadata": JSON.stringify({
       version: "1",
       name: "OnchainKms",
@@ -17,12 +18,6 @@ export const metadata = {
       buttonTitle: "Mint Now",
       splashImageUrl: "https://onchainkms-base.vercel.app/nft/splash.png",
       splashBackgroundColor: "#0F172A",
-      webhookUrl: "https://onchainkms-base.vercel.app/api/webhook",
-      subtitle: "Track your activity onchain",
-      description: "Track your activity onchain",
-      screenshotUrls: ["https://onchainkms-base.vercel.app/nft/screenshot1.png"],
-      primaryCategory: "health-fitness",
-      tagline: "Track your activity onchain"
     }),
   },
 
@@ -30,7 +25,17 @@ export const metadata = {
     title: "Onchainkms - Move further",
     description: "Track your activity onchain",
     url: "https://onchainkms-base.vercel.app",
-    images: [{ url: "https://onchainkms-base.vercel.app/nft/og.png" }],
+    siteName: "OnchainKms",
+    images: [{ url: "https://onchainkms-base.vercel.app/nft/og.png", width: 1200, height: 630 }],
+    locale: "es_ES",
+    type: "website",
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "Onchainkms - Move further",
+    description: "Track your activity onchain",
+    images: ["https://onchainkms-base.vercel.app/nft/og.png"],
   },
 }
 
