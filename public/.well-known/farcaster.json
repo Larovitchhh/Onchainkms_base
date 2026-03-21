@@ -2,16 +2,16 @@
   "frame": {
     "name": "OnchainKms",
     "version": "1",
-    "iconUrl": "https://onchainkms-base.vercel.app/logo.png",
+    "iconUrl": "https://onchainkms-base.vercel.app/nft/logo.png",
     "homeUrl": "https://onchainkms-base.vercel.app",
-    "imageUrl": "https://onchainkms-base.vercel.app/image.png",
-    "splashImageUrl": "https://onchainkms-base.vercel.app/splash.png",
+    "imageUrl": "https://onchainkms-base.vercel.app/nft/image.png",
+    "splashImageUrl": "https://onchainkms-base.vercel.app/nft/splash.png",
     "splashBackgroundColor": "#0F172A",
     "webhookUrl": "https://onchainkms-base.vercel.app/api/webhook",
     "subtitle": "Track your activity onchain",
     "description": "Track your activity onchain",
     "screenshotUrls": [
-      "https://onchainkms-base.vercel.app/screenshot1.png"
+      "https://onchainkms-base.vercel.app/nft/screenshot1.png"
     ],
     "primaryCategory": "health-fitness",
     "tags": [
@@ -20,11 +20,11 @@
       "running",
       "cycling"
     ],
-    "heroImageUrl": "https://onchainkms-base.vercel.app/image.png",
+    "heroImageUrl": "https://onchainkms-base.vercel.app/nft/image.png",
     "tagline": "Track your activity onchain",
     "ogTitle": "Onchainkms - Move further",
     "ogDescription": "Track your activity onchain",
-    "ogImageUrl": "https://onchainkms-base.vercel.app/og.png"
+    "ogImageUrl": "https://onchainkms-base.vercel.app/nft/og.png"
   },
   "accountAssociation": {
     "header": "eyJmaWQiOjY4NTE4OSwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweGQyMkY3OWEyQWM5ZDZENUEzMjBiYTc5NDg5NDAxODY1YjNCQThBMTUifQ",
