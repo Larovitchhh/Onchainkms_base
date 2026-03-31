@@ -8,7 +8,7 @@ export const metadata = {
     "fc:frame": "vNext",
     "fc:frame:image": "https://onchainkms-base.vercel.app/nft/og.png",
     
-    // Mantenemos tu JSON de Farcaster
+    // Tu configuración de Farcaster original
     "farcaster:metadata": JSON.stringify({
       version: "1",
       name: "OnchainKms",
@@ -19,15 +19,6 @@ export const metadata = {
       splashImageUrl: "https://onchainkms-base.vercel.app/nft/splash.png",
       splashBackgroundColor: "#0F172A",
     }),
-
-    // --- INYECCIÓN PARA REGISTRO EN BASE.DEV ---
-    // Declaramos la estructura que te pide el validador
-    "base:app:structure": "app,api/nft,webhook,components,lib,public,types",
-    "base:app:components": "ActivityForm,ConnectStacks,ConnectWallet,MintButton,MintStacksButton",
-    "base:app:lib": "contract,mint,mintStacks,stacksAuth,wallet,xpCalculator",
-    "base:app:api_routes": "/api/nft,/webhook",
-    "base:app:farcaster_config": "./well-known/farcaster.json",
-    // -------------------------------------------
   },
 
   openGraph: {
@@ -52,8 +43,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
-        {/* Tu verificación de Talent Protocol se queda igual */}
+        {/* LÍNEA CRÍTICA PARA BASE.DEV */}
+        <meta name="base:app_id" content="6941e8fdd19763ca26ddc370" />
+
+        {/* Verificación de Talent Protocol */}
         <meta name="talentapp:project_verification" content="7484bc8aab7a80329d9a68fc559aad005ce48622f2bdea6131807097a49770a9c78661ef758841b68a2265853274175de292dff70ca314ced5dbb4232fd6d140" />
+        
         <link rel="icon" href="/nft/favicon.png" />
       </head>
       <body>{children}</body>
