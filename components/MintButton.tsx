@@ -22,16 +22,14 @@ export default function MintButton({ activity, xp }: { activity: any, xp: number
   const handleShare = () => {
     if (!mintedData) return;
 
-    const shareText = `¡He minteado mi actividad de ${mintedData.sport} en OnChainKMS! 🔵\n\n📊 Distancia: ${mintedData.distance} KM\n✨ XP: ${mintedData.xp}\n\nCheck it out:`;
+    const shareText = `¡He minteado mi actividad de ${mintedData.sport} en OnChainKMS! 🔵\n\n📊 Distancia: ${mintedData.distance} KM\n✨ XP: ${mintedData.xp}`;
     
-    // Para Baseapp, usamos el intent de compartir texto y la URL de la imagen para que genere el preview
-    const shareUrl = `https://base.org/share?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(mintedData.metadataURL)}`;
+    // URL de Warpcast (estándar para el feed social de Baseapp)
+    const shareUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(shareText)}&embeds[]=${encodeURIComponent(mintedData.metadataURL)}`;
     
-    // Opción alternativa universal si Baseapp está instalada
     window.open(shareUrl, "_blank");
   };
 
-  // Si ya se minteó, mostramos el botón de compartir
   if (mintedData) {
     return (
       <button
@@ -39,7 +37,7 @@ export default function MintButton({ activity, xp }: { activity: any, xp: number
         style={{
           width: "100%",
           padding: "16px",
-          background: "#0052FF", // Azul corporativo de Base
+          background: "#0052FF",
           color: "white",
           border: "none",
           borderRadius: "14px",
@@ -56,7 +54,6 @@ export default function MintButton({ activity, xp }: { activity: any, xp: number
     );
   }
 
-  // Estado normal de minteo
   return (
     <button
       onClick={handleMint}
