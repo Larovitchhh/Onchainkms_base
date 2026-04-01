@@ -22,9 +22,10 @@ export default function MintButton({ activity, xp }: { activity: any, xp: number
   const handleShare = () => {
     if (!mintedData) return;
 
-    const shareText = `¡He minteado mi actividad de ${mintedData.sport} en OnChainKMS! 🔵\n\n📊 Distancia: ${mintedData.distance} KM\n✨ XP: ${mintedData.xp}`;
+    // Añadimos el link de la web al final del texto informativo
+    const shareText = `¡He minteado mi actividad de ${mintedData.sport} en OnChainKMS! 🔵\n\n📊 Distancia: ${mintedData.distance} KM\n✨ XP: ${mintedData.xp}\n\nWeb: https://onchainkms-base.vercel.app/`;
     
-    // URL de Warpcast (estándar para el feed social de Baseapp)
+    // El embed principal sigue siendo el metadataURL para que la imagen del NFT sea la protagonista
     const shareUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(shareText)}&embeds[]=${encodeURIComponent(mintedData.metadataURL)}`;
     
     window.open(shareUrl, "_blank");
