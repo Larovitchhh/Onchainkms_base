@@ -22,10 +22,19 @@ export async function mintActivity(activity: any, xp: number) {
       metadataURL                    // La URL de tu API
     )
 
-    await tx.wait()
-    alert("Activity minted on Base!")
+    const receipt = await tx.wait()
+    
+    // Retornamos el objeto con la info para el botón de compartir
+    return {
+      success: true,
+      hash: tx.hash,
+      metadataURL: metadataURL,
+      sport: activity.type,
+      distance: activity.distance,
+      xp: xp
+    };
   } catch (err: any) {
     console.error("mint error:", err)
-    alert(err.reason || "Mint failed")
+    throw err;
   }
 }
