@@ -17,21 +17,33 @@ import {
 
 export default function BaseConnect() {
   return (
-    <div className="flex justify-end">
+    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
       <Wallet>
-        <ConnectWallet className="bg-[#38bdf8] hover:bg-[#0ea5e9] text-black font-bold py-2 px-4 rounded-lg flex items-center gap-2">
-          <Avatar className="h-6 w-6" />
+        <ConnectWallet style={{ 
+          backgroundColor: "#38bdf8", 
+          color: "black", 
+          fontWeight: "bold", 
+          padding: "10px 20px", 
+          borderRadius: "8px",
+          border: "none",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          gap: "8px"
+        }}>
+          <Avatar style={{ height: "24px", width: "24px" }} />
           <Name />
           <ConnectWalletText>Connect to Base</ConnectWalletText>
         </ConnectWallet>
-        <WalletDropdown>
+        
+        <WalletDropdown style={{ backgroundColor: "#1e293b", color: "white" }}>
           <Identity className="px-4 pt-3 pb-2" hasCopyAddressOnClick>
             <Avatar />
             <Name />
             <Address />
             <EthBalance />
           </Identity>
-          <WalletDropdownDisconnect />
+          <WalletDropdownDisconnect style={{ color: "#f87171", padding: "10px" }} />
         </WalletDropdown>
       </Wallet>
     </div>
