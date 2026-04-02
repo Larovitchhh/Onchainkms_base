@@ -1,6 +1,5 @@
 import "./globals.css";
-import { OnchainKitProvider } from '@coinbase/onchainkit';
-import { base } from 'viem/chains';
+import { Providers } from "./providers"; // Importamos el nuevo archivo
 
 export const metadata = {
   title: "OnchainKms - Move further",
@@ -45,12 +44,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="icon" href="/nft/favicon.png" />
       </head>
       <body>
-        <OnchainKitProvider
-          apiKey={process.env.NEXT_PUBLIC_ONCHAINKIT_API_KEY}
-          chain={base as any}
-        >
+        <Providers>
           {children}
-        </OnchainKitProvider>
+        </Providers>
       </body>
     </html>
   );
