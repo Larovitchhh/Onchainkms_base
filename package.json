@@ -2,18 +2,19 @@
   "name": "onchain-sports",
   "version": "1.0.0",
   "private": true,
-
   "engines": {
     "node": "20.x"
   },
-
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start"
   },
-
   "dependencies": {
+    "@coinbase/onchainkit": "^0.33.0",
+    "@tanstack/react-query": "^5.0.0",
+    "viem": "^2.0.0",
+    "wagmi": "^2.0.0",
     "ethers": "^6.8.0",
     "@vercel/og": "^0.6.0",
     "next": "14.2.15",
@@ -23,7 +24,6 @@
     "@stacks/network": "^6.11.0",
     "@stacks/transactions": "^6.11.0"
   },
-
   "devDependencies": {
     "typescript": "5.4.5",
     "@types/react": "18.2.66",
