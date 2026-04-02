@@ -19,12 +19,11 @@ export default function BaseConnect() {
     <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
       <Wallet>
         <ConnectWallet>
-          <Avatar className="h-6 w-6" />
+          <Avatar />
           <Name />
         </ConnectWallet>
-        
         <WalletDropdown>
-          <Identity className="px-4 pt-3 pb-2" hasCopyAddressOnClick>
+          <Identity hasCopyAddressOnClick>
             <Avatar />
             <Name />
             <Address />
