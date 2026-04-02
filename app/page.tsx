@@ -1,4 +1,4 @@
-import BaseConnect from "../components/BaseConnect" // El nuevo componente
+import ConnectWallet from "../components/ConnectWallet"
 import ConnectStacks from "../components/ConnectStacks"
 import ActivityForm from "../components/ActivityForm"
 
@@ -19,10 +19,8 @@ export default function Home() {
             ONCHAIN<span style={{ color: "#38bdf8" }}>KMS</span>
           </span>
         </div>
-        
-        <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-          {/* SUSTITUIMOS EL BOTÓN VIEJO AQUÍ */}
-          <BaseConnect /> 
+        <div style={{ display: "flex", gap: "12px" }}>
+          <ConnectWallet />
           <ConnectStacks />
         </div>
       </div>
