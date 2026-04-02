@@ -12,7 +12,7 @@ export function Providers({ children }: { children: ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <OnchainKitProvider
         apiKey={process.env.NEXT_PUBLIC_ONCHAINKIT_API_KEY}
-        chain={base as any}
+        chain={base}
       >
         {children}
       </OnchainKitProvider>
