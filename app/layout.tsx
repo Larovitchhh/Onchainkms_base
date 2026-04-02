@@ -1,5 +1,6 @@
 import "./globals.css";
-import { Providers } from "./providers"; // Importamos el nuevo archivo
+import '@coinbase/onchainkit/styles.css'; // <--- AÑADE ESTA LÍNEA AQUÍ
+import { Providers } from "./providers";
 
 export const metadata = {
   title: "OnchainKms - Move further",
