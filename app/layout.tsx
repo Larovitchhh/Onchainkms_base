@@ -1,13 +1,14 @@
-import "./globals.css";
-import '@coinbase/onchainkit/styles.css'; // <--- AÑADE ESTA LÍNEA AQUÍ
-import { Providers } from "./providers";
+import "./globals.css"
 
 export const metadata = {
   title: "OnchainKms - Move further",
   description: "Track your activity onchain",
+  
   other: {
     "fc:frame": "vNext",
     "fc:frame:image": "https://onchainkms-base.vercel.app/nft/og.png",
+    
+    // Tu configuración de Farcaster original
     "farcaster:metadata": JSON.stringify({
       version: "1",
       name: "OnchainKms",
@@ -19,6 +20,7 @@ export const metadata = {
       splashBackgroundColor: "#0F172A",
     }),
   },
+
   openGraph: {
     title: "Onchainkms - Move further",
     description: "Track your activity onchain",
@@ -28,27 +30,28 @@ export const metadata = {
     locale: "es_ES",
     type: "website",
   },
+
   twitter: {
     card: "summary_large_image",
     title: "Onchainkms - Move further",
     description: "Track your activity onchain",
     images: ["https://onchainkms-base.vercel.app/nft/og.png"],
   },
-};
+}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head>
+        {/* LÍNEA CRÍTICA PARA BASE.DEV */}
         <meta name="base:app_id" content="6941e8fdd19763ca26ddc370" />
+
+        {/* Verificación de Talent Protocol */}
         <meta name="talentapp:project_verification" content="7484bc8aab7a80329d9a68fc559aad005ce48622f2bdea6131807097a49770a9c78661ef758841b68a2265853274175de292dff70ca314ced5dbb4232fd6d140" />
+        
         <link rel="icon" href="/nft/favicon.png" />
       </head>
-      <body>
-        <Providers>
-          {children}
-        </Providers>
-      </body>
+      <body>{children}</body>
     </html>
-  );
+  )
 }
