@@ -1,8 +1,29 @@
+"use client"
+import { useEffect } from "react"
 import ConnectWallet from "../components/ConnectWallet"
 import ConnectStacks from "../components/ConnectStacks"
 import ActivityForm from "../components/ActivityForm"
 
 export default function Home() {
+  
+  useEffect(() => {
+    // Función para inicializar la comunicación con Base App
+    const initBaseSDK = async () => {
+      try {
+        // Accedemos al SDK cargado por el script del layout
+        const sdk = (window as any).frameSDK;
+        if (sdk && sdk.actions && typeof sdk.actions.ready === 'function') {
+          console.log("Base App SDK detectado, enviando señal 'ready'...");
+          sdk.actions.ready();
+        }
+      } catch (error) {
+        console.error("Error inicializando Base SDK:", error);
+      }
+    };
+
+    initBaseSDK();
+  }, []);
+
   return (
     <main style={{ padding: "40px 20px" }}>
       {/* Header Bar */}
