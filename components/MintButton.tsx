@@ -9,11 +9,12 @@ export default function MintButton({ activity, xp }: { activity: any, xp: number
   async function handleMint() {
     setIsMinting(true);
     try {
+      // Llamamos a la función de tu lib/mint.ts
       const result = await mintActivity(activity, xp);
       setMintedData(result);
     } catch (err: any) {
       console.error(err);
-      alert(err.reason || "Mint failed");
+      alert(err.message || "Mint failed. Make sure you are on Base network.");
     } finally {
       setIsMinting(false);
     }
@@ -22,10 +23,9 @@ export default function MintButton({ activity, xp }: { activity: any, xp: number
   const handleShare = () => {
     if (!mintedData) return;
 
-    // Añadimos el link de la web al final del texto informativo
     const shareText = `¡He minteado mi actividad de ${mintedData.sport} en OnChainKMS! 🔵\n\n📊 Distancia: ${mintedData.distance} KM\n✨ XP: ${mintedData.xp}\n\nWeb: https://onchainkms-base.vercel.app/`;
     
-    // El embed principal sigue siendo el metadataURL para que la imagen del NFT sea la protagonista
+    // Compartir en Warpcast/Baseapp
     const shareUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(shareText)}&embeds[]=${encodeURIComponent(mintedData.metadataURL)}`;
     
     window.open(shareUrl, "_blank");
@@ -71,11 +71,8 @@ export default function MintButton({ activity, xp }: { activity: any, xp: number
         fontSize: "13px",
         textTransform: "uppercase",
         letterSpacing: "1px",
-        transition: "transform 0.1s",
         opacity: isMinting ? 0.6 : 1
       }}
-      onMouseDown={(e) => !isMinting && (e.currentTarget.style.transform = "scale(0.98)")}
-      onMouseUp={(e) => !isMinting && (e.currentTarget.style.transform = "scale(1)")}
     >
       {isMinting ? "Minteando..." : "Mint on Base"}
     </button>
