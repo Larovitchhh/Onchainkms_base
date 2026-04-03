@@ -1,13 +1,10 @@
 import { ethers } from "ethers"
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from "./contract"
+import { getWallet } from "./wallet"
 
-export async function mintActivity(activity: any, xp: number, connector: any) {
+export async function mintActivity(activity: any, xp: number) {
   try {
-    // Obtenemos el provider de Wagmi/Viem y lo pasamos a Ethers
-    const provider = await connector.getProvider();
-    const browserProvider = new ethers.BrowserProvider(provider);
-    const signer = await browserProvider.getSigner();
-    const address = await signer.getAddress();
+    const { signer, address } = await getWallet()
 
     const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer)
 
@@ -16,16 +13,15 @@ export async function mintActivity(activity: any, xp: number, connector: any) {
 
     console.log("Minting with metadata:", metadataURL);
 
-    // Ajuste: Aseguramos que los valores sean BigInt o números limpios para Ethers v6
     const tx = await contract.mintActivity(
       address,
-      BigInt(Math.floor(activity.distance)),
-      BigInt(Math.floor(xp)),
-      "manual_activity",
-      metadataURL
+      BigInt(Math.floor(activity.distance)), 
+      BigInt(Math.floor(xp)),                
+      "manual_activity",                     
+      metadataURL                            
     )
 
-    const receipt = await tx.wait()
+    await tx.wait()
     
     return {
       success: true,
