@@ -4,13 +4,30 @@ import { getWallet } from "../lib/wallet"
 
 export default function ConnectWallet() {
   const [address, setAddress] = useState<string>("")
+  const [isSigning, setIsSigning] = useState(false)
 
-  async function connect() {
+  async function connectAndSign() {
     try {
-      const wallet = await getWallet()
-      setAddress(wallet.address)
-    } catch (err) {
-      alert("Wallet connection failed")
+      setIsSigning(true);
+      const { signer, address: userAddress } = await getWallet();
+
+      // --- ESTO ES EL SIWE (Sign-In With Ethereum) ---
+      // Creamos un mensaje estándar que el usuario debe firmar
+      const domain = window.location.host;
+      const message = `${domain} wants you to sign in with your Ethereum account:\n${userAddress}\n\nI accept the OnchainKms terms of service.`;
+
+      // El usuario firma el mensaje en su billetera (Base App / MetaMask)
+      const signature = await signer.signMessage(message);
+      
+      console.log("Firma obtenida con éxito:", signature);
+      // -----------------------------------------------
+
+      setAddress(userAddress);
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || "Connection or Signing failed");
+    } finally {
+      setIsSigning(false);
     }
   }
 
@@ -35,7 +52,8 @@ export default function ConnectWallet() {
 
   return (
     <button
-      onClick={connect}
+      onClick={connectAndSign}
+      disabled={isSigning}
       className="glow-border"
       style={{
         padding: "12px 24px",
@@ -43,14 +61,15 @@ export default function ConnectWallet() {
         color: "white",
         border: "none",
         borderRadius: "12px",
-        cursor: "pointer",
+        cursor: isSigning ? "not-allowed" : "pointer",
         fontWeight: "bold",
         textTransform: "uppercase",
         letterSpacing: "1px",
-        fontSize: "12px"
+        fontSize: "12px",
+        opacity: isSigning ? 0.7 : 1
       }}
     >
-      Connect Base
+      {isSigning ? "Firmando..." : "Connect & Sign"}
     </button>
   )
 }
