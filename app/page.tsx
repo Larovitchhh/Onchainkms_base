@@ -7,16 +7,14 @@ import Profile from "../components/Profile"
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<'activity' | 'ranking' | 'profile'>('activity');
-  const [userContext, setUserContext] = useState<any>(null);
-
+  
   useEffect(() => {
+    // El SDK de Base ahora solo se usa para notificar que la web está lista
+    // No para autenticar usuarios (eso se hace via Wallet/SIWE)
     const initBaseSDK = async () => {
       try {
         const sdk = (window as any).frameSDK;
         if (sdk?.actions?.ready) {
-          // CAPTURAMOS EL CONTEXTO DE BASE (Nombre, PFP, etc.)
-          const context = await sdk.context;
-          setUserContext(context);
           sdk.actions.ready();
         }
       } catch (error) {
@@ -61,18 +59,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* HERO (Solo en Activity) */}
-      {activeTab === 'activity' && (
-        <div style={{ textAlign: "center", marginBottom: "40px" }}>
-          <h1 style={{ fontSize: "42px", fontWeight: "900", marginBottom: "12px", letterSpacing: "-2px" }}>
-            TRACK. EARN. <span style={{ color: "#38bdf8" }}>MINT.</span>
-          </h1>
-          <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "16px" }}>
-            Convert your physical effort into onchain reputation.
-          </p>
-        </div>
-      )}
-
       {/* TABS MENU */}
       <div style={{ 
         maxWidth: "600px", 
@@ -89,17 +75,29 @@ export default function Home() {
 
       {/* CONTENIDO DINÁMICO */}
       <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
-        {activeTab === 'activity' && <ActivityForm />}
+        {activeTab === 'activity' && (
+           <>
+            <div style={{ textAlign: "center", marginBottom: "40px" }}>
+              <h1 style={{ fontSize: "42px", fontWeight: "900", marginBottom: "12px", letterSpacing: "-2px" }}>
+                TRACK. EARN. <span style={{ color: "#38bdf8" }}>MINT.</span>
+              </h1>
+              <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "16px" }}>
+                Convert your physical effort into onchain reputation.
+              </p>
+            </div>
+            <ActivityForm />
+           </>
+        )}
         
         {activeTab === 'ranking' && (
           <div style={{ textAlign: "center", padding: "60px", background: "rgba(15, 23, 42, 0.6)", borderRadius: "24px", border: "1px solid rgba(255,255,255,0.05)" }}>
             <h2 style={{ fontWeight: "900", fontSize: "24px" }}>GLOBAL <span style={{ color: "#38bdf8" }}>LEADERBOARD</span></h2>
-            <p style={{ color: "rgba(255,255,255,0.4)", marginTop: "10px" }}>Competición próximamente disponible...</p>
+            <p style={{ color: "rgba(255,255,255,0.4)", marginTop: "10px" }}>Coming soon...</p>
           </div>
         )}
 
-        {activeTab === 'profile' && <Profile user={userContext?.user} />}
+        {activeTab === 'profile' && <Profile />}
       </div>
     </main>
-  )
+  );
 }
