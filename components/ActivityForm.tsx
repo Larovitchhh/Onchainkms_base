@@ -3,7 +3,7 @@ import { useState } from "react"
 import MintButton from "./MintButton"
 import MintStacksButton from "./MintStacksButton"
 import { calculateXP } from "../lib/xpCalculator"
-import { SportType } from "../types" // Importamos el tipo para mayor seguridad
+import { SportType } from "../types"
 
 export default function ActivityForm() {
   const [type, setType] = useState<SportType>("run") 
@@ -14,7 +14,7 @@ export default function ActivityForm() {
   const xp = calculateXP(type as any, distance, duration, elevation)
   const activity = { type, distance, duration, elevation }
 
-  // 1. Actualizamos el array con las rutas de las imágenes en /public/buttons/
+  // Configuración con las rutas a /public/buttons/
   const sports = [
     { id: "run", label: "RUN", icon: "/buttons/run.png", color: "#38bdf8" },
     { id: "road", label: "ROAD", icon: "/buttons/road.png", color: "#f59e0b" },
@@ -30,6 +30,7 @@ export default function ActivityForm() {
       {/* LADO IZQUIERDO: INPUTS */}
       <div style={{ flex: "1 1 450px", background: "rgba(15, 23, 42, 0.6)", padding: "32px", borderRadius: "24px", border: "1px solid rgba(255,255,255,0.05)", backdropFilter: "blur(10px)" }}>
         
+        {/* GRILLA DE BOTONES (IMÁGENES COMPLETAS) */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px", marginBottom: "32px" }}>
           {sports.map(s => (
             <button
@@ -39,37 +40,34 @@ export default function ActivityForm() {
                 aspectRatio: "1/1",
                 borderRadius: "16px",
                 border: type === s.id ? `2px solid ${s.color}` : "1px solid rgba(255,255,255,0.1)",
-                background: type === s.id ? `${s.color}20` : "transparent",
-                color: "white",
+                background: type === s.id ? `${s.color}20` : "rgba(0,0,0,0.3)",
                 cursor: "pointer",
+                padding: "0",
+                overflow: "hidden",
                 display: "flex",
-                flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: "8px", // Un poco más de espacio para la imagen
-                fontSize: "10px",
-                fontWeight: "bold",
-                transition: "all 0.2s",
-                overflow: "hidden"
+                transition: "all 0.3s ease",
+                boxShadow: type === s.id ? `0 0 15px ${s.color}40` : "none"
               }}
             >
-              {/* 2. Renderizado de la imagen en lugar del emoji */}
               <img 
                 src={s.icon} 
                 alt={s.label} 
                 style={{ 
-                  width: "32px", 
-                  height: "32px", 
-                  objectFit: "contain",
-                  filter: type === s.id ? "grayscale(0%)" : "grayscale(100%) opacity(0.6)",
-                  transition: "filter 0.2s"
+                  width: "100%", 
+                  height: "100%", 
+                  objectFit: "cover", // Ocupa todo el recuadro
+                  filter: type === s.id ? "none" : "brightness(0.5) grayscale(100%)",
+                  transform: type === s.id ? "scale(1.05)" : "scale(1)",
+                  transition: "all 0.4s ease"
                 }} 
               />
-              {s.label}
             </button>
           ))}
         </div>
 
+        {/* INPUTS DE DATOS */}
         {[{ l: "DISTANCE (KM)", v: distance, s: setDistance }, { l: "DURATION (MIN)", v: duration, s: setDuration }, { l: "ELEVATION (M)", v: elevation, s: setElevation }].map((item) => (
           <div key={item.l} style={{ marginBottom: "20px" }}>
             <label style={{ display: "block", fontSize: "10px", color: "rgba(255,255,255,0.4)", marginBottom: "8px", fontWeight: "bold", letterSpacing: "1px" }}>{item.l}</label>
@@ -97,7 +95,8 @@ export default function ActivityForm() {
           </div>
         </div>
 
-        <div style={{ borderRadius: "20px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.1)" }}>
+        {/* PREVISUALIZACIÓN DEL NFT */}
+        <div style={{ borderRadius: "20px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.1)", background: "rgba(0,0,0,0.5)" }}>
           <img src={nftPreviewURL} alt="Preview" style={{ width: "100%", display: "block" }} />
         </div>
       </div>
