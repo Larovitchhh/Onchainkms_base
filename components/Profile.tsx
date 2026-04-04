@@ -1,16 +1,23 @@
 "use client"
 import { useState, useEffect } from "react"
-// Importamos el hook de wagmi (que es el estándar que pide Base ahora)
-import { useAccount } from "wagmi" 
+
+// Intentamos importar de forma segura. Si da error en tu terminal, 
+// es que necesitas instalar: npm install wagmi viem @tanstack/react-query
+let useAccount: any;
+try {
+  useAccount = require("wagmi").useAccount;
+} catch (e) {
+  useAccount = () => ({ address: null, isConnected: false });
+}
 
 const CLIENT_ID = "182742"
 
 export default function Profile() {
   const [isStravaConnected, setIsStravaConnected] = useState(false)
   
-  // ESTO ES LO IMPORTANTE:
-  // Obtenemos la dirección real de la wallet conectada en BaseApp
-  const { address, isConnected } = useAccount() 
+  // Obtenemos la info de la wallet si está disponible
+  const account = useAccount ? useAccount() : { address: null, isConnected: false };
+  const { address, isConnected } = account;
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -26,12 +33,12 @@ export default function Profile() {
     window.location.href = authUrl;
   };
 
-  // Formatear la dirección para que se vea bonita (0x1234...5678)
-  const formatAddress = (addr: string) => `${addr.slice(0, 6)}...${addr.slice(-4)}`
+  const formatAddress = (addr: string) => addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : "0x000...000"
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px", width: "100%", maxWidth: "500px", margin: "0 auto" }}>
       
+      {/* CARD DE PERFIL */}
       <div style={{ 
         background: "rgba(15, 23, 42, 0.6)", 
         padding: "40px 32px", 
@@ -42,55 +49,45 @@ export default function Profile() {
       }}>
         <div style={{ 
           width: "80px", height: "80px", borderRadius: "20px", 
-          background: isConnected ? "linear-gradient(135deg, #0052FF 0%, #38bdf8 100%)" : "#1e293b", 
+          background: isConnected ? "linear-gradient(135deg, #0052FF 0%, #38bdf8 100%)" : "rgba(255,255,255,0.05)", 
           margin: "0 auto 20px auto", display: "flex", alignItems: "center", 
-          justifyContent: "center", fontSize: "32px", boxShadow: isConnected ? "0 0 20px rgba(0, 82, 255, 0.3)" : "none"
+          justifyContent: "center", fontSize: "32px"
         }}>
-          {isConnected ? "✅" : "👤"}
+          {isConnected ? "🛡️" : "👤"}
         </div>
         
-        <h2 style={{ fontSize: "20px", fontWeight: "900", letterSpacing: "1px", color: "white" }}>
-          {isConnected ? "CONNECTED ATHLETE" : "NO WALLET FOUND"}
+        <h2 style={{ fontSize: "20px", fontWeight: "900", letterSpacing: "1px" }}>
+          {isConnected ? "CONNECTED ATHLETE" : "PROFILE"}
         </h2>
 
         <div style={{ 
           marginTop: "8px", background: "rgba(0,0,0,0.3)", padding: "6px 12px", 
           borderRadius: "8px", display: "inline-block", border: "1px solid rgba(255,255,255,0.1)" 
         }}>
-          <p style={{ color: "#38bdf8", fontSize: "14px", fontFamily: "monospace", fontWeight: "bold" }}>
-            {isConnected && address ? formatAddress(address) : "0x000...000"}
+          <p style={{ color: "#38bdf8", fontSize: "14px", fontFamily: "monospace" }}>
+            {address ? formatAddress(address) : "Wallet not connected"}
           </p>
         </div>
       </div>
 
-      {/* INTEGRACIÓN STRAVA */}
+      {/* STRAVA SECTION */}
       <div style={{ background: "rgba(15, 23, 42, 0.4)", padding: "24px", borderRadius: "24px", border: "1px solid rgba(255,255,255,0.05)" }}>
-        <h3 style={{ fontSize: "10px", color: "rgba(255,255,255,0.4)", fontWeight: "bold", letterSpacing: "2px", marginBottom: "16px" }}>INTEGRATIONS</h3>
-        {/* ... Resto del código de Strava igual ... */}
-        <div style={{ 
-          display: "flex", alignItems: "center", justifyContent: "space-between", 
-          background: "rgba(0,0,0,0.3)", padding: "16px 20px", borderRadius: "16px",
-          border: isStravaConnected ? "1px solid #fc4c02" : "1px solid rgba(255,255,255,0.05)"
-        }}>
+        <h3 style={{ fontSize: "10px", color: "rgba(255,255,255,0.4)", fontWeight: "bold", letterSpacing: "2px", marginBottom: "16px" }}>SERVICES</h3>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(0,0,0,0.3)", padding: "16px 20px", borderRadius: "16px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            <div style={{ fontSize: "24px" }}>🧡</div>
+            <span style={{ fontSize: "24px" }}>🧡</span>
             <div style={{ textAlign: "left" }}>
-              <div style={{ fontWeight: "bold", fontSize: "16px", color: "white" }}>STRAVA</div>
+              <div style={{ fontWeight: "bold", fontSize: "16px" }}>STRAVA</div>
               <div style={{ fontSize: "11px", color: isStravaConnected ? "#22c55e" : "rgba(255,255,255,0.4)" }}>
-                {isStravaConnected ? "CONNECTED" : "NOT SYNCED"}
+                {isStravaConnected ? "SYNCED" : "NOT CONNECTED"}
               </div>
             </div>
           </div>
           <button 
             onClick={handleStravaConnect}
-            style={{ 
-              background: isStravaConnected ? "transparent" : "#fc4c02", 
-              color: "white", 
-              border: isStravaConnected ? "1px solid #fc4c02" : "none",
-              padding: "10px 18px", borderRadius: "10px", fontWeight: "900", fontSize: "11px", cursor: "pointer"
-            }}
+            style={{ background: "#fc4c02", color: "white", border: "none", padding: "10px 18px", borderRadius: "10px", fontWeight: "900", fontSize: "11px", cursor: "pointer" }}
           >
-            {isStravaConnected ? "LOGOUT" : "CONNECT"}
+            {isStravaConnected ? "DISCONNECT" : "CONNECT"}
           </button>
         </div>
       </div>
