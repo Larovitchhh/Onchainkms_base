@@ -3,9 +3,10 @@ import { useState } from "react"
 import MintButton from "./MintButton"
 import MintStacksButton from "./MintStacksButton"
 import { calculateXP } from "../lib/xpCalculator"
+import { SportType } from "../types" // Importamos el tipo para mayor seguridad
 
 export default function ActivityForm() {
-  const [type, setType] = useState("run") // 'Run' por defecto por el logo
+  const [type, setType] = useState<SportType>("run") 
   const [distance, setDistance] = useState(0)
   const [duration, setDuration] = useState(0)
   const [elevation, setElevation] = useState(0)
@@ -13,14 +14,14 @@ export default function ActivityForm() {
   const xp = calculateXP(type as any, distance, duration, elevation)
   const activity = { type, distance, duration, elevation }
 
+  // 1. Actualizamos el array con las rutas de las imágenes en /public/buttons/
   const sports = [
-    { id: "run", label: "RUN", icon: "🏃", color: "#38bdf8" },
-    { id: "road", label: "ROAD", icon: "🚴", color: "#f59e0b" },
-    { id: "mtb", label: "MTB", icon: "🚵", color: "#22c55e" },
-    { id: "swim", label: "SWIM", icon: "🏊", color: "#a855f7" },
+    { id: "run", label: "RUN", icon: "/buttons/run.png", color: "#38bdf8" },
+    { id: "road", label: "ROAD", icon: "/buttons/road.png", color: "#f59e0b" },
+    { id: "mtb", label: "MTB", icon: "/buttons/mtb.png", color: "#22c55e" },
+    { id: "swim", label: "SWIM", icon: "/buttons/swim.png", color: "#a855f7" },
   ]
 
-  const activeSport = sports.find(s => s.id === type) || sports[0]
   const nftPreviewURL = `/api/nft?sport=${type}&km=${distance}&time=${duration}&elev=${elevation}&xp=${xp}&v=${Date.now()}`
 
   return (
@@ -33,7 +34,7 @@ export default function ActivityForm() {
           {sports.map(s => (
             <button
               key={s.id}
-              onClick={() => setType(s.id)}
+              onClick={() => setType(s.id as SportType)}
               style={{
                 aspectRatio: "1/1",
                 borderRadius: "16px",
@@ -45,13 +46,25 @@ export default function ActivityForm() {
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: "4px",
+                gap: "8px", // Un poco más de espacio para la imagen
                 fontSize: "10px",
                 fontWeight: "bold",
-                transition: "all 0.2s"
+                transition: "all 0.2s",
+                overflow: "hidden"
               }}
             >
-              <span style={{ fontSize: "20px" }}>{s.icon}</span>
+              {/* 2. Renderizado de la imagen en lugar del emoji */}
+              <img 
+                src={s.icon} 
+                alt={s.label} 
+                style={{ 
+                  width: "32px", 
+                  height: "32px", 
+                  objectFit: "contain",
+                  filter: type === s.id ? "grayscale(0%)" : "grayscale(100%) opacity(0.6)",
+                  transition: "filter 0.2s"
+                }} 
+              />
               {s.label}
             </button>
           ))}
