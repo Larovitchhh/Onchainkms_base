@@ -1,25 +1,25 @@
 "use client"
 import { useState, useEffect } from "react"
 
-// Intentamos importar de forma segura. Si da error en tu terminal, 
-// es que necesitas instalar: npm install wagmi viem @tanstack/react-query
-let useAccount: any;
-try {
-  useAccount = require("wagmi").useAccount;
-} catch (e) {
-  useAccount = () => ({ address: null, isConnected: false });
-}
-
-const CLIENT_ID = "182742"
-
 export default function Profile() {
   const [isStravaConnected, setIsStravaConnected] = useState(false)
-  
-  // Obtenemos la info de la wallet si está disponible
-  const account = useAccount ? useAccount() : { address: null, isConnected: false };
-  const { address, isConnected } = account;
+  const [address, setAddress] = useState<string | null>(null)
 
+  // CLIENT-SAFE: Detectamos la wallet solo cuando el componente ya cargó en el navegador
   useEffect(() => {
+    const checkWallet = async () => {
+      try {
+        const ethereum = (window as any).ethereum;
+        if (ethereum && ethereum.selectedAddress) {
+          setAddress(ethereum.selectedAddress);
+        }
+      } catch (e) {
+        console.log("No wallet detected yet");
+      }
+    };
+    checkWallet();
+
+    // Check de Strava en la URL
     const params = new URLSearchParams(window.location.search)
     if (params.get("code")) {
       setIsStravaConnected(true)
@@ -28,17 +28,18 @@ export default function Profile() {
   }, [])
 
   const handleStravaConnect = () => {
+    const CLIENT_ID = "182742"
     const REDIRECT_URI = window.location.origin
     const authUrl = `https://www.strava.com/oauth/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${REDIRECT_URI}&approval_prompt=auto&scope=activity:read_all`
     window.location.href = authUrl;
-  };
+  }
 
-  const formatAddress = (addr: string) => addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : "0x000...000"
+  const formatAddress = (addr: string) => `${addr.slice(0, 6)}...${addr.slice(-4)}`
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "24px", width: "100%", maxWidth: "500px", margin: "0 auto" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "24px", width: "100%", maxWidth: "500px", margin: "0 auto", color: "white" }}>
       
-      {/* CARD DE PERFIL */}
+      {/* CARD PRINCIPAL */}
       <div style={{ 
         background: "rgba(15, 23, 42, 0.6)", 
         padding: "40px 32px", 
@@ -49,45 +50,51 @@ export default function Profile() {
       }}>
         <div style={{ 
           width: "80px", height: "80px", borderRadius: "20px", 
-          background: isConnected ? "linear-gradient(135deg, #0052FF 0%, #38bdf8 100%)" : "rgba(255,255,255,0.05)", 
+          background: address ? "linear-gradient(135deg, #0052FF 0%, #38bdf8 100%)" : "rgba(255,255,255,0.05)", 
           margin: "0 auto 20px auto", display: "flex", alignItems: "center", 
           justifyContent: "center", fontSize: "32px"
         }}>
-          {isConnected ? "🛡️" : "👤"}
+          🏃‍♂️
         </div>
         
-        <h2 style={{ fontSize: "20px", fontWeight: "900", letterSpacing: "1px" }}>
-          {isConnected ? "CONNECTED ATHLETE" : "PROFILE"}
+        <h2 style={{ fontSize: "20px", fontWeight: "900", letterSpacing: "1px", marginBottom: "8px" }}>
+          {address ? "ATHLETE CONNECTED" : "ONCHAIN PROFILE"}
         </h2>
 
         <div style={{ 
-          marginTop: "8px", background: "rgba(0,0,0,0.3)", padding: "6px 12px", 
-          borderRadius: "8px", display: "inline-block", border: "1px solid rgba(255,255,255,0.1)" 
+          background: "rgba(0,0,0,0.3)", padding: "8px 16px", 
+          borderRadius: "10px", display: "inline-block", border: "1px solid rgba(255,255,255,0.1)" 
         }}>
-          <p style={{ color: "#38bdf8", fontSize: "14px", fontFamily: "monospace" }}>
-            {address ? formatAddress(address) : "Wallet not connected"}
+          <p style={{ color: "#38bdf8", fontSize: "14px", fontFamily: "monospace", margin: 0 }}>
+            {address ? formatAddress(address) : "Waiting for wallet..."}
           </p>
         </div>
       </div>
 
-      {/* STRAVA SECTION */}
-      <div style={{ background: "rgba(15, 23, 42, 0.4)", padding: "24px", borderRadius: "24px", border: "1px solid rgba(255,255,255,0.05)" }}>
-        <h3 style={{ fontSize: "10px", color: "rgba(255,255,255,0.4)", fontWeight: "bold", letterSpacing: "2px", marginBottom: "16px" }}>SERVICES</h3>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(0,0,0,0.3)", padding: "16px 20px", borderRadius: "16px" }}>
+      {/* STRAVA CARD */}
+      <div style={{ 
+        background: "rgba(15, 23, 42, 0.4)", padding: "24px", borderRadius: "24px", border: "1px solid rgba(255,255,255,0.05)" 
+      }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            <span style={{ fontSize: "24px" }}>🧡</span>
+            <div style={{ fontSize: "24px", background: "#fc4c0220", width: "42px", height: "42px", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "10px" }}>🧡</div>
             <div style={{ textAlign: "left" }}>
               <div style={{ fontWeight: "bold", fontSize: "16px" }}>STRAVA</div>
               <div style={{ fontSize: "11px", color: isStravaConnected ? "#22c55e" : "rgba(255,255,255,0.4)" }}>
-                {isStravaConnected ? "SYNCED" : "NOT CONNECTED"}
+                {isStravaConnected ? "● CONNECTED" : "NOT SYNCED"}
               </div>
             </div>
           </div>
+
           <button 
             onClick={handleStravaConnect}
-            style={{ background: "#fc4c02", color: "white", border: "none", padding: "10px 18px", borderRadius: "10px", fontWeight: "900", fontSize: "11px", cursor: "pointer" }}
+            style={{ 
+              background: "#fc4c02", color: "white", border: "none", 
+              padding: "10px 20px", borderRadius: "10px", fontWeight: "900", 
+              fontSize: "12px", cursor: "pointer" 
+            }}
           >
-            {isStravaConnected ? "DISCONNECT" : "CONNECT"}
+            {isStravaConnected ? "LOGOUT" : "CONNECT"}
           </button>
         </div>
       </div>
