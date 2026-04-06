@@ -1,5 +1,4 @@
 import "./globals.css"
-import { WalletProvider } from "../components/WalletProvider"
 
 export const metadata = {
   title: "OnchainKms - Move further",
@@ -28,11 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script src="https://cdn.jsdelivr.net/npm/@farcaster/frame-sdk/dist/bundle.js" defer></script>
         <link rel="icon" href="/nft/favicon.png" />
       </head>
-      <body>
-        <WalletProvider>
-          {children}
-        </WalletProvider>
-      </body>
+      <body>{children}</body>
     </html>
   )
 }
