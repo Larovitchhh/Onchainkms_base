@@ -1,58 +1,49 @@
 "use client"
+import { useState, useEffect } from "react"
+import { connectStacks, userSession } from "../lib/stacksAuth"
 
-import { mintStacksActivity } from "../lib/mintStacks"
+export default function ConnectStacks() {
+  const [mounted, setMounted] = useState(false)
+  const [userData, setUserData] = useState<any>(null)
 
-type Activity = {
- type:string
- distance:number
- duration:number
- elevation:number
-}
+  useEffect(() => {
+    setMounted(true)
+    if (userSession.isUserSignedIn()) {
+      setUserData(userSession.loadUserData())
+    }
+  }, [])
 
-type Props = {
- activity:Activity
- xp:number
-}
+  // Evitar errores de hidratación
+  if (!mounted) return null
 
-export default function MintStacksButton({activity,xp}:Props){
-
- async function handleMintStacks(){
-
-  console.log("Stacks button clicked")
-
-  try{
-
-   await mintStacksActivity(activity,xp)
-
-  }catch(err){
-
-   console.error("Stacks button error:",err)
-
-   alert("Stacks mint failed")
-
+  const handleConnect = async () => {
+    try {
+      await connectStacks()
+    } catch (error) {
+      console.error("Stacks connection error:", error)
+    }
   }
 
- }
+  const formatSTX = (addr: string) => `${addr.slice(0, 4)}...${addr.slice(-4)}`
 
- return(
-
-  <button
-   type="button"
-   onClick={handleMintStacks}
-   style={{
-    padding:"10px 20px",
-    background:"#f7931a",
-    color:"white",
-    border:"none",
-    borderRadius:"8px",
-    cursor:"pointer",
-    fontWeight:"bold",
-    marginLeft:"10px"
-   }}
-  >
-   Mint on Stacks
-  </button>
-
- )
-
+  return (
+    <button
+      onClick={handleConnect}
+      style={{
+        padding: "10px 20px",
+        background: userData ? "rgba(85, 70, 255, 0.2)" : "#5546ff",
+        color: "white",
+        border: userData ? "1px solid #5546ff" : "none",
+        borderRadius: "8px",
+        cursor: "pointer",
+        fontWeight: "bold",
+        fontSize: "12px",
+        transition: "all 0.3s ease"
+      }}
+    >
+      {userData 
+        ? `STX: ${formatSTX(userData.profile.stxAddress.mainnet)}` 
+        : "Connect Stacks"}
+    </button>
+  )
 }
