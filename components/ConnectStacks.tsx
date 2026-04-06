@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect } from "react"
-import { showConnect } from "@stacks/connect" // Importación directa para forzar el popup
+import { showConnect } from "@stacks/connect"
 import { userSession } from "../lib/stacksAuth"
 
 export default function ConnectStacks() {
@@ -9,16 +9,15 @@ export default function ConnectStacks() {
 
   useEffect(() => {
     setMounted(true)
-    // Verificamos si hay sesión activa al cargar
     if (userSession.isUserSignedIn()) {
       const userData = userSession.loadUserData()
-      const stxAddr = userData.profile.stxAddress?.mainnet || userData.profile.stxAddress?.testnet || userData.profile.stxAddress
-      setAddress(stxAddr)
+      setAddress(userData.profile.stxAddress?.mainnet || userData.profile.stxAddress)
     }
   }, [])
 
   const handleConnect = () => {
-    // Usamos showConnect directamente para asegurar que el navegador detecte la acción del usuario
+    console.log("Botón pulsado: Iniciando showConnect...") // Para verificar en F12
+    
     showConnect({
       appDetails: {
         name: "OnchainKMs",
@@ -26,70 +25,44 @@ export default function ConnectStacks() {
       },
       userSession,
       onFinish: () => {
-        const userData = userSession.loadUserData()
-        const stxAddr = userData.profile.stxAddress?.mainnet || userData.profile.stxAddress
-        setAddress(stxAddr)
-        window.location.reload() // Recargamos para asentar la sesión
-      },
-      onCancel: () => {
-        console.log("Usuario canceló la conexión")
+        window.location.reload()
       }
     })
   }
 
-  const handleLogout = (e: React.MouseEvent) => {
-    e.stopPropagation() // Evitamos que el clic active el botón de conectar
+  const handleLogout = () => {
     userSession.signUserOut()
     setAddress(null)
-    window.location.href = window.location.origin // Limpieza total de la URL y estado
+    window.location.reload()
   }
 
   if (!mounted) return null
 
-  const formatSTX = (addr: string) => `${addr.slice(0, 4)}...${addr.slice(-4)}`
-
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-      <button
-        onClick={!address ? handleConnect : undefined}
-        style={{
-          padding: "10px 20px",
-          background: address ? "rgba(85, 70, 255, 0.1)" : "#5546ff",
-          color: "white",
-          border: address ? "1px solid rgba(85, 70, 255, 0.4)" : "none",
-          borderRadius: "12px",
-          cursor: address ? "default" : "pointer",
-          fontWeight: "900",
-          fontSize: "12px",
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-          transition: "all 0.2s ease"
-        }}
-      >
-        <span style={{ fontSize: "16px" }}>💜</span>
-        {address ? formatSTX(address) : "Connect Stacks"}
-      </button>
-
-      {address && (
-        <button 
-          onClick={handleLogout}
+    <div style={{ display: "flex", gap: "8px" }}>
+      {!address ? (
+        <button
+          onClick={handleConnect}
           style={{
-            background: "rgba(255,255,255,0.05)",
-            border: "1px solid rgba(255,255,255,0.1)",
-            color: "rgba(255,255,255,0.4)",
-            borderRadius: "10px",
-            width: "32px",
-            height: "38px",
+            padding: "10px 20px",
+            background: "#5546ff",
+            color: "white",
+            border: "none",
+            borderRadius: "12px",
             cursor: "pointer",
-            fontSize: "14px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center"
+            fontWeight: "900",
+            fontSize: "12px"
           }}
         >
-          ✕
+          Connect Stacks
         </button>
+      ) : (
+        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+          <div style={{ background: "rgba(85, 70, 255, 0.1)", padding: "10px 15px", borderRadius: "12px", border: "1px solid #5546ff", fontSize: "12px", fontWeight: "bold" }}>
+            STX: {address.slice(0,4)}...{address.slice(-4)}
+          </div>
+          <button onClick={handleLogout} style={{ background: "none", border: "none", color: "white", cursor: "pointer", opacity: 0.5 }}>✕</button>
+        </div>
       )}
     </div>
   )
