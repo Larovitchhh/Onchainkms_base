@@ -4,13 +4,12 @@ import ConnectWallet from "../components/ConnectWallet"
 import ConnectStacks from "../components/ConnectStacks"
 import ActivityForm from "../components/ActivityForm"
 import Profile from "../components/Profile"
+import Ranking from "../components/Ranking" // IMPORTANTE: Importamos el nuevo componente
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<'activity' | 'ranking' | 'profile'>('activity');
   
   useEffect(() => {
-    // El SDK de Base ahora solo se usa para notificar que la web está lista
-    // No para autenticar usuarios (eso se hace via Wallet/SIWE)
     const initBaseSDK = async () => {
       try {
         const sdk = (window as any).frameSDK;
@@ -75,6 +74,8 @@ export default function Home() {
 
       {/* CONTENIDO DINÁMICO */}
       <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
+        
+        {/* PESTAÑA ACTIVIDAD */}
         {activeTab === 'activity' && (
            <>
             <div style={{ textAlign: "center", marginBottom: "40px" }}>
@@ -89,13 +90,10 @@ export default function Home() {
            </>
         )}
         
-        {activeTab === 'ranking' && (
-          <div style={{ textAlign: "center", padding: "60px", background: "rgba(15, 23, 42, 0.6)", borderRadius: "24px", border: "1px solid rgba(255,255,255,0.05)" }}>
-            <h2 style={{ fontWeight: "900", fontSize: "24px" }}>GLOBAL <span style={{ color: "#38bdf8" }}>LEADERBOARD</span></h2>
-            <p style={{ color: "rgba(255,255,255,0.4)", marginTop: "10px" }}>Coming soon...</p>
-          </div>
-        )}
+        {/* PESTAÑA RANKING - YA NO ES "COMING SOON" */}
+        {activeTab === 'ranking' && <Ranking />}
 
+        {/* PESTAÑA PERFIL */}
         {activeTab === 'profile' && <Profile />}
       </div>
     </main>
