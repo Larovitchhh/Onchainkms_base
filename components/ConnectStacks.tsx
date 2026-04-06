@@ -1,45 +1,25 @@
 "use client"
-import { userSession, connectStacks } from "../lib/stacksAuth"
-import { useEffect, useState } from "react"
+import { showConnect, UserSession, AppConfig } from "@stacks/connect"
 
 export default function ConnectStacks() {
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => { setMounted(true) }, [])
-  if (!mounted) return null
-
-  const handleLogout = () => {
-    userSession.signUserOut()
-    window.location.reload()
-  }
-
-  if (userSession.isUserSignedIn()) {
-    const userData = userSession.loadUserData()
-    const addr = userData.profile.stxAddress.mainnet || userData.profile.stxAddress
-    return (
-      <div style={{ display: "flex", gap: "10px" }}>
-        <span style={{ color: "white", fontSize: "12px", border: "1px solid #5546ff", padding: "5px 10px", borderRadius: "8px" }}>
-          {addr.slice(0,4)}...{addr.slice(-4)}
-        </span>
-        <button onClick={handleLogout} style={{ color: "white", background: "none", border: "none", cursor: "pointer" }}>✕</button>
-      </div>
-    )
-  }
+  const handleConnect = () => {
+    const authOptions = {
+      appDetails: {
+        name: "OnchainKMs",
+        icon: window.location.origin + "/favicon.ico",
+      },
+      userSession: new UserSession({ appConfig: new AppConfig(["store_write"]) }),
+      onFinish: () => { window.location.reload(); },
+    };
+    showConnect(authOptions);
+  };
 
   return (
-    <button
-      onClick={() => connectStacks()} // Llamamos a la función de lib/stacksAuth.ts
-      style={{
-        padding: "10px 20px",
-        background: "#5546ff",
-        color: "white",
-        borderRadius: "12px",
-        fontWeight: "bold",
-        cursor: "pointer",
-        border: "none"
-      }}
+    <button 
+      onClick={handleConnect}
+      style={{ padding: "10px 20px", background: "#5546ff", color: "white", borderRadius: "8px", fontWeight: "bold", border: "none", cursor: "pointer" }}
     >
       Connect Stacks
     </button>
-  )
+  );
 }
