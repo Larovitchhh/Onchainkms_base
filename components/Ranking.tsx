@@ -8,7 +8,6 @@ export default function Ranking() {
   useEffect(() => {
     const fetchRanking = async () => {
       try {
-        // Importante: usamos /webhook que es tu ruta actual
         const res = await fetch('/webhook?mode=ranking')
         const data = await res.json()
         setLeaderboard(Array.isArray(data) ? data : [])
@@ -67,7 +66,11 @@ export default function Ranking() {
                   <td style={{ ...tdStyleCenterBold, color: "#FFD700" }}>{Math.floor(user.total_xp).toLocaleString()}</td>
                   <td style={tdStyleCenter}>{Number(user.total_km).toFixed(1)} km</td>
                   <td style={tdStyleCenter}>{Math.floor(user.total_elevation)}m</td>
-                  <td style={tdStyleCenter}>{user.total_time}m</td>
+                  <td style={tdStyleCenter}>
+                    {user.total_time < 60 
+                      ? `${user.total_time}m` 
+                      : `${(user.total_time / 60).toFixed(1)}h`}
+                  </td>
                 </tr>
               ))
             )}
@@ -78,7 +81,6 @@ export default function Ranking() {
   )
 }
 
-// Estilos rápidos para mantener el código limpio
 const thStyle: React.CSSProperties = { padding: "20px 16px", textAlign: "left", fontSize: "11px", fontWeight: "900", opacity: 0.4, letterSpacing: "1px" };
 const thStyleCenter: React.CSSProperties = { ...thStyle, textAlign: "center" };
 const tdStyleCenter: React.CSSProperties = { padding: "16px", textAlign: "center", fontSize: "14px", fontWeight: "500" };
