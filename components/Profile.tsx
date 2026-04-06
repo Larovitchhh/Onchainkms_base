@@ -13,7 +13,6 @@ export default function Profile() {
         if (ethereum && ethereum.selectedAddress) {
           const addr = ethereum.selectedAddress;
           setAddress(addr);
-          // Al detectar wallet, cargamos sus actividades
           fetchActivities(addr);
         }
       } catch (e) {
@@ -31,9 +30,10 @@ export default function Profile() {
 
   const fetchActivities = async (addr: string) => {
     try {
-      const res = await fetch(`/api/webhook?address=${addr}`);
+      // Ajustado a /webhook para evitar el 404
+      const res = await fetch(`/webhook?address=${addr}`);
       const data = await res.json();
-      setActivities(data);
+      setActivities(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Error fetching profile activities:", err);
     }
@@ -55,7 +55,6 @@ export default function Profile() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px", width: "100%", maxWidth: "500px", margin: "0 auto", color: "white" }}>
       
-      {/* CARD PRINCIPAL */}
       <div style={{ background: "rgba(15, 23, 42, 0.6)", padding: "40px 32px", borderRadius: "24px", border: "1px solid rgba(255,255,255,0.05)", backdropFilter: "blur(10px)", textAlign: "center" }}>
         <div style={{ width: "80px", height: "80px", borderRadius: "20px", background: address ? "linear-gradient(135deg, #0052FF 0%, #38bdf8 100%)" : "rgba(255,255,255,0.05)", margin: "0 auto 20px auto", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "32px" }}>
           🏃‍♂️
@@ -70,7 +69,6 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* LISTA DE ACTIVIDADES (NUEVO) */}
       <div style={{ background: "rgba(15, 23, 42, 0.4)", padding: "24px", borderRadius: "24px", border: "1px solid rgba(255,255,255,0.05)" }}>
         <h3 style={{ fontSize: "13px", fontWeight: "900", marginBottom: "16px", color: "rgba(255,255,255,0.4)", letterSpacing: "1px" }}>
           MY ONCHAIN ACTIVITIES
@@ -102,7 +100,6 @@ export default function Profile() {
         )}
       </div>
 
-      {/* STRAVA CARD */}
       <div style={{ background: "rgba(15, 23, 42, 0.4)", padding: "24px", borderRadius: "24px", border: "1px solid rgba(255,255,255,0.05)" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
