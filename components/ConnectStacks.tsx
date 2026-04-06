@@ -13,7 +13,7 @@ export default function ConnectStacks() {
     }
   }, [])
 
-  // Evitamos errores de hidratación en Next.js
+  // Evitar errores de hidratación
   if (!mounted) return null
 
   const handleConnect = async () => {
