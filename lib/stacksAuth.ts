@@ -1,4 +1,4 @@
-import { AppConfig, UserSession } from "@stacks/auth"; // Importación corregida
+import { AppConfig, UserSession } from "@stacks/auth";
 import { showConnect } from "@stacks/connect";
 
 const appConfig = new AppConfig(["store_write"]);
@@ -13,11 +13,11 @@ export function connectStacks() {
       name: "Onchain Sports",
       icon: window.location.origin + "/favicon.ico",
     },
-    userSession,
+    // Añadimos 'as any' para resolver el conflicto de tipos de Stacks
+    userSession: userSession as any, 
     onFinish: () => {
-      // Importante: Recargar o actualizar el estado de la UI aquí
       console.log("Stacks wallet connected");
-      window.location.reload(); 
+      window.location.reload();
     },
     onCancel: () => {
       console.log("User cancelled login");
