@@ -6,6 +6,14 @@ export default function Profile() {
   const [address, setAddress] = useState<string | null>(null)
   const [activities, setActivities] = useState<any[]>([])
 
+  // Función para calcular los totales
+  const stats = activities.reduce((acc, act) => ({
+    totalKm: acc.totalKm + (Number(act.distance) || 0),
+    totalXp: acc.totalXp + (Number(act.xp) || 0),
+    totalElev: acc.totalElev + (Number(act.elevation) || 0),
+    count: acc.count + 1
+  }), { totalKm: 0, totalXp: 0, totalElev: 0, count: 0 });
+
   useEffect(() => {
     const checkWallet = async () => {
       try {
@@ -30,7 +38,6 @@ export default function Profile() {
 
   const fetchActivities = async (addr: string) => {
     try {
-      // Ajustado a /webhook para evitar el 404
       const res = await fetch(`/webhook?address=${addr}`);
       const data = await res.json();
       setActivities(Array.isArray(data) ? data : []);
@@ -53,8 +60,9 @@ export default function Profile() {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "24px", width: "100%", maxWidth: "500px", margin: "0 auto", color: "white" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "24px", width: "100%", maxWidth: "500px", margin: "0 auto", color: "white", paddingBottom: "40px" }}>
       
+      {/* CARD DE IDENTIDAD */}
       <div style={{ background: "rgba(15, 23, 42, 0.6)", padding: "40px 32px", borderRadius: "24px", border: "1px solid rgba(255,255,255,0.05)", backdropFilter: "blur(10px)", textAlign: "center" }}>
         <div style={{ width: "80px", height: "80px", borderRadius: "20px", background: address ? "linear-gradient(135deg, #0052FF 0%, #38bdf8 100%)" : "rgba(255,255,255,0.05)", margin: "0 auto 20px auto", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "32px" }}>
           🏃‍♂️
@@ -69,6 +77,27 @@ export default function Profile() {
         </div>
       </div>
 
+      {/* NUEVO PANEL DE SUMATORIOS (STATS) */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+        <div style={{ background: "rgba(255,255,255,0.03)", padding: "20px", borderRadius: "20px", border: "1px solid rgba(255,255,255,0.05)", textAlign: "center" }}>
+          <div style={{ fontSize: "10px", opacity: 0.5, fontWeight: "900", marginBottom: "4px" }}>TOTAL XP</div>
+          <div style={{ fontSize: "24px", fontWeight: "900", color: "#FFD700" }}>{stats.totalXp.toLocaleString()}</div>
+        </div>
+        <div style={{ background: "rgba(255,255,255,0.03)", padding: "20px", borderRadius: "20px", border: "1px solid rgba(255,255,255,0.05)", textAlign: "center" }}>
+          <div style={{ fontSize: "10px", opacity: 0.5, fontWeight: "900", marginBottom: "4px" }}>ACTIVITIES</div>
+          <div style={{ fontSize: "24px", fontWeight: "900", color: "#38bdf8" }}>{stats.count}</div>
+        </div>
+        <div style={{ background: "rgba(255,255,255,0.03)", padding: "20px", borderRadius: "20px", border: "1px solid rgba(255,255,255,0.05)", textAlign: "center" }}>
+          <div style={{ fontSize: "10px", opacity: 0.5, fontWeight: "900", marginBottom: "4px" }}>TOTAL KM</div>
+          <div style={{ fontSize: "24px", fontWeight: "900" }}>{stats.totalKm.toFixed(1)}</div>
+        </div>
+        <div style={{ background: "rgba(255,255,255,0.03)", padding: "20px", borderRadius: "20px", border: "1px solid rgba(255,255,255,0.05)", textAlign: "center" }}>
+          <div style={{ fontSize: "10px", opacity: 0.5, fontWeight: "900", marginBottom: "4px" }}>TOTAL ELEV</div>
+          <div style={{ fontSize: "24px", fontWeight: "900" }}>{stats.totalElev}m</div>
+        </div>
+      </div>
+
+      {/* LISTA DE ACTIVIDADES */}
       <div style={{ background: "rgba(15, 23, 42, 0.4)", padding: "24px", borderRadius: "24px", border: "1px solid rgba(255,255,255,0.05)" }}>
         <h3 style={{ fontSize: "13px", fontWeight: "900", marginBottom: "16px", color: "rgba(255,255,255,0.4)", letterSpacing: "1px" }}>
           MY ONCHAIN ACTIVITIES
@@ -100,6 +129,7 @@ export default function Profile() {
         )}
       </div>
 
+      {/* STRAVA CARD */}
       <div style={{ background: "rgba(15, 23, 42, 0.4)", padding: "24px", borderRadius: "24px", border: "1px solid rgba(255,255,255,0.05)" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
