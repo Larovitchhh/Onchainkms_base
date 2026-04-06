@@ -3,21 +3,30 @@ import { AppConfig, UserSession, showConnect } from "@stacks/connect"
 const appConfig = new AppConfig(["store_write", "publish_data"])
 export const userSession = new UserSession({ appConfig })
 
-export function connectStacks() {
-  console.log("Iniciando showConnect desde lib...");
-  showConnect({
-    appDetails: {
-      name: "OnchainKMs",
-      icon: window.location.origin + "/logo.png",
-    },
-    userSession,
-    onFinish: () => {
-      window.location.reload()
-    },
-  })
+export async function connectStacks() {
+  console.log("Iniciando showConnect desde lib...")
+
+  try {
+    await showConnect({
+      appDetails: {
+        name: "OnchainKMs",
+        icon: window.location.origin + "/icon.png",
+      },
+      userSession,
+      onFinish: () => {
+        console.log("Stacks connect OK")
+        window.location.reload()
+      },
+      onCancel: () => {
+        console.log("Stacks connect cancelado")
+      },
+    })
+  } catch (err) {
+    console.error("showConnect falló:", err)
+    throw err
+  }
 }
 
-// Hacemos la función accesible globalmente para el navegador
 if (typeof window !== "undefined") {
-  (window as any).forceStacksConnect = connectStacks;
+  ;(window as any).forceStacksConnect = connectStacks
 }
