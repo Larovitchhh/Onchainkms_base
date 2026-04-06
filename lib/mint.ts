@@ -18,7 +18,6 @@ export async function mintActivity(activity: any, xp: number) {
 
     console.log("Minting with Builder Code:", BUILDER_CODE);
 
-    // 1. Preparamos los datos
     const data = contract.interface.encodeFunctionData("mintActivity", [
       address,
       BigInt(Math.floor(activity.distance)),
@@ -30,7 +29,6 @@ export async function mintActivity(activity: any, xp: number) {
     const suffix = getBuilderSuffix(BUILDER_CODE);
     const finalData = data + suffix.slice(2);
 
-    // 2. Enviamos la transacción
     const tx = await signer.sendTransaction({
       to: CONTRACT_ADDRESS,
       data: finalData
@@ -39,9 +37,9 @@ export async function mintActivity(activity: any, xp: number) {
     console.log("Waiting for confirmation...");
     await tx.wait();
 
-    // 3. PERSISTENCIA EN BASE DE DATOS (Vercel Postgres)
+    // PERSISTENCIA EN BASE DE DATOS - Ajustada a /webhook
     try {
-      await fetch("/api/webhook", {
+      await fetch("/webhook", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -57,7 +55,7 @@ export async function mintActivity(activity: any, xp: number) {
       });
       console.log("Activity saved to internal DB");
     } catch (dbErr) {
-      console.error("Failed to save to DB, but mint was successful:", dbErr);
+      console.error("Failed to save to DB:", dbErr);
     }
     
     return {
