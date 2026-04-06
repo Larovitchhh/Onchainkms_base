@@ -1,74 +1,70 @@
 "use client"
 import { useState, useEffect } from "react"
-import { showConnect, UserSession, AppConfig } from "@stacks/connect"
+import { AppConfig, UserSession, showConnect } from "@stacks/connect"
+
+const appConfig = new AppConfig(['store_write', 'publish_data'])
+const userSession = new UserSession({ appConfig })
 
 export default function ConnectStacks() {
+  const [mounted, setMounted] = useState(false)
   const [address, setAddress] = useState<string | null>(null)
 
-  // Configuramos la sesión dentro del componente o de forma persistente
-  const appConfig = new AppConfig(['store_write', 'publish_data'])
-  const userSession = new UserSession({ appConfig })
-
   useEffect(() => {
+    setMounted(true)
     if (userSession.isUserSignedIn()) {
       const userData = userSession.loadUserData()
       setAddress(userData.profile.stxAddress?.mainnet || userData.profile.stxAddress)
     }
   }, [])
 
-  const handleConnect = () => {
-    console.log("Forzando limpieza de sesión antigua...");
-    // Esto limpia el valor {} que vemos en tu captura de pantalla
-    localStorage.removeItem('blockstack-session'); 
+  const handleConnect = (e: React.MouseEvent) => {
+    e.preventDefault() // Evitamos la navegación real
+    console.log("Evento disparado correctamente")
+    
+    // Limpiamos rastro manual por si acaso
+    localStorage.removeItem('blockstack-session')
     
     showConnect({
-      userSession,
       appDetails: {
         name: "OnchainKMs",
         icon: window.location.origin + "/logo.png",
       },
+      userSession,
       onFinish: () => {
         window.location.reload()
       },
       onCancel: () => {
-        console.log("Conexión cancelada");
+        console.log("Cancelado")
       }
     })
   }
 
-  const handleLogout = () => {
-    userSession.signUserOut()
-    localStorage.removeItem('blockstack-session')
-    window.location.reload()
-  }
+  if (!mounted) return null
 
-  // Renderizado directo para evitar problemas de hidratación que "duerman" el botón
   return (
-    <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+    <div style={{ display: "flex", alignItems: "center" }}>
       {!address ? (
-        <button
+        <a
+          href="#"
           onClick={handleConnect}
-          id="stx-connect-button"
           style={{
             padding: "10px 20px",
-            background: "linear-gradient(135deg, #5546ff 0%, #7c3aed 100%)",
+            background: "#5546ff",
             color: "white",
-            border: "none",
+            textDecoration: "none",
             borderRadius: "12px",
-            cursor: "pointer",
             fontWeight: "900",
             fontSize: "12px",
-            boxShadow: "0 4px 15px rgba(85, 70, 255, 0.4)"
+            display: "inline-block",
+            textAlign: "center"
           }}
         >
           Connect Stacks
-        </button>
+        </a>
       ) : (
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", background: "rgba(85, 70, 255, 0.1)", padding: "8px 12px", borderRadius: "12px", border: "1px solid #5546ff" }}>
-          <span style={{ fontSize: "12px", fontWeight: "bold" }}>
-            {address.slice(0, 4)}...{address.slice(-4)}
-          </span>
-          <button onClick={handleLogout} style={{ background: "none", border: "none", color: "white", cursor: "pointer", fontSize: "16px" }}>✕</button>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center", background: "rgba(85, 70, 255, 0.1)", padding: "10px", borderRadius: "12px" }}>
+          <span style={{ fontSize: "12px" }}>{address.slice(0,4)}...{address.slice(-4)}</span>
+          <button onClick={() => { userSession.signUserOut(); window.location.reload(); }} style={{ background: "none", border: "none", color: "white", cursor: "pointer" }}>✕</button>
         </div>
       )}
     </div>
