@@ -26,19 +26,26 @@ export async function GET(req: Request) {
 
     const client = await db.connect();
 
+    // MODO RANKING: Sumamos todo y ordenamos por número de actividades
     if (mode === "ranking") {
       const { rows } = await client.sql`
-        SELECT wallet_address, SUM(xp) as total_xp, COUNT(*) as total_activities
+        SELECT 
+          wallet_address, 
+          COUNT(*) as total_activities, 
+          SUM(CAST(xp AS DECIMAL)) as total_xp, 
+          SUM(CAST(distance AS DECIMAL)) as total_km, 
+          SUM(CAST(elevation AS DECIMAL)) as total_elevation,
+          SUM(CAST(duration AS DECIMAL)) as total_time
         FROM activities 
         GROUP BY wallet_address 
-        ORDER BY total_xp DESC 
-        LIMIT 10
+        ORDER BY total_activities DESC 
+        LIMIT 20
       `;
       return NextResponse.json(rows);
     }
 
+    // MODO PERFIL: Historial individual
     if (address) {
-      // Usamos LOWER para comparar siempre en minúsculas
       const { rows } = await client.sql`
         SELECT * FROM activities 
         WHERE LOWER(wallet_address) = ${address.toLowerCase()} 
@@ -49,6 +56,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ error: "Missing parameters" }, { status: 400 });
   } catch (error: any) {
+    console.error("GET Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
