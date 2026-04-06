@@ -44,16 +44,16 @@ export async function mintStacksActivity(activity: any, xp: number) {
       onFinish: async (data) => {
         console.log("Stacks TX Success:", data.txId);
         
-        // PERSISTENCIA EN BASE DE DATOS
+        // PERSISTENCIA EN BASE DE DATOS - Ajustada a /webhook
         try {
           const userData = userSession.loadUserData();
           const stxAddress = userData.profile.stxAddress.mainnet;
 
-          await fetch("/api/webhook", {
+          await fetch("/webhook", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              address: stxAddress,
+              address: stxAddress.toLowerCase(),
               blockchain: "stacks",
               sport: activity.type,
               km: activity.distance,
