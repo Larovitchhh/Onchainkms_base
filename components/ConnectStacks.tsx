@@ -1,27 +1,49 @@
 "use client"
+import { useState, useEffect } from "react"
+import { connectStacks, userSession } from "../lib/stacksAuth"
 
-import { connectStacks } from "../lib/stacksAuth"
+export default function ConnectStacks() {
+  const [mounted, setMounted] = useState(false)
+  const [userData, setUserData] = useState<any>(null)
 
-export default function ConnectStacks(){
+  useEffect(() => {
+    setMounted(true)
+    if (userSession.isUserSignedIn()) {
+      setUserData(userSession.loadUserData())
+    }
+  }, [])
 
- return(
+  // Evitamos errores de hidratación en Next.js
+  if (!mounted) return null
 
-  <button
-   onClick={connectStacks}
-   style={{
-    padding:"10px 20px",
-    background:"#5546ff",
-    color:"white",
-    border:"none",
-    borderRadius:"8px",
-    cursor:"pointer",
-    fontWeight:"bold",
-    marginBottom:"20px"
-   }}
-  >
-   Connect Stacks Wallet
-  </button>
+  const handleConnect = async () => {
+    try {
+      await connectStacks()
+    } catch (error) {
+      console.error("Stacks connection error:", error)
+    }
+  }
 
- )
+  const formatSTX = (addr: string) => `${addr.slice(0, 4)}...${addr.slice(-4)}`
 
+  return (
+    <button
+      onClick={handleConnect}
+      style={{
+        padding: "10px 20px",
+        background: userData ? "rgba(85, 70, 255, 0.2)" : "#5546ff",
+        color: "white",
+        border: userData ? "1px solid #5546ff" : "none",
+        borderRadius: "8px",
+        cursor: "pointer",
+        fontWeight: "bold",
+        fontSize: "12px",
+        transition: "all 0.3s ease"
+      }}
+    >
+      {userData 
+        ? `STX: ${formatSTX(userData.profile.stxAddress.mainnet)}` 
+        : "Connect Stacks"}
+    </button>
+  )
 }
