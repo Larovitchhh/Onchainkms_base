@@ -1,61 +1,44 @@
 import { openContractCall } from "@stacks/connect"
-import { StacksMainnet } from "@stacks/network"
-import {
- uintCV,
- stringAsciiCV,
- PostConditionMode
-} from "@stacks/transactions"
-
+import { STACKS_MAINNET } from "@stacks/network" // Cambiado de StacksMainnet a STACKS_MAINNET
+import { uintCV, stringAsciiCV, PostConditionMode } from "@stacks/transactions"
 import { userSession } from "./stacksAuth"
 
 export async function mintStacksActivity(activity: any, xp: number) {
- console.log("Stacks mint start")
+  try {
+    if (!userSession.isUserSignedIn()) {
+      throw new Error("Connect Stacks wallet first");
+    }
 
- try {
-  if (!userSession.isUserSignedIn()) {
-   throw new Error("Connect Stacks wallet first")
+    // En la v7, simplemente pasamos el objeto STACKS_MAINNET directamente
+    const network = STACKS_MAINNET; 
+    
+    const userData = userSession.loadUserData();
+    const stxAddress = userData.profile.stxAddress.mainnet;
+
+    await openContractCall({
+      network, // Ahora usa el objeto de la v7
+      anchorMode: 1,
+      postConditionMode: PostConditionMode.Allow,
+      contractAddress: "SP1AJVMEGSMD6QCSZ1669Z5G90GEHVK2MEM7J0AHH",
+      contractName: "onchainkms-stacks", 
+      functionName: "mint-activity",
+      functionArgs: [
+        stringAsciiCV(activity.type),
+        uintCV(Math.floor(Number(activity.distance))),
+        uintCV(Math.floor(Number(activity.duration))),
+        uintCV(Math.floor(Number(activity.elevation))),
+        uintCV(Math.floor(Number(xp)))
+      ],
+      appDetails: {
+        name: "Onchain KMs",
+        icon: window.location.origin + "/favicon.ico",
+      },
+      onFinish: async (data) => {
+        console.log("TX Sent:", data.txId);
+      }
+    });
+  } catch (err: any) {
+    console.error("Stacks Mint Error:", err);
+    throw err;
   }
-
-  // OPTIMIZACIÓN 1: Forzar el nodo de respaldo si el de Hiro va lento
-  const network = new StacksMainnet({
-    url: "https://api.mainnet.hiro.so" // Puedes probar también con "https://api.hiro.so"
-  })
-
-  await openContractCall({
-   network,
-   // OPTIMIZACIÓN 2: No esperar a la simulación pesada
-   anchorMode: 1, 
-   postConditionMode: PostConditionMode.Allow,
-
-   contractAddress: "SP1AJVMEGSMD6QCSZ1669Z5G90GEHVK2MEM7J0AHH",
-   contractName: "onchainkms-stacks",
-   functionName: "mint-activity",
-   functionArgs: [
-    stringAsciiCV(activity.type),
-    uintCV(Math.floor(activity.distance)),
-    uintCV(Math.floor(activity.duration)),
-    uintCV(Math.floor(activity.elevation)),
-    uintCV(Math.floor(xp))
-   ],
-
-   appDetails: {
-    name: "Onchain Sports",
-    icon: window.location.origin + "/favicon.ico"
-   },
-
-   onFinish: (data) => {
-    console.log("Stacks TX:", data)
-    // Mensaje original limpio
-    alert("Minted on Stacks!")
-   },
-
-   onCancel: () => {
-    console.log("User cancelled")
-   }
-  })
-
- } catch (err: any) {
-  console.error("STACKS ERROR:", err)
-  alert(err?.message || "Stacks mint failed")
- }
 }
