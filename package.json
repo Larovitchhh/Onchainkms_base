@@ -2,26 +2,28 @@
   "name": "onchain-sports",
   "version": "1.0.0",
   "private": true,
+
   "engines": {
     "node": "20.x"
   },
+
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start"
   },
+
   "dependencies": {
     "ethers": "^6.8.0",
     "@vercel/og": "^0.6.0",
-    "@vercel/postgres": "^0.10.0",
     "next": "14.2.15",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "@stacks/auth": "^7.3.1",
-    "@stacks/connect": "^8.2.4",
-    "@stacks/network": "^7.3.1",
-    "@stacks/transactions": "^7.3.1"
+    "@stacks/connect": "^8.1.0",
+    "@stacks/network": "^6.11.0",
+    "@stacks/transactions": "^6.11.0"
   },
+
   "devDependencies": {
     "typescript": "5.4.5",
     "@types/react": "18.2.66",
