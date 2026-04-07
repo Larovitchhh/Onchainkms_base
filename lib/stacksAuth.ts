@@ -8,19 +8,25 @@ export const userSession = new UserSession({
 });
 
 export function connectStacks() {
-  showConnect({
-    appDetails: {
-      name: "Onchain Sports",
-      icon: window.location.origin + "/favicon.ico",
-    },
-    // Añadimos 'as any' para resolver el conflicto de tipos de Stacks
-    userSession: userSession as any, 
-    onFinish: () => {
-      console.log("Stacks wallet connected");
-      window.location.reload();
-    },
-    onCancel: () => {
-      console.log("User cancelled login");
-    }
-  });
+  // Verificamos que estemos en el navegador
+  if (typeof window === "undefined") return;
+
+  try {
+    showConnect({
+      appDetails: {
+        name: "Onchain KMs",
+        icon: window.location.origin + "/favicon.ico",
+      },
+      userSession: userSession as any,
+      onFinish: () => {
+        console.log("Stacks wallet connected");
+        window.location.reload();
+      },
+      onCancel: () => {
+        console.log("User cancelled login");
+      }
+    });
+  } catch (error) {
+    console.error("Error al intentar abrir Stacks Connect:", error);
+  }
 }
