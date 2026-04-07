@@ -5,22 +5,25 @@ import { connectStacks, userSession } from "../lib/stacksAuth";
 
 export default function ConnectStacks() {
   const [mounted, setMounted] = useState(false);
-  const [isConnected, setIsConnected] = useState(false);
+  const [address, setAddress] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
+    // Verificar si ya hay una sesión activa al montar
     if (userSession.isUserSignedIn()) {
-      setIsConnected(true);
+      const userData = userSession.loadUserData();
+      setAddress(userData.profile.stxAddress.mainnet);
     }
   }, []);
 
-  // No renderizar nada hasta que estemos en el cliente para evitar errores de hidratación
-  if (!mounted) return null;
+  // Si no está montado, devolvemos un placeholder del mismo tamaño 
+  // para evitar que el layout "salte" (Hydration Mismatch)
+  if (!mounted) {
+    return <div style={{ width: "140px", height: "40px" }} />;
+  }
 
-  if (isConnected) {
-    const userData = userSession.loadUserData();
-    const address = userData.profile.stxAddress.mainnet;
-    
+  // Si ya está conectado, mostramos la dirección (estilo similar a tu ConnectWallet de Base)
+  if (address) {
     return (
       <div style={{
         padding: "8px 16px",
@@ -35,21 +38,17 @@ export default function ConnectStacks() {
         fontWeight: "bold"
       }}>
         <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#5546ff", boxShadow: "0 0 8px #5546ff" }} />
-        STX: {address.slice(0, 4)}...{address.slice(-4)}
+        {address.slice(0, 4)}...{address.slice(-4)}
       </div>
     );
   }
 
-  const handleConnect = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log("Iniciando conexión con Stacks...");
-    connectStacks();
-  };
-
   return (
     <button
-      onClick={handleConnect}
+      onClick={(e) => {
+        e.preventDefault();
+        connectStacks();
+      }}
       className="glow-border"
       style={{
         padding: "12px 24px",
@@ -61,8 +60,7 @@ export default function ConnectStacks() {
         fontWeight: "bold",
         textTransform: "uppercase",
         letterSpacing: "1px",
-        fontSize: "12px",
-        boxShadow: "0 4px 14px 0 rgba(85, 70, 255, 0.39)"
+        fontSize: "12px"
       }}
     >
       Connect Stacks
