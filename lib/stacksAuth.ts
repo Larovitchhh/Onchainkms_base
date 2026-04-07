@@ -1,23 +1,24 @@
 import { AppConfig, UserSession } from "@stacks/auth";
 import { showConnect } from "@stacks/connect";
 
+// Configuramos la app
 const appConfig = new AppConfig(["store_write"]);
 
-export const userSession = new UserSession({
-  appConfig,
-});
+// Creamos la sesión de forma segura
+export const userSession = new UserSession({ appConfig });
 
 export function connectStacks() {
-  // Verificamos que estemos en el navegador
+  // 1. Verificación radical de entorno
   if (typeof window === "undefined") return;
 
   try {
     showConnect({
       appDetails: {
-        name: "Onchain KMs",
+        name: "Onchain Sports",
         icon: window.location.origin + "/favicon.ico",
       },
-      userSession: userSession as any,
+      // Usamos el cast 'as any' para evitar conflictos de tipos de la v7
+      userSession: userSession as any, 
       onFinish: () => {
         console.log("Stacks wallet connected");
         window.location.reload();
@@ -26,7 +27,7 @@ export function connectStacks() {
         console.log("User cancelled login");
       }
     });
-  } catch (error) {
-    console.error("Error al intentar abrir Stacks Connect:", error);
+  } catch (err) {
+    console.error("Error en Stacks Connect:", err);
   }
 }
