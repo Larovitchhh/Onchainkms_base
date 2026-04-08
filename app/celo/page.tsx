@@ -13,46 +13,57 @@ export default function CeloCompetitionPage() {
     setStatus('');
     
     try {
-      const { signer } = await getWallet();
+      // 1. Obtenemos wallet y signer actualizados
+      let walletData = await getWallet();
+      let network = await walletData.signer.provider.getNetwork();
+      let chainId = Number(network.chainId);
       
-      // Obtenemos la red de forma segura para Ethers v6
-      const network = await signer.provider.getNetwork();
-      const chainId = Number(network.chainId);
-      
-      console.log("Network detectada:", chainId);
+      console.log("Network detectada inicialmente:", chainId);
 
-      // Si no es Celo (42220), intentamos pedir el cambio de red
+      // 2. Si no es Celo (42220), forzamos el cambio
       if (chainId !== 42220) {
         setStatus('Cambiando a red Celo...');
         try {
           await (window as any).ethereum.request({
             method: 'wallet_switchEthereumChain',
-            params: [{ chainId: '0xa4ec' }], // 42220 en hexadecimal
+            params: [{ chainId: '0xa4ec' }], // 42220 en hex
           });
-          // Si el cambio es exitoso, pedimos al usuario que pulse otra vez para refrescar el signer
-          setStatus('Red cambiada. Pulsa de nuevo para mintear.');
-          setLoading(false);
-          return;
+          
+          // ESPERA CRÍTICA: Damos un segundo para que la wallet procese el cambio
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          // 3. RE-OBTENEMOS el wallet data. Esto es vital para que el signer tenga el nuevo chainId
+          walletData = await getWallet();
+          const newNetwork = await walletData.signer.provider.getNetwork();
+          
+          if (Number(newNetwork.chainId) !== 42220) {
+            throw new Error("No se pudo confirmar el cambio de red. Por favor, cambia a Celo manualmente en Rabby.");
+          }
+          
+          setStatus('Red cambiada con éxito. Preparando firma...');
         } catch (switchError: any) {
-          // Si la red no está agregada, podrías agregar el código para añadirla aquí
-          setStatus('Error: Cambia manualmente a Celo Mainnet en tu wallet.');
+          console.error("Error al cambiar de red:", switchError);
+          setStatus('Error: Por favor, cambia manualmente a Celo en tu wallet y refresca.');
           setLoading(false);
           return;
         }
       }
 
-      setStatus('Solicitando firma para OnchainPass...');
-      const tx = await mintCeloPass(signer);
-      console.log("Resultado transacción:", tx);
+      // 4. Procedemos al minteo con el signer actualizado
+      setStatus('Solicitando firma en Celo...');
+      const tx = await mintCeloPass(walletData.signer);
+      console.log("Transacción enviada:", tx);
       
-      setStatus('¡Éxito! NFT de Celo reclamado correctamente.');
+      setStatus('¡Éxito! OnchainPass reclamado correctamente.');
     } catch (err: any) {
       console.error("Error completo:", err);
       
       if (err.message?.includes('user rejected')) {
-        setStatus('Transacción cancelada.');
+        setStatus('Transacción cancelada por el usuario.');
+      } else if (err.message?.includes('insufficient funds')) {
+        setStatus('Error: No tienes suficiente CELO para el gas.');
       } else {
-        setStatus(err.reason || 'Error en el proceso. Asegúrate de tener saldo para el gas.');
+        setStatus(err.reason || err.message || 'Error en el proceso. Revisa tu saldo.');
       }
     } finally {
       setLoading(false);
@@ -61,7 +72,6 @@ export default function CeloCompetitionPage() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-6 text-center bg-[#020617] text-white">
-      {/* Background Decor */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-[25%] -left-[10%] w-[50%] h-[50%] bg-[#35D07F]/10 blur-[120px] rounded-full" />
         <div className="absolute -bottom-[25%] -right-[10%] w-[50%] h-[50%] bg-[#FBCC5C]/10 blur-[120px] rounded-full" />
