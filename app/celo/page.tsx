@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { getWallet } from '@/lib/wallet';
-import { mintCeloPass } from '@/lib/celoService';
+import { getWallet } from '../../lib/wallet';
+import { mintCeloPass } from '../../lib/celoService';
 
 export default function CeloCompetitionPage() {
   const [status, setStatus] = useState('');
