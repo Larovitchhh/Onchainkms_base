@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { getWallet } from '../../lib/wallet';
 import { mintCeloPass } from '../../lib/celoService';
+import { ethers } from 'ethers';
 
 export default function CeloCompetitionPage() {
   const [status, setStatus] = useState('');
@@ -10,60 +11,57 @@ export default function CeloCompetitionPage() {
 
   const handleMint = async () => {
     setLoading(true);
-    setStatus('');
+    setStatus('Conectando con Celo...');
     
     try {
-      // 1. Obtenemos wallet y signer actualizados
-      let walletData = await getWallet();
-      let network = await walletData.signer.provider.getNetwork();
-      let chainId = Number(network.chainId);
-      
-      console.log("Network detectada inicialmente:", chainId);
+      if (!window.ethereum) throw new Error("No wallet detected");
 
-      // 2. Si no es Celo (42220), forzamos el cambio
-      if (chainId !== 42220) {
-        setStatus('Cambiando a red Celo...');
-        try {
+      // 1. Forzamos el cambio de red ANTES de obtener nada de ethers
+      try {
+        await (window as any).ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: '0xa4ec' }], // 42220 en Hex
+        });
+      } catch (err: any) {
+        // Si el error es que no existe la red, la añadimos (útil para Rabby)
+        if (err.code === 4902) {
           await (window as any).ethereum.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: '0xa4ec' }], // 42220 en hex
+            method: 'wallet_addEthereumChain',
+            params: [{
+              chainId: '0xa4ec',
+              chainName: 'Celo Mainnet',
+              nativeCurrency: { name: 'CELO', symbol: 'CELO', decimals: 18 },
+              rpcUrls: ['https://forno.celo.org'],
+              blockExplorerUrls: ['https://celoscan.io']
+            }]
           });
-          
-          // ESPERA CRÍTICA: Damos un segundo para que la wallet procese el cambio
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          
-          // 3. RE-OBTENEMOS el wallet data. Esto es vital para que el signer tenga el nuevo chainId
-          walletData = await getWallet();
-          const newNetwork = await walletData.signer.provider.getNetwork();
-          
-          if (Number(newNetwork.chainId) !== 42220) {
-            throw new Error("No se pudo confirmar el cambio de red. Por favor, cambia a Celo manualmente en Rabby.");
-          }
-          
-          setStatus('Red cambiada con éxito. Preparando firma...');
-        } catch (switchError: any) {
-          console.error("Error al cambiar de red:", switchError);
-          setStatus('Error: Por favor, cambia manualmente a Celo en tu wallet y refresca.');
-          setLoading(false);
-          return;
+        } else {
+          throw err;
         }
       }
 
-      // 4. Procedemos al minteo con el signer actualizado
-      setStatus('Solicitando firma en Celo...');
-      const tx = await mintCeloPass(walletData.signer);
+      // 2. Ahora que estamos en Celo, inicializamos Ethers
+      const provider = new ethers.BrowserProvider((window as any).ethereum);
+      const signer = await provider.getSigner();
+      
+      // Verificación de seguridad
+      const network = await provider.getNetwork();
+      if (Number(network.chainId) !== 42220) {
+        throw new Error("La wallet sigue en otra red. Por favor, selecciona Celo manualmente.");
+      }
+
+      setStatus('Firmando transacción...');
+      const tx = await mintCeloPass(signer);
+      
       console.log("Transacción enviada:", tx);
-      
       setStatus('¡Éxito! OnchainPass reclamado correctamente.');
-    } catch (err: any) {
-      console.error("Error completo:", err);
       
+    } catch (err: any) {
+      console.error("Error en Celo Mint:", err);
       if (err.message?.includes('user rejected')) {
-        setStatus('Transacción cancelada por el usuario.');
-      } else if (err.message?.includes('insufficient funds')) {
-        setStatus('Error: No tienes suficiente CELO para el gas.');
+        setStatus('Transacción cancelada.');
       } else {
-        setStatus(err.reason || err.message || 'Error en el proceso. Revisa tu saldo.');
+        setStatus(err.reason || err.message || "Error al conectar. Intenta refrescar.");
       }
     } finally {
       setLoading(false);
@@ -84,8 +82,8 @@ export default function CeloCompetitionPage() {
         
         <h1 className="text-3xl font-black mb-2 tracking-tight">CELO BUILDER</h1>
         <p className="text-slate-400 text-sm mb-8 leading-relaxed">
-          Estás en el portal oficial de <strong>Proof of Ship</strong>. 
-          Mintea tu OnchainPass para certificar tu participación en el ecosistema Celo.
+          Estás en el portal de <strong>Celo</strong>. 
+          Mintea tu OnchainPass para certificar tu participación.
         </p>
         
         <button 
@@ -105,11 +103,6 @@ export default function CeloCompetitionPage() {
             {status}
           </div>
         )}
-
-        <div className="mt-8 pt-6 border-t border-white/5 flex justify-between items-center opacity-50">
-          <span className="text-[10px] font-bold tracking-widest uppercase">Network: Celo Mainnet</span>
-          <span className="text-[10px] font-bold tracking-widest uppercase text-[#35D07F]">Chain ID: 42220</span>
-        </div>
       </div>
     </div>
   );
