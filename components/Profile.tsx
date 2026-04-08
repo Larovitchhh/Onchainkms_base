@@ -1,10 +1,12 @@
 "use client"
 import { useState, useEffect } from "react"
+import { checkCeloPass } from "../lib/celoService" // Asegúrate de crear este archivo con la dirección del contrato
 
 export default function Profile() {
   const [isStravaConnected, setIsStravaConnected] = useState(false)
   const [address, setAddress] = useState<string | null>(null)
   const [activities, setActivities] = useState<any[]>([])
+  const [hasCeloPass, setHasCeloPass] = useState(false)
 
   // Función para calcular los totales
   const stats = activities.reduce((acc, act) => ({
@@ -22,6 +24,10 @@ export default function Profile() {
           const addr = ethereum.selectedAddress;
           setAddress(addr);
           fetchActivities(addr);
+          
+          // Comprobamos si tiene el pase de Celo
+          const ownsPass = await checkCeloPass(addr);
+          setHasCeloPass(ownsPass);
         }
       } catch (e) {
         console.log("No wallet detected yet");
@@ -63,7 +69,21 @@ export default function Profile() {
     <div style={{ display: "flex", flexDirection: "column", gap: "24px", width: "100%", maxWidth: "500px", margin: "0 auto", color: "white", paddingBottom: "40px" }}>
       
       {/* CARD DE IDENTIDAD */}
-      <div style={{ background: "rgba(15, 23, 42, 0.6)", padding: "40px 32px", borderRadius: "24px", border: "1px solid rgba(255,255,255,0.05)", backdropFilter: "blur(10px)", textAlign: "center" }}>
+      <div style={{ background: "rgba(15, 23, 42, 0.6)", padding: "40px 32px", borderRadius: "24px", border: "1px solid rgba(255,255,255,0.05)", backdropFilter: "blur(10px)", textAlign: "center", position: "relative" }}>
+        
+        {/* MEDALLA CELO (Sólo si tiene el NFT) */}
+        {hasCeloPass && (
+          <div style={{ 
+            position: "absolute", top: "20px", right: "20px", 
+            background: "linear-gradient(135deg, #35D07F 0%, #FBCC5C 100%)",
+            padding: "4px 12px", borderRadius: "12px", color: "#000",
+            fontSize: "10px", fontWeight: "bold", display: "flex", alignItems: "center", gap: "4px",
+            boxShadow: "0 0 15px rgba(53, 208, 127, 0.3)"
+          }}>
+            <span>CELO BUILDER</span> ✨
+          </div>
+        )}
+
         <div style={{ width: "80px", height: "80px", borderRadius: "20px", background: address ? "linear-gradient(135deg, #0052FF 0%, #38bdf8 100%)" : "rgba(255,255,255,0.05)", margin: "0 auto 20px auto", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "32px" }}>
           🏃‍♂️
         </div>
@@ -77,7 +97,7 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* NUEVO PANEL DE SUMATORIOS (STATS) */}
+      {/* PANEL DE STATS */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
         <div style={{ background: "rgba(255,255,255,0.03)", padding: "20px", borderRadius: "20px", border: "1px solid rgba(255,255,255,0.05)", textAlign: "center" }}>
           <div style={{ fontSize: "10px", opacity: 0.5, fontWeight: "900", marginBottom: "4px" }}>TOTAL XP</div>
@@ -97,6 +117,19 @@ export default function Profile() {
         </div>
       </div>
 
+      {/* NFT DISPLAY (Si tiene el de Celo) */}
+      {hasCeloPass && (
+        <div style={{ background: "rgba(53, 208, 127, 0.1)", padding: "24px", borderRadius: "24px", border: "1px solid #35D07F", display: "flex", gap: "16px", alignItems: "center" }}>
+          <div style={{ width: "60px", height: "60px", borderRadius: "12px", background: "#FBCC5C", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px" }}>
+            🏆
+          </div>
+          <div>
+            <div style={{ fontWeight: "900", fontSize: "14px", color: "#35D07F" }}>CELO ONCHAIN PASS</div>
+            <div style={{ fontSize: "12px", opacity: 0.7 }}>Proof of Ship Builder Member</div>
+          </div>
+        </div>
+      )}
+
       {/* LISTA DE ACTIVIDADES */}
       <div style={{ background: "rgba(15, 23, 42, 0.4)", padding: "24px", borderRadius: "24px", border: "1px solid rgba(255,255,255,0.05)" }}>
         <h3 style={{ fontSize: "13px", fontWeight: "900", marginBottom: "16px", color: "rgba(255,255,255,0.4)", letterSpacing: "1px" }}>
@@ -112,7 +145,7 @@ export default function Profile() {
             {activities.map((act, i) => (
               <div key={i} style={{ background: "rgba(255,255,255,0.03)", padding: "12px 16px", borderRadius: "16px", display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid rgba(255,255,255,0.05)" }}>
                 <div>
-                  <div style={{ fontSize: "10px", color: act.blockchain === 'base' ? '#38bdf8' : '#5546FF', fontWeight: "bold" }}>
+                  <div style={{ fontSize: "10px", color: act.blockchain === 'base' ? '#38bdf8' : '#35D07F', fontWeight: "bold" }}>
                     {formatDate(act.created_at)} • {act.blockchain.toUpperCase()}
                   </div>
                   <div style={{ fontSize: "15px", fontWeight: "900" }}>
