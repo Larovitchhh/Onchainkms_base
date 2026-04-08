@@ -1,106 +1,101 @@
-'use client';
+"use client"
+import { useEffect, useState } from "react"
+import ConnectWallet from "../components/ConnectWallet"
+import ConnectStacks from "../components/ConnectStacks"
+import ActivityForm from "../components/ActivityForm"
+import Profile from "../components/Profile"
+import Ranking from "../components/Ranking" // IMPORTANTE: Importamos el nuevo componente
 
-import { useState } from 'react';
-import { getWallet } from '../../lib/wallet';
-import { mintCeloPass } from '../../lib/celoService';
-
-export default function CeloCompetitionPage() {
-  const [status, setStatus] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const handleMint = async () => {
-    setLoading(true);
-    setStatus('');
-    
-    try {
-      const { signer } = await getWallet();
-      
-      // Obtenemos la red de forma segura para Ethers v6
-      const network = await signer.provider.getNetwork();
-      const chainId = Number(network.chainId);
-      
-      console.log("Network detectada:", chainId);
-
-      // Si no es Celo (42220), intentamos pedir el cambio de red
-      if (chainId !== 42220) {
-        setStatus('Cambiando a red Celo...');
-        try {
-          await (window as any).ethereum.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: '0xa4ec' }], // 42220 en hexadecimal
-          });
-          // Si el cambio es exitoso, pedimos al usuario que pulse otra vez para refrescar el signer
-          setStatus('Red cambiada. Pulsa de nuevo para mintear.');
-          setLoading(false);
-          return;
-        } catch (switchError: any) {
-          // Si la red no está agregada, podrías agregar el código para añadirla aquí
-          setStatus('Error: Cambia manualmente a Celo Mainnet en tu wallet.');
-          setLoading(false);
-          return;
+export default function Home() {
+  const [activeTab, setActiveTab] = useState<'activity' | 'ranking' | 'profile'>('activity');
+  
+  useEffect(() => {
+    const initBaseSDK = async () => {
+      try {
+        const sdk = (window as any).frameSDK;
+        if (sdk?.actions?.ready) {
+          sdk.actions.ready();
         }
+      } catch (error) {
+        console.error("Base SDK Error:", error);
       }
+    };
+    initBaseSDK();
+  }, []);
 
-      setStatus('Solicitando firma para OnchainPass...');
-      const tx = await mintCeloPass(signer);
-      console.log("Resultado transacción:", tx);
-      
-      setStatus('¡Éxito! NFT de Celo reclamado correctamente.');
-    } catch (err: any) {
-      console.error("Error completo:", err);
-      
-      if (err.message?.includes('user rejected')) {
-        setStatus('Transacción cancelada.');
-      } else {
-        setStatus(err.reason || 'Error en el proceso. Asegúrate de tener saldo para el gas.');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+  const tabButtonStyle = (tab: string) => ({
+    padding: "10px 20px",
+    cursor: "pointer",
+    border: "none",
+    background: "none",
+    color: activeTab === tab ? "#38bdf8" : "rgba(255,255,255,0.5)",
+    borderBottom: activeTab === tab ? "2px solid #38bdf8" : "2px solid transparent",
+    fontWeight: "900",
+    fontSize: "12px",
+    letterSpacing: "1px",
+    transition: "all 0.3s ease"
+  });
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-6 text-center bg-[#020617] text-white">
-      {/* Background Decor */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-[25%] -left-[10%] w-[50%] h-[50%] bg-[#35D07F]/10 blur-[120px] rounded-full" />
-        <div className="absolute -bottom-[25%] -right-[10%] w-[50%] h-[50%] bg-[#FBCC5C]/10 blur-[120px] rounded-full" />
+    <main style={{ padding: "40px 20px", minHeight: "100vh", color: "white", background: "#020617" }}>
+      {/* HEADER */}
+      <div style={{ 
+        maxWidth: "1000px", 
+        margin: "0 auto 40px auto", 
+        display: "flex", 
+        justifyContent: "space-between", 
+        alignItems: "center" 
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <img src="/logo.png" alt="OnchainKMs" style={{ height: "40px" }} />
+          <span style={{ fontWeight: "900", fontSize: "20px", letterSpacing: "-1px" }}>
+            ONCHAIN<span style={{ color: "#38bdf8" }}>KMS</span>
+          </span>
+        </div>
+        <div style={{ display: "flex", gap: "12px" }}>
+          <ConnectWallet />
+          <ConnectStacks />
+        </div>
       </div>
 
-      <div className="relative z-10 max-w-md w-full p-8 border border-white/10 rounded-3xl bg-slate-900/50 backdrop-blur-xl shadow-2xl">
-        <div className="mb-6 inline-flex p-4 rounded-2xl bg-gradient-to-br from-[#35D07F] to-[#FBCC5C]">
-          <span className="text-3xl">🏆</span>
-        </div>
-        
-        <h1 className="text-3xl font-black mb-2 tracking-tight">CELO BUILDER</h1>
-        <p className="text-slate-400 text-sm mb-8 leading-relaxed">
-          Estás en el portal oficial de <strong>Proof of Ship</strong>. 
-          Mintea tu OnchainPass para certificar tu participación en el ecosistema Celo.
-        </p>
-        
-        <button 
-          onClick={handleMint}
-          disabled={loading}
-          className="w-full py-4 bg-[#FBCC5C] text-black font-black rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 shadow-[0_0_20px_rgba(251,204,92,0.3)]"
-        >
-          {loading ? 'PROCESANDO...' : 'MINT ONCHAIN PASS'}
-        </button>
+      {/* TABS MENU */}
+      <div style={{ 
+        maxWidth: "600px", 
+        margin: "0 auto 30px auto", 
+        display: "flex", 
+        justifyContent: "center", 
+        gap: "10px",
+        borderBottom: "1px solid rgba(255,255,255,0.1)"
+      }}>
+        <button onClick={() => setActiveTab('activity')} style={tabButtonStyle('activity')}>ACTIVITY</button>
+        <button onClick={() => setActiveTab('ranking')} style={tabButtonStyle('ranking')}>RANKING</button>
+        <button onClick={() => setActiveTab('profile')} style={tabButtonStyle('profile')}>PROFILE</button>
+      </div>
 
-        {status && (
-          <div className={`mt-6 p-4 rounded-xl text-xs font-bold border ${
-            status.includes('Éxito') 
-              ? 'bg-green-500/10 border-green-500/20 text-green-400' 
-              : 'bg-red-500/10 border-red-500/20 text-red-400'
-          }`}>
-            {status}
-          </div>
+      {/* CONTENIDO DINÁMICO */}
+      <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
+        
+        {/* PESTAÑA ACTIVIDAD */}
+        {activeTab === 'activity' && (
+           <>
+            <div style={{ textAlign: "center", marginBottom: "40px" }}>
+              <h1 style={{ fontSize: "42px", fontWeight: "900", marginBottom: "12px", letterSpacing: "-2px" }}>
+                TRACK. EARN. <span style={{ color: "#38bdf8" }}>MINT.</span>
+              </h1>
+              <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "16px" }}>
+                Convert your physical effort into onchain reputation.
+              </p>
+            </div>
+            <ActivityForm />
+           </>
         )}
+        
+        {/* PESTAÑA RANKING - YA NO ES "COMING SOON" */}
+        {activeTab === 'ranking' && <Ranking />}
 
-        <div className="mt-8 pt-6 border-t border-white/5 flex justify-between items-center opacity-50">
-          <span className="text-[10px] font-bold tracking-widest uppercase">Network: Celo Mainnet</span>
-          <span className="text-[10px] font-bold tracking-widest uppercase text-[#35D07F]">Chain ID: 42220</span>
-        </div>
+        {/* PESTAÑA PERFIL */}
+        {activeTab === 'profile' && <Profile />}
       </div>
-    </div>
+    </main>
   );
 }
