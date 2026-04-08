@@ -23,11 +23,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
+        {/* Configuración esencial para MiniPay y dispositivos móviles */}
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
         <meta name="base:app_id" content="6941e8fdd19763ca26ddc370" />
         <script src="https://cdn.jsdelivr.net/npm/@farcaster/frame-sdk/dist/bundle.js" defer></script>
         <link rel="icon" href="/nft/favicon.png" />
       </head>
-      <body>{children}</body>
+      <body style={{ backgroundColor: "#020617" }}>{children}</body>
     </html>
   )
 }
