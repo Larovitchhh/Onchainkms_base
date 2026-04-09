@@ -12,7 +12,7 @@ export default function Profile() {
 
   const fetchActivities = useCallback(async (addr: string) => {
     try {
-      const res = await fetch(`/webhook?address=${addr}`);
+      const res = await fetch(`/webhook?address=${addr.toLowerCase()}`);
       const data = await res.json();
       setActivities(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -20,37 +20,57 @@ export default function Profile() {
     }
   }, []);
 
-  const stats = activities.reduce((acc, act) => ({
-    totalKm: acc.totalKm + (Number(act.distance) || 0),
-    totalXp: acc.totalXp + (Number(act.xp) || 0),
-    totalElev: acc.totalElev + (Number(act.elevation) || 0),
-    count: acc.count + 1
-  }), { totalKm: 0, totalXp: 0, totalElev: 0, count: 0 });
-
   useEffect(() => {
     const checkWallet = async () => {
       try {
         const ethereum = (window as any).ethereum;
-        if (ethereum && ethereum.selectedAddress) {
-          const addr = ethereum.selectedAddress;
-          setAddress(addr);
-          await fetchActivities(addr);
-          const ownsPass = await checkCeloPass(addr);
-          setHasCeloPass(ownsPass);
+        if (ethereum) {
+          // CAMBIO CLAVE: Pedimos las cuentas activas en lugar de leer una propiedad muerta
+          const accounts = await ethereum.request({ method: 'eth_accounts' });
+          
+          if (accounts && accounts.length > 0) {
+            const addr = accounts[0];
+            setAddress(addr);
+            await fetchActivities(addr);
+            const ownsPass = await checkCeloPass(addr);
+            setHasCeloPass(ownsPass);
+          } else {
+            console.log("Wallet detectada pero no hay cuentas autorizadas.");
+          }
         }
       } catch (e) {
-        console.log("No wallet detected yet");
+        console.error("Error detectando wallet en Base App:", e);
       } finally {
         setCheckingPass(false);
       }
     };
+
     checkWallet();
+
+    // Listener para detectar si el usuario cambia de cuenta dentro de la Base App
+    if ((window as any).ethereum) {
+      (window as any).ethereum.on('accountsChanged', (accounts: string[]) => {
+        if (accounts.length > 0) {
+          setAddress(accounts[0]);
+          fetchActivities(accounts[0]);
+        } else {
+          setAddress(null);
+        }
+      });
+    }
 
     const params = new URLSearchParams(window.location.search)
     if (params.get("code")) {
       setIsStravaConnected(true)
       window.history.replaceState({}, document.title, window.location.pathname)
     }
+    
+    // Cleanup del listener al desmontar
+    return () => {
+      if ((window as any).ethereum && (window as any).ethereum.removeListener) {
+        (window as any).ethereum.removeListener('accountsChanged', () => {});
+      }
+    };
   }, [fetchActivities])
 
   const handleStravaConnect = () => {
@@ -65,6 +85,13 @@ export default function Profile() {
     const d = new Date(dateStr);
     return `${d.getDate()}/${d.getMonth() + 1}`;
   }
+
+  const stats = activities.reduce((acc, act) => ({
+    totalKm: acc.totalKm + (Number(act.distance) || 0),
+    totalXp: acc.totalXp + (Number(act.xp) || 0),
+    totalElev: acc.totalElev + (Number(act.elevation) || 0),
+    count: acc.count + 1
+  }), { totalKm: 0, totalXp: 0, totalElev: 0, count: 0 });
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px", width: "100%", maxWidth: "500px", margin: "0 auto", color: "white", paddingBottom: "40px" }}>
@@ -84,14 +111,13 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* 2. BOTÓN MINT (SOLO SI NO TIENE EL PASE) */}
+      {/* 2. BOTÓN MINT (CELO PASS) */}
       {!hasCeloPass && !checkingPass && address && (
         <Link href="/celo" style={{ textDecoration: "none" }}>
           <div style={{ 
             background: "linear-gradient(90deg, rgba(53,208,127,0.1) 0%, rgba(251,204,92,0.1) 100%)", 
             padding: "20px", borderRadius: "20px", border: "1px dashed #FBCC5C",
-            display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer",
-            transition: "transform 0.2s"
+            display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer"
           }}>
             <div style={{ textAlign: "left" }}>
               <div style={{ fontWeight: "900", fontSize: "14px", color: "#FBCC5C" }}>MINT ONCHAIN PASS</div>
@@ -102,7 +128,7 @@ export default function Profile() {
         </Link>
       )}
 
-      {/* 3. PANEL DEL PNG GIGANTE (SOLO SI YA TIENE EL PASE) */}
+      {/* 3. PANEL DEL NFT CELO */}
       {hasCeloPass && (
         <div style={{ 
           width: "100%", borderRadius: "24px", border: "2px solid #35D07F", 
@@ -116,7 +142,7 @@ export default function Profile() {
         </div>
       )}
 
-      {/* 4. PANEL DE STATS (4 INDICADORES) */}
+      {/* 4. PANEL DE STATS */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
         <div style={{ background: "rgba(255,255,255,0.03)", padding: "20px", borderRadius: "20px", border: "1px solid rgba(255,255,255,0.05)", textAlign: "center" }}>
           <div style={{ fontSize: "10px", opacity: 0.5, fontWeight: "900", marginBottom: "4px" }}>TOTAL XP</div>
