@@ -1,11 +1,9 @@
 "use client"
 import { useState, useEffect, useMemo } from "react"
 
-interface RankingProps {
-  currentUserAddress?: string; // Dirección del usuario conectado
-}
-
-export default function Ranking({ currentUserAddress }: RankingProps) {
+// NOTA: Asegúrate de pasar la address desde tu layout o auth provider
+// Si usas Stacks/Hiro, suele venir de 'userSession.loadUserData().profile.stxAddress.mainnet'
+export default function Ranking({ currentUserAddress = "0x8c96...f7ed" }) { // He puesto la de tu imagen por defecto para pruebas
   const [leaderboard, setLeaderboard] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -14,7 +12,12 @@ export default function Ranking({ currentUserAddress }: RankingProps) {
       try {
         const res = await fetch('/webhook?mode=ranking')
         const data = await res.json()
-        setLeaderboard(Array.isArray(data) ? data : [])
+        // Guardamos los datos con su índice original (el ranking real)
+        const rankedData = (Array.isArray(data) ? data : []).map((user, index) => ({
+          ...user,
+          originalRank: index + 1
+        }))
+        setLeaderboard(rankedData)
       } catch (err) {
         console.error("Error fetching ranking:", err)
       } finally {
@@ -24,40 +27,23 @@ export default function Ranking({ currentUserAddress }: RankingProps) {
     fetchRanking()
   }, [])
 
-  // Encontramos la posición y datos del usuario conectado
-  const userData = useMemo(() => {
-    if (!currentUserAddress) return null;
-    const index = leaderboard.findIndex(u => u.wallet_address.toLowerCase() === currentUserAddress.toLowerCase());
-    if (index === -1) return null;
-    return { ...leaderboard[index], rank: index + 1 };
+  // Esta es la clave: Reordenamos la lista para que TÚ salgas primero
+  const sortedLeaderboard = useMemo(() => {
+    if (!currentUserAddress) return leaderboard;
+    
+    const list = [...leaderboard];
+    const myIndex = list.findIndex(u => 
+      u.wallet_address.toLowerCase() === currentUserAddress.toLowerCase()
+    );
+
+    if (myIndex > -1) {
+      const myData = list.splice(myIndex, 1)[0]; // Quitamos al usuario de su sitio
+      return [myData, ...list]; // Lo ponemos al principio
+    }
+    return list;
   }, [leaderboard, currentUserAddress]);
 
   const formatAddress = (addr: string) => `${addr.slice(0, 6)}...${addr.slice(-4)}`
-
-  // Componente de fila reutilizable para evitar repetir estilos
-  const RankingRow = ({ user, index, isMe }: { user: any, index: number, isMe?: boolean }) => (
-    <tr style={{ 
-      borderBottom: "1px solid rgba(255,255,255,0.02)", 
-      background: isMe ? "rgba(56, 189, 248, 0.15)" : (index % 2 === 0 ? "transparent" : "rgba(255,255,255,0.01)"),
-      boxShadow: isMe ? "inset 4px 0 0 #38bdf8" : "none"
-    }}>
-      <td style={{ padding: "16px", fontWeight: "900", fontSize: "18px" }}>
-        {index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `#${index + 1}`}
-      </td>
-      <td style={{ padding: "16px", fontFamily: "monospace", color: isMe ? "#fff" : "#38bdf8", fontWeight: "bold" }}>
-        {formatAddress(user.wallet_address)} {isMe && <span style={{fontSize: '10px', marginLeft: '5px', verticalAlign: 'middle', opacity: 0.7}}>(YOU)</span>}
-      </td>
-      <td style={tdStyleCenterBold}>{user.total_activities}</td>
-      <td style={{ ...tdStyleCenterBold, color: "#FFD700" }}>{Math.floor(user.total_xp).toLocaleString()}</td>
-      <td style={tdStyleCenter}>{Number(user.total_km).toFixed(1)} km</td>
-      <td style={tdStyleCenter}>{Math.floor(user.total_elevation)}m</td>
-      <td style={tdStyleCenter}>
-        {user.total_time < 60 
-          ? `${user.total_time}m` 
-          : `${(user.total_time / 60).toFixed(1)}h`}
-      </td>
-    </tr>
-  )
 
   return (
     <div style={{ width: "100%", maxWidth: "900px", margin: "0 auto", color: "white", padding: "20px" }}>
@@ -65,17 +51,6 @@ export default function Ranking({ currentUserAddress }: RankingProps) {
         <h2 style={{ fontSize: "32px", fontWeight: "900", letterSpacing: "2px", margin: 0 }}>GLOBAL LEADERBOARD</h2>
         <p style={{ opacity: 0.5, fontSize: "14px", marginTop: "8px" }}>Ranked by total activities minted</p>
       </div>
-
-      {/* SECCIÓN USUARIO DESTACADO (Solo si existe y no es el top 1) */}
-      {userData && userData.rank > 1 && (
-        <div style={{ marginBottom: "20px", border: "1px solid #38bdf8", borderRadius: "16px", overflow: "hidden" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <tbody style={{ background: "rgba(56, 189, 248, 0.1)" }}>
-              <RankingRow user={userData} index={userData.rank - 1} isMe={true} />
-            </tbody>
-          </table>
-        </div>
-      )}
 
       <div style={{ 
         background: "rgba(15, 23, 42, 0.4)", 
@@ -99,17 +74,37 @@ export default function Ranking({ currentUserAddress }: RankingProps) {
           <tbody>
             {loading ? (
               <tr><td colSpan={7} style={{ padding: "60px", textAlign: "center", opacity: 0.3 }}>Analyzing athletes...</td></tr>
-            ) : leaderboard.length === 0 ? (
+            ) : sortedLeaderboard.length === 0 ? (
               <tr><td colSpan={7} style={{ padding: "60px", textAlign: "center", opacity: 0.3 }}>No activities recorded yet.</td></tr>
             ) : (
-              leaderboard.map((user, index) => (
-                <RankingRow 
-                  key={index} 
-                  user={user} 
-                  index={index} 
-                  isMe={user.wallet_address.toLowerCase() === currentUserAddress?.toLowerCase()} 
-                />
-              ))
+              sortedLeaderboard.map((user, index) => {
+                const isMe = user.wallet_address.toLowerCase() === currentUserAddress?.toLowerCase();
+                const rank = user.originalRank; // Usamos el ranking real, no el índice del array
+
+                return (
+                  <tr key={user.wallet_address} style={{ 
+                    borderBottom: "1px solid rgba(255,255,255,0.02)", 
+                    background: isMe ? "rgba(56, 189, 248, 0.1)" : (index % 2 === 0 ? "transparent" : "rgba(255,255,255,0.01)"),
+                    // Si es el usuario, le ponemos un borde brillante a la izquierda
+                    boxShadow: isMe ? "inset 4px 0 0 #38bdf8" : "none"
+                  }}>
+                    <td style={{ padding: "16px", fontWeight: "900", fontSize: "18px" }}>
+                      {rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : `#${rank}`}
+                    </td>
+                    <td style={{ padding: "16px", fontFamily: "monospace", color: isMe ? "#fff" : "#38bdf8", fontWeight: "bold" }}>
+                      {formatAddress(user.wallet_address)}
+                      {isMe && <span style={{ marginLeft: '8px', fontSize: '10px', color: '#38bdf8', border: '1px solid #38bdf8', padding: '2px 6px', borderRadius: '10px'}}>YOU</span>}
+                    </td>
+                    <td style={tdStyleCenterBold}>{user.total_activities}</td>
+                    <td style={{ ...tdStyleCenterBold, color: "#FFD700" }}>{Math.floor(user.total_xp).toLocaleString()}</td>
+                    <td style={tdStyleCenter}>{Number(user.total_km).toFixed(1)} km</td>
+                    <td style={tdStyleCenter}>{Math.floor(user.total_elevation)}m</td>
+                    <td style={tdStyleCenter}>
+                      {user.total_time < 60 ? `${user.total_time}m` : `${(user.total_time / 60).toFixed(1)}h`}
+                    </td>
+                  </tr>
+                )
+              })
             )}
           </tbody>
         </table>
