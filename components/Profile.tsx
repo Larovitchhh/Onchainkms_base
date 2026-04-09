@@ -63,8 +63,8 @@ export default function Profile() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px", width: "100%", maxWidth: "500px", margin: "0 auto", color: "white", paddingBottom: "40px" }}>
       
-      {/* 1. CARD DE IDENTIDAD (RESTAURADA) */}
-      <div style={{ background: "rgba(15, 23, 42, 0.6)", padding: "40px 32px", borderRadius: "24px", border: "1px solid rgba(255,255,255,0.05)", backdropFilter: "blur(10px)", textAlign: "center", position: "relative" }}>
+      {/* 1. CARD DE IDENTIDAD (LIMPIA CON EMOJI) */}
+      <div style={{ background: "rgba(15, 23, 42, 0.6)", padding: "40px 32px", borderRadius: "24px", border: "1px solid rgba(255,255,255,0.05)", backdropFilter: "blur(10px)", textAlign: "center" }}>
         <div style={{ width: "80px", height: "80px", borderRadius: "20px", background: address ? "linear-gradient(135deg, #0052FF 0%, #38bdf8 100%)" : "rgba(255,255,255,0.05)", margin: "0 auto 20px auto", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "32px" }}>
           🏃‍♂️
         </div>
@@ -78,24 +78,7 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* 2. BOTÓN MINT (SOLO SI NO TIENE EL PASE) */}
-      {!hasCeloPass && !checkingPass && address && (
-        <Link href="/celo" style={{ textDecoration: "none" }}>
-          <div style={{ 
-            background: "linear-gradient(90deg, rgba(53,208,127,0.1) 0%, rgba(251,204,92,0.1) 100%)", 
-            padding: "20px", borderRadius: "20px", border: "1px dashed #FBCC5C",
-            display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer"
-          }}>
-            <div style={{ textAlign: "left" }}>
-              <div style={{ fontWeight: "900", fontSize: "14px", color: "#FBCC5C" }}>MINT ONCHAIN PASS</div>
-              <div style={{ fontSize: "11px", opacity: 0.6 }}>Claim your athlete badge on Celo</div>
-            </div>
-            <span style={{ fontSize: "24px" }}>⚡</span>
-          </div>
-        </Link>
-      )}
-
-      {/* 3. PANEL DE STATS */}
+      {/* 2. PANEL DE STATS */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
         <div style={{ background: "rgba(255,255,255,0.03)", padding: "20px", borderRadius: "20px", border: "1px solid rgba(255,255,255,0.05)", textAlign: "center" }}>
           <div style={{ fontSize: "10px", opacity: 0.5, fontWeight: "900", marginBottom: "4px" }}>TOTAL XP</div>
@@ -107,37 +90,30 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* 4. PANEL DEL NFT (EL PNG AQUÍ, ENCIMA DE ACTIVIDADES) */}
+      {/* 3. EL PNG COMO PANEL COMPLETO (ENCIMA DE ACTIVIDADES) */}
       {hasCeloPass && (
         <div style={{ 
-          background: "rgba(53, 208, 127, 0.1)", 
-          padding: "20px", 
-          borderRadius: "24px", 
-          border: "1px solid #35D07F", 
-          display: "flex", 
-          gap: "20px", 
-          alignItems: "center" 
+          width: "100%", 
+          borderRadius: "28px", 
+          border: "2px solid #35D07F", 
+          overflow: "hidden", 
+          lineHeight: 0, // Elimina espacios fantasma bajo la imagen
+          boxShadow: "0 0 40px rgba(53, 208, 127, 0.2)"
         }}>
           <img 
             src="/nft/celo-pass.png" 
-            alt="Onchain Pass" 
-            style={{ width: "85px", height: "85px", borderRadius: "14px", objectFit: "cover", boxShadow: "0 0 15px rgba(53, 208, 127, 0.2)" }}
+            alt="Celo Onchain Athlete Pass" 
+            style={{ 
+              width: "100%", 
+              height: "auto", 
+              display: "block",
+              objectFit: "cover"
+            }}
           />
-          <div style={{ textAlign: "left" }}>
-            <div style={{ 
-              background: "linear-gradient(135deg, #35D07F 0%, #FBCC5C 100%)",
-              padding: "2px 10px", borderRadius: "8px", color: "#000",
-              fontSize: "10px", fontWeight: "bold", display: "inline-block", marginBottom: "6px"
-            }}>
-              VERIFIED PASS
-            </div>
-            <div style={{ fontWeight: "900", fontSize: "18px", color: "#35D07F", letterSpacing: "0.5px" }}>ONCHAIN ATHLETE</div>
-            <div style={{ fontSize: "12px", opacity: 0.6 }}>Proof of Ship Official Member</div>
-          </div>
         </div>
       )}
 
-      {/* 5. LISTA DE ACTIVIDADES */}
+      {/* 4. LISTA DE ACTIVIDADES */}
       <div style={{ background: "rgba(15, 23, 42, 0.4)", padding: "24px", borderRadius: "24px", border: "1px solid rgba(255,255,255,0.05)" }}>
         <h3 style={{ fontSize: "13px", fontWeight: "900", marginBottom: "16px", color: "rgba(255,255,255,0.4)", letterSpacing: "1px" }}>
           MY ONCHAIN ACTIVITIES
@@ -167,7 +143,7 @@ export default function Profile() {
         )}
       </div>
 
-      {/* 6. STRAVA CARD */}
+      {/* 5. STRAVA CARD */}
       <div style={{ background: "rgba(15, 23, 42, 0.4)", padding: "24px", borderRadius: "24px", border: "1px solid rgba(255,255,255,0.05)" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
