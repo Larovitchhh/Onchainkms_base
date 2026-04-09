@@ -1,44 +1,81 @@
 import { openContractCall } from "@stacks/connect"
-import { STACKS_MAINNET } from "@stacks/network" // Cambiado de StacksMainnet a STACKS_MAINNET
-import { uintCV, stringAsciiCV, PostConditionMode } from "@stacks/transactions"
+import { StacksMainnet } from "@stacks/network"
+import {
+ uintCV,
+ stringAsciiCV
+} from "@stacks/transactions"
+
 import { userSession } from "./stacksAuth"
 
-export async function mintStacksActivity(activity: any, xp: number) {
-  try {
-    if (!userSession.isUserSignedIn()) {
-      throw new Error("Connect Stacks wallet first");
-    }
+type Activity = {
+ type:string
+ distance:number
+ duration:number
+ elevation:number
+}
 
-    // En la v7, simplemente pasamos el objeto STACKS_MAINNET directamente
-    const network = STACKS_MAINNET; 
-    
-    const userData = userSession.loadUserData();
-    const stxAddress = userData.profile.stxAddress.mainnet;
+export async function mintStacksActivity(activity:Activity,xp:number){
 
-    await openContractCall({
-      network, // Ahora usa el objeto de la v7
-      anchorMode: 1,
-      postConditionMode: PostConditionMode.Allow,
-      contractAddress: "SP1AJVMEGSMD6QCSZ1669Z5G90GEHVK2MEM7J0AHH",
-      contractName: "onchainkms-stacks", 
-      functionName: "mint-activity",
-      functionArgs: [
-        stringAsciiCV(activity.type),
-        uintCV(Math.floor(Number(activity.distance))),
-        uintCV(Math.floor(Number(activity.duration))),
-        uintCV(Math.floor(Number(activity.elevation))),
-        uintCV(Math.floor(Number(xp)))
-      ],
-      appDetails: {
-        name: "Onchain KMs",
-        icon: window.location.origin + "/favicon.ico",
-      },
-      onFinish: async (data) => {
-        console.log("TX Sent:", data.txId);
-      }
-    });
-  } catch (err: any) {
-    console.error("Stacks Mint Error:", err);
-    throw err;
+ console.log("Stacks mint start")
+
+ try{
+
+  if(!userSession.isUserSignedIn()){
+   throw new Error("Connect Stacks wallet first")
   }
+
+  const network = new StacksMainnet()
+
+  await openContractCall({
+
+   network,
+
+   contractAddress:"SP1AJVMEGSMD6QCSZ1669Z5G90GEHVK2MEM7J0AHH",
+
+   contractName:"onchainkms-stacks",
+
+   functionName:"mint-activity",
+
+   functionArgs:[
+
+    stringAsciiCV(activity.type),
+
+    uintCV(activity.distance),
+
+    uintCV(activity.duration),
+
+    uintCV(activity.elevation),
+
+    uintCV(xp)
+
+   ],
+
+   appDetails:{
+    name:"Onchain Sports",
+    icon:window.location.origin + "/favicon.ico"
+   },
+
+   onFinish:(data)=>{
+    console.log("Stacks TX:",data)
+    alert("Minted on Stacks!")
+   },
+
+   onCancel:()=>{
+    console.log("User cancelled")
+   }
+
+  })
+
+ }catch(err:any){
+
+  console.error("STACKS ERROR:",err)
+
+  alert(
+   err?.message ||
+   err?.toString() ||
+   "Stacks mint failed"
+  )
+
+ }
+
 }
