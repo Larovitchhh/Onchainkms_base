@@ -10,7 +10,6 @@ export default function Profile() {
   const [hasCeloPass, setHasCeloPass] = useState(false)
   const [checkingPass, setCheckingPass] = useState(true)
 
-  // 1. Definimos fetchActivities primero para que sea accesible
   const fetchActivities = useCallback(async (addr: string) => {
     try {
       const res = await fetch(`/webhook?address=${addr}`);
@@ -21,7 +20,6 @@ export default function Profile() {
     }
   }, []);
 
-  // 2. Cálculo de estadísticas
   const stats = activities.reduce((acc, act) => ({
     totalKm: acc.totalKm + (Number(act.distance) || 0),
     totalXp: acc.totalXp + (Number(act.xp) || 0),
@@ -36,9 +34,7 @@ export default function Profile() {
         if (ethereum && ethereum.selectedAddress) {
           const addr = ethereum.selectedAddress;
           setAddress(addr);
-          // Ahora fetchActivities es visible aquí
           await fetchActivities(addr);
-          
           const ownsPass = await checkCeloPass(addr);
           setHasCeloPass(ownsPass);
         }
@@ -48,14 +44,7 @@ export default function Profile() {
         setCheckingPass(false);
       }
     };
-    
     checkWallet();
-
-    const params = new URLSearchParams(window.location.search)
-    if (params.get("code")) {
-      setIsStravaConnected(true)
-      window.history.replaceState({}, document.title, window.location.pathname)
-    }
   }, [fetchActivities])
 
   const handleStravaConnect = () => {
@@ -74,35 +63,48 @@ export default function Profile() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px", width: "100%", maxWidth: "500px", margin: "0 auto", color: "white", paddingBottom: "40px" }}>
       
-      {/* CARD DE IDENTIDAD */}
-      <div style={{ background: "rgba(15, 23, 42, 0.6)", padding: "40px 32px", borderRadius: "24px", border: "1px solid rgba(255,255,255,0.05)", backdropFilter: "blur(10px)", textAlign: "center", position: "relative" }}>
+      {/* CARD DE IDENTIDAD Y NFT VISUAL */}
+      <div style={{ 
+        background: "rgba(15, 23, 42, 0.6)", 
+        padding: hasCeloPass ? "24px" : "40px 32px", 
+        borderRadius: "32px", border: hasCeloPass ? "1px solid #35D07F" : "1px solid rgba(255,255,255,0.05)", 
+        backdropFilter: "blur(10px)", textAlign: "center", position: "relative" 
+      }}>
         
-        {hasCeloPass && (
-          <div style={{ 
-            position: "absolute", top: "20px", right: "20px", 
-            background: "linear-gradient(135deg, #35D07F 0%, #FBCC5C 100%)",
-            padding: "4px 12px", borderRadius: "12px", color: "#000",
-            fontSize: "10px", fontWeight: "bold", display: "flex", alignItems: "center", gap: "4px",
-            boxShadow: "0 0 15px rgba(53, 208, 127, 0.3)"
-          }}>
-            <span>CELO BUILDER</span> ✨
+        {hasCeloPass ? (
+          <>
+            <div style={{ 
+              position: "absolute", top: "16px", right: "16px", 
+              background: "linear-gradient(135deg, #35D07F 0%, #FBCC5C 100%)",
+              padding: "4px 12px", borderRadius: "10px", color: "#000",
+              fontSize: "10px", fontWeight: "bold"
+            }}>
+              VERIFIED
+            </div>
+            <img 
+              src="/nft/celo-pass.png" 
+              alt="Celo Pass" 
+              style={{ width: "140px", height: "140px", borderRadius: "20px", margin: "0 auto 16px auto", objectFit: "cover", border: "2px solid #35D07F" }}
+            />
+          </>
+        ) : (
+          <div style={{ width: "80px", height: "80px", borderRadius: "20px", background: address ? "linear-gradient(135deg, #0052FF 0%, #38bdf8 100%)" : "rgba(255,255,255,0.05)", margin: "0 auto 20px auto", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "32px" }}>
+            🏃‍♂️
           </div>
         )}
 
-        <div style={{ width: "80px", height: "80px", borderRadius: "20px", background: address ? "linear-gradient(135deg, #0052FF 0%, #38bdf8 100%)" : "rgba(255,255,255,0.05)", margin: "0 auto 20px auto", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "32px" }}>
-          🏃‍♂️
-        </div>
         <h2 style={{ fontSize: "20px", fontWeight: "900", letterSpacing: "1px", marginBottom: "8px" }}>
-          {address ? "ATHLETE CONNECTED" : "ONCHAIN PROFILE"}
+          {hasCeloPass ? "ONCHAIN ATHLETE" : address ? "ATHLETE CONNECTED" : "ONCHAIN PROFILE"}
         </h2>
+        
         <div style={{ background: "rgba(0,0,0,0.3)", padding: "8px 16px", borderRadius: "10px", display: "inline-block", border: "1px solid rgba(255,255,255,0.1)" }}>
-          <p style={{ color: "#38bdf8", fontSize: "14px", fontFamily: "monospace", margin: 0 }}>
+          <p style={{ color: hasCeloPass ? "#35D07F" : "#38bdf8", fontSize: "14px", fontFamily: "monospace", margin: 0 }}>
             {address ? formatAddress(address) : "Waiting for wallet..."}
           </p>
         </div>
       </div>
 
-      {/* BOTÓN PARA IR A MINT SI NO TIENE EL PASE */}
+      {/* BOTÓN MINT (Solo si no tiene el pase) */}
       {!hasCeloPass && !checkingPass && address && (
         <Link href="/celo" style={{ textDecoration: "none" }}>
           <div style={{ 
@@ -112,8 +114,8 @@ export default function Profile() {
             transition: "transform 0.2s"
           }} onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.02)"} onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}>
             <div style={{ textAlign: "left" }}>
-              <div style={{ fontWeight: "900", fontSize: "14px", color: "#FBCC5C" }}>MINT CELO ONCHAIN PASS</div>
-              <div style={{ fontSize: "11px", opacity: 0.6 }}>Claim your builder badge for Proof of Ship</div>
+              <div style={{ fontWeight: "900", fontSize: "14px", color: "#FBCC5C" }}>MINT ONCHAIN PASS</div>
+              <div style={{ fontSize: "11px", opacity: 0.6 }}>Claim your athlete badge for Proof of Ship</div>
             </div>
             <span style={{ fontSize: "24px" }}>⚡</span>
           </div>
@@ -139,19 +141,6 @@ export default function Profile() {
           <div style={{ fontSize: "24px", fontWeight: "900" }}>{stats.totalElev}m</div>
         </div>
       </div>
-
-      {/* NFT DISPLAY (Si ya lo tiene) */}
-      {hasCeloPass && (
-        <div style={{ background: "rgba(53, 208, 127, 0.1)", padding: "24px", borderRadius: "24px", border: "1px solid #35D07F", display: "flex", gap: "16px", alignItems: "center" }}>
-          <div style={{ width: "60px", height: "60px", borderRadius: "12px", background: "linear-gradient(135deg, #35D07F, #FBCC5C)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px" }}>
-            🏆
-          </div>
-          <div style={{ textAlign: "left" }}>
-            <div style={{ fontWeight: "900", fontSize: "14px", color: "#35D07F" }}>CELO ONCHAIN PASS</div>
-            <div style={{ fontSize: "12px", opacity: 0.7 }}>Proof of Ship Builder Member</div>
-          </div>
-        </div>
-      )}
 
       {/* LISTA DE ACTIVIDADES */}
       <div style={{ background: "rgba(15, 23, 42, 0.4)", padding: "24px", borderRadius: "24px", border: "1px solid rgba(255,255,255,0.05)" }}>
