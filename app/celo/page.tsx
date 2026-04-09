@@ -16,14 +16,12 @@ export default function CeloCompetitionPage() {
     try {
       if (!window.ethereum) throw new Error("No wallet detected");
 
-      // 1. Forzamos el cambio de red ANTES de obtener nada de ethers
       try {
         await (window as any).ethereum.request({
           method: 'wallet_switchEthereumChain',
-          params: [{ chainId: '0xa4ec' }], // 42220 en Hex
+          params: [{ chainId: '0xa4ec' }], 
         });
       } catch (err: any) {
-        // Si el error es que no existe la red, la añadimos (útil para Rabby)
         if (err.code === 4902) {
           await (window as any).ethereum.request({
             method: 'wallet_addEthereumChain',
@@ -40,11 +38,9 @@ export default function CeloCompetitionPage() {
         }
       }
 
-      // 2. Ahora que estamos en Celo, inicializamos Ethers
       const provider = new ethers.BrowserProvider((window as any).ethereum);
       const signer = await provider.getSigner();
       
-      // Verificación de seguridad
       const network = await provider.getNetwork();
       if (Number(network.chainId) !== 42220) {
         throw new Error("La wallet sigue en otra red. Por favor, selecciona Celo manualmente.");
@@ -77,13 +73,13 @@ export default function CeloCompetitionPage() {
 
       <div className="relative z-10 max-w-md w-full p-8 border border-white/10 rounded-3xl bg-slate-900/50 backdrop-blur-xl shadow-2xl">
         <div className="mb-6 inline-flex p-4 rounded-2xl bg-gradient-to-br from-[#35D07F] to-[#FBCC5C]">
-          <span className="text-3xl">🏆</span>
+          <span className="text-3xl">🏃‍♂️</span>
         </div>
         
-        <h1 className="text-3xl font-black mb-2 tracking-tight">CELO BUILDER</h1>
+        <h1 className="text-3xl font-black mb-2 tracking-tight">ONCHAIN ATHLETE</h1>
         <p className="text-slate-400 text-sm mb-8 leading-relaxed">
           Estás en el portal de <strong>Celo</strong>. 
-          Mintea tu OnchainPass para certificar tu participación.
+          Mintea tu OnchainPass para certificar tu nivel como atleta.
         </p>
         
         <button 
