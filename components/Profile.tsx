@@ -45,6 +45,12 @@ export default function Profile() {
       }
     };
     checkWallet();
+
+    const params = new URLSearchParams(window.location.search)
+    if (params.get("code")) {
+      setIsStravaConnected(true)
+      window.history.replaceState({}, document.title, window.location.pathname)
+    }
   }, [fetchActivities])
 
   const handleStravaConnect = () => {
@@ -63,13 +69,13 @@ export default function Profile() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px", width: "100%", maxWidth: "500px", margin: "0 auto", color: "white", paddingBottom: "40px" }}>
       
-      {/* 1. CARD DE IDENTIDAD (LIMPIA CON EMOJI) */}
-      <div style={{ background: "rgba(15, 23, 42, 0.6)", padding: "40px 32px", borderRadius: "24px", border: "1px solid rgba(255,255,255,0.05)", backdropFilter: "blur(10px)", textAlign: "center" }}>
+      {/* 1. CARD DE IDENTIDAD */}
+      <div style={{ background: "rgba(15, 23, 42, 0.6)", padding: "40px 32px", borderRadius: "24px", border: "1px solid rgba(255,255,255,0.05)", backdropFilter: "blur(10px)", textAlign: "center", position: "relative" }}>
         <div style={{ width: "80px", height: "80px", borderRadius: "20px", background: address ? "linear-gradient(135deg, #0052FF 0%, #38bdf8 100%)" : "rgba(255,255,255,0.05)", margin: "0 auto 20px auto", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "32px" }}>
           🏃‍♂️
         </div>
         <h2 style={{ fontSize: "20px", fontWeight: "900", letterSpacing: "1px", marginBottom: "8px" }}>
-          {address ? "ONCHAIN ATHLETE" : "ONCHAIN PROFILE"}
+          {address ? "ATHLETE CONNECTED" : "ONCHAIN PROFILE"}
         </h2>
         <div style={{ background: "rgba(0,0,0,0.3)", padding: "8px 16px", borderRadius: "10px", display: "inline-block", border: "1px solid rgba(255,255,255,0.1)" }}>
           <p style={{ color: "#38bdf8", fontSize: "14px", fontFamily: "monospace", margin: 0 }}>
@@ -78,7 +84,39 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* 2. PANEL DE STATS */}
+      {/* 2. BOTÓN MINT (SOLO SI NO TIENE EL PASE) */}
+      {!hasCeloPass && !checkingPass && address && (
+        <Link href="/celo" style={{ textDecoration: "none" }}>
+          <div style={{ 
+            background: "linear-gradient(90deg, rgba(53,208,127,0.1) 0%, rgba(251,204,92,0.1) 100%)", 
+            padding: "20px", borderRadius: "20px", border: "1px dashed #FBCC5C",
+            display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer",
+            transition: "transform 0.2s"
+          }}>
+            <div style={{ textAlign: "left" }}>
+              <div style={{ fontWeight: "900", fontSize: "14px", color: "#FBCC5C" }}>MINT ONCHAIN PASS</div>
+              <div style={{ fontSize: "11px", opacity: 0.6 }}>Claim your official athlete badge on Celo</div>
+            </div>
+            <span style={{ fontSize: "24px" }}>⚡</span>
+          </div>
+        </Link>
+      )}
+
+      {/* 3. PANEL DEL PNG GIGANTE (SOLO SI YA TIENE EL PASE) */}
+      {hasCeloPass && (
+        <div style={{ 
+          width: "100%", borderRadius: "24px", border: "2px solid #35D07F", 
+          overflow: "hidden", lineHeight: 0, boxShadow: "0 0 30px rgba(53, 208, 127, 0.2)" 
+        }}>
+          <img 
+            src="/nft/celo-pass.png" 
+            alt="Celo Pass" 
+            style={{ width: "100%", height: "auto", display: "block", objectFit: "cover" }}
+          />
+        </div>
+      )}
+
+      {/* 4. PANEL DE STATS (4 INDICADORES) */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
         <div style={{ background: "rgba(255,255,255,0.03)", padding: "20px", borderRadius: "20px", border: "1px solid rgba(255,255,255,0.05)", textAlign: "center" }}>
           <div style={{ fontSize: "10px", opacity: 0.5, fontWeight: "900", marginBottom: "4px" }}>TOTAL XP</div>
@@ -88,76 +126,50 @@ export default function Profile() {
           <div style={{ fontSize: "10px", opacity: 0.5, fontWeight: "900", marginBottom: "4px" }}>ACTIVITIES</div>
           <div style={{ fontSize: "24px", fontWeight: "900", color: "#38bdf8" }}>{stats.count}</div>
         </div>
+        <div style={{ background: "rgba(255,255,255,0.03)", padding: "20px", borderRadius: "20px", border: "1px solid rgba(255,255,255,0.05)", textAlign: "center" }}>
+          <div style={{ fontSize: "10px", opacity: 0.5, fontWeight: "900", marginBottom: "4px" }}>TOTAL KM</div>
+          <div style={{ fontSize: "24px", fontWeight: "900" }}>{stats.totalKm.toFixed(1)}</div>
+        </div>
+        <div style={{ background: "rgba(255,255,255,0.03)", padding: "20px", borderRadius: "20px", border: "1px solid rgba(255,255,255,0.05)", textAlign: "center" }}>
+          <div style={{ fontSize: "10px", opacity: 0.5, fontWeight: "900", marginBottom: "4px" }}>TOTAL ELEV</div>
+          <div style={{ fontSize: "24px", fontWeight: "900" }}>{stats.totalElev}m</div>
+        </div>
       </div>
 
-      {/* 3. EL PNG COMO PANEL COMPLETO (ENCIMA DE ACTIVIDADES) */}
-      {hasCeloPass && (
-        <div style={{ 
-          width: "100%", 
-          borderRadius: "28px", 
-          border: "2px solid #35D07F", 
-          overflow: "hidden", 
-          lineHeight: 0, // Elimina espacios fantasma bajo la imagen
-          boxShadow: "0 0 40px rgba(53, 208, 127, 0.2)"
-        }}>
-          <img 
-            src="/nft/celo-pass.png" 
-            alt="Celo Onchain Athlete Pass" 
-            style={{ 
-              width: "100%", 
-              height: "auto", 
-              display: "block",
-              objectFit: "cover"
-            }}
-          />
-        </div>
-      )}
-
-      {/* 4. LISTA DE ACTIVIDADES */}
+      {/* 5. ACTIVIDADES */}
       <div style={{ background: "rgba(15, 23, 42, 0.4)", padding: "24px", borderRadius: "24px", border: "1px solid rgba(255,255,255,0.05)" }}>
-        <h3 style={{ fontSize: "13px", fontWeight: "900", marginBottom: "16px", color: "rgba(255,255,255,0.4)", letterSpacing: "1px" }}>
-          MY ONCHAIN ACTIVITIES
-        </h3>
-        {activities.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "20px", opacity: 0.3, fontSize: "12px" }}>
-            No activities minted yet.
-          </div>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            {activities.map((act, i) => (
+        <h3 style={{ fontSize: "13px", fontWeight: "900", marginBottom: "16px", color: "rgba(255,255,255,0.4)", letterSpacing: "1px" }}>MY ONCHAIN ACTIVITIES</h3>
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          {activities.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "20px", opacity: 0.3, fontSize: "12px" }}>No activities minted yet.</div>
+          ) : (
+            activities.map((act, i) => (
               <div key={i} style={{ background: "rgba(255,255,255,0.03)", padding: "12px 16px", borderRadius: "16px", display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid rgba(255,255,255,0.05)" }}>
                 <div>
-                  <div style={{ fontSize: "10px", color: act.blockchain === 'base' ? '#38bdf8' : '#35D07F', fontWeight: "bold" }}>
-                    {formatDate(act.created_at)} • {act.blockchain.toUpperCase()}
-                  </div>
-                  <div style={{ fontSize: "15px", fontWeight: "900" }}>
-                     {act.sport === 'run' ? '🏃' : '🚲'} {act.distance}km
-                  </div>
+                  <div style={{ fontSize: "10px", color: act.blockchain === 'base' ? '#38bdf8' : '#35D07F', fontWeight: "bold" }}>{formatDate(act.created_at)} • {act.blockchain.toUpperCase()}</div>
+                  <div style={{ fontSize: "15px", fontWeight: "900" }}>{act.sport === 'run' ? '🏃' : '🚲'} {act.distance}km</div>
                 </div>
                 <div style={{ textAlign: "right" }}>
                   <div style={{ fontSize: "16px", color: "#22c55e", fontWeight: "900" }}>+{act.xp} XP</div>
+                  <div style={{ fontSize: "10px", opacity: 0.5 }}>{act.elevation}m+</div>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
+            ))
+          )}
+        </div>
       </div>
 
-      {/* 5. STRAVA CARD */}
+      {/* 6. STRAVA */}
       <div style={{ background: "rgba(15, 23, 42, 0.4)", padding: "24px", borderRadius: "24px", border: "1px solid rgba(255,255,255,0.05)" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
             <div style={{ fontSize: "24px", background: "#fc4c0220", width: "42px", height: "42px", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "10px" }}>🧡</div>
             <div style={{ textAlign: "left" }}>
               <div style={{ fontWeight: "bold", fontSize: "16px" }}>STRAVA</div>
-              <div style={{ fontSize: "11px", color: isStravaConnected ? "#22c55e" : "rgba(255,255,255,0.4)" }}>
-                {isStravaConnected ? "● CONNECTED" : "NOT SYNCED"}
-              </div>
+              <div style={{ fontSize: "11px", color: isStravaConnected ? "#22c55e" : "rgba(255,255,255,0.4)" }}>{isStravaConnected ? "● CONNECTED" : "NOT SYNCED"}</div>
             </div>
           </div>
-          <button onClick={handleStravaConnect} style={{ background: "#fc4c02", color: "white", border: "none", padding: "10px 20px", borderRadius: "10px", fontWeight: "900", cursor: "pointer" }}>
-            {isStravaConnected ? "LOGOUT" : "CONNECT"}
-          </button>
+          <button onClick={handleStravaConnect} style={{ background: "#fc4c02", color: "white", border: "none", padding: "10px 20px", borderRadius: "10px", fontWeight: "900", cursor: "pointer" }}>{isStravaConnected ? "LOGOUT" : "CONNECT"}</button>
         </div>
       </div>
     </div>
