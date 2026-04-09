@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import MintButton from "./MintButton"
 import MintStacksButton from "./MintStacksButton"
 import { calculateXP } from "../lib/xpCalculator"
@@ -11,10 +11,17 @@ export default function ActivityForm() {
   const [duration, setDuration] = useState(0)
   const [elevation, setElevation] = useState(0)
 
+  // Calculamos XP en cada render para que siempre esté sincronizado
   const xp = calculateXP(type as any, distance, duration, elevation)
-  const activity = { type, distance, duration, elevation }
+  
+  // Objeto de actividad que pasamos a los botones de Mint
+  const activity = { 
+    type, 
+    distance: Number(distance), 
+    duration: Number(duration), 
+    elevation: Number(elevation) 
+  }
 
-  // Configuración con las rutas a /public/buttons/
   const sports = [
     { id: "run", label: "RUN", icon: "/buttons/run.png", color: "#38bdf8" },
     { id: "road", label: "ROAD", icon: "/buttons/road.png", color: "#f59e0b" },
@@ -22,6 +29,7 @@ export default function ActivityForm() {
     { id: "swim", label: "SWIM", icon: "/buttons/swim.png", color: "#a855f7" },
   ]
 
+  // URL de la API del NFT
   const nftPreviewURL = `/api/nft?sport=${type}&km=${distance}&time=${duration}&elev=${elevation}&xp=${xp}&v=${Date.now()}`
 
   return (
@@ -30,7 +38,7 @@ export default function ActivityForm() {
       {/* LADO IZQUIERDO: INPUTS */}
       <div style={{ flex: "1 1 450px", background: "rgba(15, 23, 42, 0.6)", padding: "32px", borderRadius: "24px", border: "1px solid rgba(255,255,255,0.05)", backdropFilter: "blur(10px)" }}>
         
-        {/* GRILLA DE BOTONES (IMÁGENES COMPLETAS) */}
+        {/* GRILLA DE BOTONES */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px", marginBottom: "32px" }}>
           {sports.map(s => (
             <button
@@ -57,7 +65,7 @@ export default function ActivityForm() {
                 style={{ 
                   width: "100%", 
                   height: "100%", 
-                  objectFit: "cover", // Ocupa todo el recuadro
+                  objectFit: "cover",
                   filter: type === s.id ? "none" : "brightness(0.5) grayscale(100%)",
                   transform: type === s.id ? "scale(1.05)" : "scale(1)",
                   transition: "all 0.4s ease"
@@ -68,19 +76,41 @@ export default function ActivityForm() {
         </div>
 
         {/* INPUTS DE DATOS */}
-        {[{ l: "DISTANCE (KM)", v: distance, s: setDistance }, { l: "DURATION (MIN)", v: duration, s: setDuration }, { l: "ELEVATION (M)", v: elevation, s: setElevation }].map((item) => (
-          <div key={item.l} style={{ marginBottom: "20px" }}>
-            <label style={{ display: "block", fontSize: "10px", color: "rgba(255,255,255,0.4)", marginBottom: "8px", fontWeight: "bold", letterSpacing: "1px" }}>{item.l}</label>
-            <input
-              type="number"
-              value={item.v || ""}
-              placeholder="0.00"
-              onChange={(e) => item.s(Number(e.target.value))}
-              className="tech-font"
-              style={{ width: "100%", padding: "14px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.1)", background: "rgba(0,0,0,0.2)", color: "#38bdf8", fontSize: "18px", outline: "none", boxSizing: "border-box" }}
-            />
-          </div>
-        ))}
+        <div style={{ marginBottom: "20px" }}>
+          <label style={{ display: "block", fontSize: "10px", color: "rgba(255,255,255,0.4)", marginBottom: "8px", fontWeight: "bold", letterSpacing: "1px" }}>DISTANCE (KM)</label>
+          <input
+            type="number"
+            value={distance || ""}
+            placeholder="0.00"
+            onChange={(e) => setDistance(Number(e.target.value))}
+            className="tech-font"
+            style={{ width: "100%", padding: "14px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.1)", background: "rgba(0,0,0,0.2)", color: "#38bdf8", fontSize: "18px", outline: "none", boxSizing: "border-box" }}
+          />
+        </div>
+
+        <div style={{ marginBottom: "20px" }}>
+          <label style={{ display: "block", fontSize: "10px", color: "rgba(255,255,255,0.4)", marginBottom: "8px", fontWeight: "bold", letterSpacing: "1px" }}>DURATION (MIN)</label>
+          <input
+            type="number"
+            value={duration || ""}
+            placeholder="0"
+            onChange={(e) => setDuration(Number(e.target.value))}
+            className="tech-font"
+            style={{ width: "100%", padding: "14px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.1)", background: "rgba(0,0,0,0.2)", color: "#38bdf8", fontSize: "18px", outline: "none", boxSizing: "border-box" }}
+          />
+        </div>
+
+        <div style={{ marginBottom: "20px" }}>
+          <label style={{ display: "block", fontSize: "10px", color: "rgba(255,255,255,0.4)", marginBottom: "8px", fontWeight: "bold", letterSpacing: "1px" }}>ELEVATION (M)</label>
+          <input
+            type="number"
+            value={elevation || ""}
+            placeholder="0"
+            onChange={(e) => setElevation(Number(e.target.value))}
+            className="tech-font"
+            style={{ width: "100%", padding: "14px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.1)", background: "rgba(0,0,0,0.2)", color: "#38bdf8", fontSize: "18px", outline: "none", boxSizing: "border-box" }}
+          />
+        </div>
       </div>
 
       {/* LADO DERECHO: REWARD & PREVIEW */}
@@ -90,7 +120,9 @@ export default function ActivityForm() {
           <div className="tech-font" style={{ fontSize: "64px", fontWeight: "900", color: "white", textShadow: "0 0 20px rgba(56, 189, 248, 0.5)" }}>{xp}</div>
           
           <div style={{ marginTop: "24px", display: "flex", flexDirection: "column", gap: "10px" }}>
+            {/* BOTÓN MINT BASE */}
             <MintButton activity={activity} xp={xp} />
+            {/* BOTÓN MINT STACKS */}
             <MintStacksButton activity={activity} xp={xp} />
           </div>
         </div>
