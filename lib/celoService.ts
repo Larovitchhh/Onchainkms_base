@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 
-const CELO_CONTRACT_ADDRESS = "0xf9525c4b7ba4fd88d3f22f575d0c63889bc7db9f";
+const CELO_CONTRACT_ADDRESS = "0x114BB711F92eAA9f107ffbe52dB831f2C9414e0F";
 
 const CELO_ABI = [
   "function mintPass() public",
