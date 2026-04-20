@@ -25,8 +25,8 @@ export default function Profile() {
       try {
         const ethereum = (window as any).ethereum;
         if (ethereum) {
-          // CAMBIO CLAVE: Pedimos las cuentas activas en lugar de leer una propiedad muerta
-          const accounts = await ethereum.request({ method: 'eth_accounts' });
+          // Cambiado a requestAccounts para mejor soporte en MiniPay
+          const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
           
           if (accounts && accounts.length > 0) {
             const addr = accounts[0];
@@ -34,12 +34,10 @@ export default function Profile() {
             await fetchActivities(addr);
             const ownsPass = await checkCeloPass(addr);
             setHasCeloPass(ownsPass);
-          } else {
-            console.log("Wallet detectada pero no hay cuentas autorizadas.");
           }
         }
       } catch (e) {
-        console.error("Error detectando wallet en Base App:", e);
+        console.error("Error detectando wallet:", e);
       } finally {
         setCheckingPass(false);
       }
@@ -47,7 +45,6 @@ export default function Profile() {
 
     checkWallet();
 
-    // Listener para detectar si el usuario cambia de cuenta dentro de la Base App
     if ((window as any).ethereum) {
       (window as any).ethereum.on('accountsChanged', (accounts: string[]) => {
         if (accounts.length > 0) {
@@ -65,7 +62,6 @@ export default function Profile() {
       window.history.replaceState({}, document.title, window.location.pathname)
     }
     
-    // Cleanup del listener al desmontar
     return () => {
       if ((window as any).ethereum && (window as any).ethereum.removeListener) {
         (window as any).ethereum.removeListener('accountsChanged', () => {});
@@ -97,7 +93,7 @@ export default function Profile() {
     <div style={{ display: "flex", flexDirection: "column", gap: "24px", width: "100%", maxWidth: "500px", margin: "0 auto", color: "white", paddingBottom: "40px" }}>
       
       {/* 1. CARD DE IDENTIDAD */}
-      <div style={{ background: "rgba(15, 23, 42, 0.6)", padding: "40px 32px", borderRadius: "24px", border: "1px solid rgba(255,255,255,0.05)", backdropFilter: "blur(10px)", textAlign: "center", position: "relative" }}>
+      <div style={{ background: "rgba(15, 23, 42, 0.6)", padding: "40px 32px", borderRadius: "24px", border: "1px solid rgba(255,255,255,0.05)", backdropFilter: "blur(10px)", textAlign: "center" }}>
         <div style={{ width: "80px", height: "80px", borderRadius: "20px", background: address ? "linear-gradient(135deg, #0052FF 0%, #38bdf8 100%)" : "rgba(255,255,255,0.05)", margin: "0 auto 20px auto", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "32px" }}>
           🏃‍♂️
         </div>
