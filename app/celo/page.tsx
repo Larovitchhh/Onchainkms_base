@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { getWallet } from '../../lib/wallet';
 import { mintCeloPass } from '../../lib/celoService';
 import { ethers } from 'ethers';
 
@@ -11,39 +10,28 @@ export default function CeloCompetitionPage() {
 
   const handleMint = async () => {
     setLoading(true);
-    setStatus('Conectando con Celo...');
+    setStatus('Conectando con MiniPay...');
     
     try {
-      if (!window.ethereum) throw new Error("No wallet detected");
-
-      try {
-        await (window as any).ethereum.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: '0xa4ec' }], 
-        });
-      } catch (err: any) {
-        if (err.code === 4902) {
-          await (window as any).ethereum.request({
-            method: 'wallet_addEthereumChain',
-            params: [{
-              chainId: '0xa4ec',
-              chainName: 'Celo Mainnet',
-              nativeCurrency: { name: 'CELO', symbol: 'CELO', decimals: 18 },
-              rpcUrls: ['https://forno.celo.org'],
-              blockExplorerUrls: ['https://celoscan.io']
-            }]
-          });
-        } else {
-          throw err;
-        }
-      }
+      if (!(window as any).ethereum) throw new Error("No wallet detected. Please use MiniPay/Opera.");
 
       const provider = new ethers.BrowserProvider((window as any).ethereum);
       const signer = await provider.getSigner();
       
+      // Verificamos red pero sin forzar cambios bruscos que rompan MiniPay
       const network = await provider.getNetwork();
-      if (Number(network.chainId) !== 42220) {
-        throw new Error("La wallet sigue en otra red. Por favor, selecciona Celo manualmente.");
+      const chainId = Number(network.chainId);
+
+      if (chainId !== 42220) {
+        setStatus('Cambiando a red Celo...');
+        try {
+          await (window as any).ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: '0xa4ec' }], 
+          });
+        } catch (switchError) {
+          throw new Error("Por favor, cambia tu wallet a la red Celo.");
+        }
       }
 
       setStatus('Firmando transacción...');
@@ -57,7 +45,7 @@ export default function CeloCompetitionPage() {
       if (err.message?.includes('user rejected')) {
         setStatus('Transacción cancelada.');
       } else {
-        setStatus(err.reason || err.message || "Error al conectar. Intenta refrescar.");
+        setStatus(err.reason || err.message || "Error al conectar.");
       }
     } finally {
       setLoading(false);
@@ -66,6 +54,9 @@ export default function CeloCompetitionPage() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-6 text-center bg-[#020617] text-white">
+      {/* Meta tag también aquí por seguridad */}
+      <meta name="talentapp:project_verification" content="5d27841495571f9cfccbf3dddab81d3ca2cd85ac74981ba76e0e5aea487401d6327ffae28f299646c7ad1a915956bdee0d045819495b52df3c0515e001e4d964" />
+
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-[25%] -left-[10%] w-[50%] h-[50%] bg-[#35D07F]/10 blur-[120px] rounded-full" />
         <div className="absolute -bottom-[25%] -right-[10%] w-[50%] h-[50%] bg-[#FBCC5C]/10 blur-[120px] rounded-full" />
