@@ -4,7 +4,7 @@ import ConnectWallet from "../components/ConnectWallet"
 import ConnectStacks from "../components/ConnectStacks"
 import ActivityForm from "../components/ActivityForm"
 import Profile from "../components/Profile"
-import Ranking from "../components/Ranking" // IMPORTANTE: Importamos el nuevo componente
+import Ranking from "../components/Ranking"
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<'activity' | 'ranking' | 'profile'>('activity');
@@ -38,6 +38,10 @@ export default function Home() {
 
   return (
     <main style={{ padding: "40px 20px", minHeight: "100vh", color: "white", background: "#020617" }}>
+      {/* VERIFICACIÓN TALENT PROTOCOL - No rompe nada visualmente */}
+      <title>OnchainKMs | Track & Earn</title>
+      <meta name="talentapp:project_verification" content="5d27841495571f9cfccbf3dddab81d3ca2cd85ac74981ba76e0e5aea487401d6327ffae28f299646c7ad1a915956bdee0d045819495b52df3c0515e001e4d964" />
+
       {/* HEADER */}
       <div style={{ 
         maxWidth: "1000px", 
@@ -74,26 +78,20 @@ export default function Home() {
 
       {/* CONTENIDO DINÁMICO */}
       <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
-        
-        {/* PESTAÑA ACTIVIDAD */}
         {activeTab === 'activity' && (
-           <>
-            <div style={{ textAlign: "center", marginBottom: "40px" }}>
-              <h1 style={{ fontSize: "42px", fontWeight: "900", marginBottom: "12px", letterSpacing: "-2px" }}>
-                TRACK. EARN. <span style={{ color: "#38bdf8" }}>MINT.</span>
-              </h1>
-              <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "16px" }}>
-                Convert your physical effort into onchain reputation.
-              </p>
-            </div>
-            <ActivityForm />
-           </>
+            <>
+             <div style={{ textAlign: "center", marginBottom: "40px" }}>
+               <h1 style={{ fontSize: "42px", fontWeight: "900", marginBottom: "12px", letterSpacing: "-2px" }}>
+                 TRACK. EARN. <span style={{ color: "#38bdf8" }}>MINT.</span>
+               </h1>
+               <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "16px" }}>
+                 Convert your physical effort into onchain reputation.
+               </p>
+             </div>
+             <ActivityForm />
+            </>
         )}
-        
-        {/* PESTAÑA RANKING - YA NO ES "COMING SOON" */}
         {activeTab === 'ranking' && <Ranking />}
-
-        {/* PESTAÑA PERFIL */}
         {activeTab === 'profile' && <Profile />}
       </div>
     </main>
